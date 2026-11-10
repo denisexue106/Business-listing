@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Listings Management</title>
+<meta name="description" content="Interactive prototype of Listings Management on demo data. The screens sit on a layer between the UI and the listings vendor, so switching vendors does not change what the business owner sees.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@700;800&family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* =================================================================
+   Tokens. The showcase frame uses the portfolio navy and blue.
+   The product inside uses free Google fonts and its own palette.
+   ================================================================= */
+:root{
+  --sc-ink:#07326A;
+  --sc-accent:#0A61C9;
+  --sc-accent-deep:#064089;
+  --sc-accent-light:#82A8D1;
+  --sc-muted:rgba(255,255,255,.74);
+  --sc-subtle:rgba(255,255,255,.62);
+  --sc-rule:rgba(255,255,255,.16);
+  --sc-font:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --sc-display:"Inter Tight","Inter",system-ui,sans-serif;
+
+  --font:"Open Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --head:"Montserrat","Open Sans",system-ui,sans-serif;
+  --brand:#C2410C;
+  --brand-700:#9A3412;
+  --brand-bright:#FF5000;
+  --brand-050:#FFF1EA;
+  --ink:#1C2330;
+  --ink-2:#4A5463;
+  --ink-3:#66717F;
+  --line:#E6E8EC;
+  --line-2:#D5D9DF;
+  --bg:#F6F7F9;
+  --paper:#FFFFFF;
+  --ok:#16824A;  --ok-050:#E7F5EE;
+  --warn:#9A5B00; --warn-050:#FFF4E0;
+  --bad:#C8261B; --bad-050:#FDECEA;
+  --off:#5F6B7A; --off-050:#EEF0F3;
+  --enh:#5B3FD6; --enh-050:#EFEBFF;
+  --shadow-1:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.08);
+  --shadow-3:0 12px 32px rgba(16,24,40,.16),0 4px 10px rgba(16,24,40,.08);
+
+  --ease-out:cubic-bezier(.2,.8,.2,1);
+  --ease-in-out:cubic-bezier(.65,0,.35,1);
+  --spring:cubic-bezier(.34,1.4,.64,1);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3,h4,p{margin:0}
+a{color:inherit;text-decoration:none}
+.ic{display:inline-block;flex:none;vertical-align:middle}
+[hidden]{display:none!important}
+
+/* =================================================================
+   Showcase frame
+   ================================================================= */
+body{background:var(--sc-ink);color:#fff;font-family:var(--sc-font);overflow:hidden;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;
+  background:radial-gradient(900px 560px at 88% -12%,rgba(10,97,201,.38),transparent 62%),radial-gradient(700px 520px at -8% 112%,rgba(10,97,201,.14),transparent 60%)}
+.sc{position:relative;display:flex;flex-direction:column;height:100vh;height:100dvh}
+.sc :focus-visible{outline:2px solid var(--sc-accent-light);outline-offset:2px}
+.sc-bar{flex:none;height:60px;display:flex;align-items:center;gap:14px;padding:0 20px}
+.sc-back{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px 0 8px;border-radius:999px;border:1px solid var(--sc-rule);color:var(--sc-muted);font-size:13px;font-weight:500;white-space:nowrap;transition:color .2s,border-color .2s,background .2s}
+.sc-back:hover{color:#fff;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.04)}
+.sc-title{font-family:var(--sc-display);font-weight:800;font-size:16px;letter-spacing:-.02em;white-space:nowrap}
+.sc-title small{display:block;font-family:var(--sc-font);font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--sc-subtle);margin-top:1px}
+.sc-grow{flex:1}
+.sc-pill{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 18px;border-radius:999px;font-size:14px;font-weight:600;transition:background .2s,color .2s,border-color .2s,transform .2s var(--ease-out)}
+.sc-pill:active{transform:scale(.97)}
+.sc-pill.primary{background:var(--sc-accent);color:#fff}
+.sc-pill.primary:hover{background:var(--sc-accent-deep)}
+.sc-pill.ghost{border:1px solid var(--sc-rule);color:var(--sc-muted)}
+.sc-pill.ghost:hover{color:#fff;border-color:rgba(255,255,255,.3)}
+.sc-pill.sm{height:32px;padding:0 14px;font-size:13px;font-weight:500}
+.sc-seg{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--sc-subtle)}
+.seg{position:relative;display:flex;height:32px;padding:3px;border-radius:999px;border:1px solid var(--sc-rule);background:rgba(255,255,255,.04)}
+.seg button{position:relative;z-index:1;height:24px;padding:0 13px;border-radius:999px;font-size:12.5px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--sc-muted);transition:color .25s}
+.seg button[aria-pressed="true"]{color:#fff}
+.seg .knob{position:absolute;top:3px;bottom:3px;left:3px;border-radius:999px;background:var(--sc-accent);transition:transform .45s var(--spring),width .45s var(--spring)}
+.sc-main{flex:1;min-height:0;position:relative;padding-bottom:20px}
+.sc-bar{min-width:0}
+@media (max-width:860px){ .sc-seg{font-size:0;gap:0} .sc-title small{display:none} }
+@media (max-width:640px){ .sc-bar{gap:8px;padding:0 12px} .sc-title{display:none} .sc-pill.sm .lbl{display:none} .sc-pill.sm{padding:0 9px} .seg button{padding:0 10px} }
+.stage-box{position:absolute;left:50%;top:0;transform:translateX(-50%)}
+.stage{position:absolute;left:0;top:0;transform-origin:0 0}
+.stage-box.rise-in{animation:stageIn 1s var(--ease-out) both}
+@keyframes stageIn{from{opacity:0;transform:translateX(-50%) translateY(28px) scale(.97);filter:blur(6px)}to{opacity:1;transform:translateX(-50%);filter:none}}
+
+/* intro */
+.intro{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:rgba(7,50,106,.95);backdrop-filter:blur(10px);transition:opacity .5s var(--ease-out),visibility .5s}
+.intro.hide{opacity:0;visibility:hidden}
+.intro-card{width:min(800px,calc(100% - 40px))}
+.intro .eyebrow{display:flex;align-items:center;gap:12px;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--sc-accent-light)}
+.intro .eyebrow::before{content:"";width:22px;height:1px;background:currentColor}
+.intro h1{margin-top:22px;font-family:var(--sc-display);font-weight:800;font-size:clamp(40px,6vw,72px);line-height:1.02;letter-spacing:-.028em}
+.intro h1 .w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.12em;margin-bottom:-.12em}
+.intro h1 .w>span{display:inline-block;transform:translateY(105%);animation:wordUp .8s var(--ease-out) forwards;animation-delay:calc(120ms + var(--i)*70ms)}
+.intro h1 .accent{color:var(--sc-accent-light)}
+@keyframes wordUp{to{transform:none}}
+.intro p.lede{margin-top:22px;font-size:18px;line-height:28px;color:var(--sc-muted);max-width:660px}
+.intro .actions{margin-top:34px;display:flex;flex-wrap:wrap;gap:12px}
+.intro .meta{margin-top:36px;font-size:13px;color:var(--sc-subtle)}
+.intro .rise{opacity:0;transform:translateY(10px);animation:rise .7s var(--ease-out) forwards;animation-delay:calc(500ms + var(--i)*90ms)}
+@keyframes rise{to{opacity:1;transform:none}}
+
+/* layer note: a showcase annotation, not product UI */
+.layer{position:absolute;right:22px;bottom:22px;z-index:80;width:430px;padding:20px 22px 18px;border-radius:14px;background:rgba(7,50,106,.97);color:#fff;font-family:var(--sc-font);box-shadow:0 0 0 1px rgba(255,255,255,.1),0 24px 60px rgba(4,24,56,.5);animation:layerIn .55s var(--spring)}
+.layer.out{animation:layerOut .3s forwards}
+@keyframes layerIn{from{opacity:0;transform:translateY(18px) scale(.96)}}
+@keyframes layerOut{to{opacity:0;transform:translateY(10px) scale(.98)}}
+.layer .k{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--sc-accent-light)}
+.layer h3{margin-top:8px;font-family:var(--sc-display);font-size:20px;font-weight:800;letter-spacing:-.02em}
+.layer p{margin-top:6px;font-size:13.5px;line-height:20px;color:var(--sc-muted)}
+.layer table{width:100%;margin-top:14px;border-collapse:collapse;font-size:12.5px}
+.layer th{text-align:left;font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--sc-subtle);padding:0 0 8px}
+.layer td{padding:7px 0;border-top:1px solid var(--sc-rule);opacity:0;animation:rowIn .45s var(--ease-out) forwards;animation-delay:calc(250ms + var(--i)*90ms)}
+.layer td code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:var(--sc-muted);transition:color .3s,opacity .3s}
+.layer td code.on{color:#fff}
+.layer td code.dim{opacity:.45}
+.layer td .arrow{display:inline-block;width:0;height:1px;background:var(--sc-accent-light);vertical-align:middle;margin:0 8px;animation:grow .5s var(--ease-out) forwards;animation-delay:calc(450ms + var(--i)*90ms)}
+@keyframes grow{to{width:22px}}
+@keyframes rowIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+.layer .foot{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:12px;color:var(--sc-subtle)}
+.layer .foot .sc-pill{margin-left:auto}
+.layer-x{position:absolute;top:12px;right:12px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:var(--sc-muted)}
+.layer-x:hover{background:rgba(255,255,255,.08);color:#fff}
+
+/* =================================================================
+   Browser frame
+   ================================================================= */
+.browser{position:absolute;inset:0;border-radius:12px;overflow:hidden;background:var(--paper);box-shadow:0 0 0 1px rgba(255,255,255,.08),0 30px 80px rgba(0,0,0,.55);display:flex;flex-direction:column;font-family:var(--font);color:var(--ink);font-size:14px;line-height:20px}
+.browser :focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.tabstrip{flex:none;height:40px;background:#DEE1E6;display:flex;align-items:flex-end;padding:0 10px 0 14px}
+.lights{display:flex;gap:8px;align-self:center;margin-right:14px}
+.lights i{width:12px;height:12px;border-radius:50%;background:#FF5F57}
+.lights i:nth-child(2){background:#FEBC2E}.lights i:nth-child(3){background:#28C840}
+.btab{display:flex;align-items:center;gap:8px;height:34px;width:250px;padding:0 12px;border-radius:10px 10px 0 0;background:var(--paper);font-size:12.5px;color:rgba(0,0,0,.9);white-space:nowrap;overflow:hidden}
+.btab .dot{width:12px;height:12px;border-radius:3px;background:var(--brand-bright);flex:none}
+.btab .t{overflow:hidden;text-overflow:ellipsis;animation:fade .3s}
+.viewport{position:relative;flex:1;min-height:0;overflow:hidden;background:var(--paper)}
+@keyframes fade{from{opacity:0}}
+
+/* =================================================================
+   Product shell
+   ================================================================= */
+.app{position:absolute;inset:0;display:flex;background:var(--bg)}
+.side{width:214px;flex:none;background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;padding:18px 12px 14px}
+.wordmark{font-family:var(--head);font-weight:800;font-size:25px;letter-spacing:-.045em;color:var(--ink);padding:0 10px 20px;display:flex;align-items:baseline;gap:1px}
+.wordmark i{width:6px;height:6px;border-radius:50%;background:var(--brand-bright);display:inline-block}
+.nav-i{display:flex;align-items:center;gap:11px;width:100%;height:38px;padding:0 10px;border-radius:8px;font-size:13.5px;white-space:nowrap;color:var(--ink-2);text-align:left;transition:background .15s,color .15s}
+.nav-i:hover{background:var(--bg)}
+.nav-i.on{background:var(--brand-050);color:var(--brand);font-weight:600}
+.nav-i .ic{color:currentColor}
+.side .grow{flex:1}
+.body{flex:1;min-width:0;display:flex;flex-direction:column;position:relative}
+.top{height:56px;flex:none;display:flex;align-items:center;gap:10px;padding:0 22px;background:#fff;border-bottom:1px solid var(--line)}
+.top .grow{flex:1}
+.ask{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 14px;border-radius:8px;background:var(--brand);color:#fff;font-weight:600;font-size:13px;transition:background .2s,transform .2s var(--ease-out),box-shadow .2s}
+.ask:hover{background:var(--brand-700);box-shadow:0 6px 16px rgba(194,65,12,.25)}
+.ask:active{transform:scale(.97)}
+.ask.on{background:var(--brand-700)}
+.icon-btn{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;color:var(--ink-2);transition:background .15s}
+.icon-btn:hover{background:var(--bg)}
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(145deg,#F7B58C,#C2410C);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px}
+.main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;position:relative;scroll-behavior:smooth}
+.page{padding:26px 28px 90px;max-width:1300px;margin:0 auto}
+.page.enter{animation:viewIn .45s var(--ease-out)}
+@keyframes viewIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.page-h{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.page-h h1{font-family:var(--head);font-size:26px;line-height:32px;font-weight:700;letter-spacing:-.02em}
+.page-h .grow{flex:1}
+
+/* shared controls */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 14px;border-radius:8px;font-size:13.5px;font-weight:600;white-space:nowrap;transition:background .15s,border-color .15s,color .15s,transform .15s var(--ease-out),box-shadow .15s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--brand);color:#fff}
+.btn-primary:hover{background:var(--brand-700)}
+.btn-outline{border:1px solid var(--line-2);background:#fff;color:var(--ink)}
+.btn-outline:hover{border-color:var(--ink-3)}
+.btn-brand-o{border:1px solid rgba(194,65,12,.45);background:#fff;color:var(--brand)}
+.btn-brand-o:hover{border-color:var(--brand);background:var(--brand-050)}
+.btn-ghost{color:var(--ink-2);padding:0 10px}
+.btn-ghost:hover{background:var(--bg)}
+.btn-danger{background:var(--bad);color:#fff}
+.btn-danger:hover{background:#A51E15}
+.btn-sm{height:30px;padding:0 11px;font-size:12.5px;border-radius:7px}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.btn .spin{animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lnk{color:var(--brand);font-weight:600;cursor:pointer}
+.lnk:hover{text-decoration:underline}
+.concept{display:inline-flex;align-items:center;height:19px;padding:0 8px;border-radius:999px;background:rgba(116,157,200,.2);color:#064089;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;font-family:var(--sc-font)}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-1)}
+
+/* location picker */
+.loc-btn{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 10px 0 12px;border:1px solid var(--line-2);border-radius:8px;background:#fff;font-size:13.5px;font-weight:600;max-width:300px}
+.loc-btn:hover{border-color:var(--ink-3)}
+.loc-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pop{position:absolute;z-index:60;min-width:220px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow-3);padding:6px;animation:popIn .2s var(--ease-out);transform-origin:var(--ox,100%) 0}
+@keyframes popIn{from{opacity:0;transform:translateY(-4px) scale(.97)}}
+.pop.out{animation:popOut .15s forwards}
+@keyframes popOut{to{opacity:0;transform:translateY(-3px) scale(.98)}}
+.pop button{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;border-radius:7px;text-align:left;font-size:13.5px;color:var(--ink);transition:background .12s}
+.pop button:hover,.pop button:focus-visible{background:var(--bg)}
+.pop button.danger{color:var(--bad)}
+.pop button .sub{display:block;font-size:12px;color:var(--ink-3);font-weight:400}
+.pop hr{border:0;border-top:1px solid var(--line);margin:5px 4px}
+.pop .sel{margin-left:auto;color:var(--brand)}
+.sdot{width:8px;height:8px;border-radius:50%;flex:none}
+
+/* layout */
+.grid{display:grid;grid-template-columns:264px minmax(0,1fr);gap:20px;align-items:start}
+.col{display:flex;flex-direction:column;gap:20px;min-width:0}
+
+/* profile card */
+.prof{padding:22px 20px 20px;text-align:center}
+.prof .ph{width:68px;height:68px;margin:0 auto 14px;border-radius:14px;background:linear-gradient(150deg,#FFE3D3,#FFC7A8);display:grid;place-items:center;color:var(--brand)}
+.prof h2{font-family:var(--head);font-size:16px;line-height:22px;font-weight:700}
+.prof .addr{margin-top:8px;font-size:13px;line-height:19px;color:var(--ink-2)}
+.prof .btn{margin-top:14px}
+.prof .x-fade{animation:xfade .4s var(--ease-out)}
+@keyframes xfade{from{opacity:0;transform:translateY(4px)}}
+.comp{margin-top:18px;text-align:left}
+.comp .row{display:flex;justify-content:space-between;font-size:13px;font-weight:600}
+.bar{position:relative;height:8px;border-radius:999px;background:var(--off-050);overflow:hidden;margin-top:7px}
+.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,var(--brand-bright),#FFA15C);width:0;transition:width 1.1s var(--ease-out)}
+.bar.ok i{background:linear-gradient(90deg,#1E9E5A,#5CC98B)}
+.comp .rem{margin-top:7px;font-size:12.5px;color:var(--ink-3)}
+.cats{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:12px}
+.cats span{font-size:11.5px;padding:2px 8px;border-radius:999px;background:var(--bg);color:var(--ink-2);border:1px solid var(--line)}
+.synced{padding:12px 20px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-3);display:flex;align-items:center;gap:8px;justify-content:center}
+.synced .ic{color:var(--ok)}
+.synced.busy .ic{animation:spin .9s linear infinite;color:var(--brand)}
+
+/* suggestions */
+.sug-h{display:flex;align-items:center;gap:12px;width:100%;padding:16px 18px 6px;text-align:left}
+.bulb{width:32px;height:32px;border-radius:9px;background:var(--brand-050);color:var(--brand);display:grid;place-items:center;flex:none}
+.sug-h b{font-size:14px}
+.sug-h .n{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;margin-left:6px;border-radius:999px;background:var(--bg);font-size:11.5px;font-weight:700;color:var(--ink-2);vertical-align:1px}
+.sug-h small{display:block;font-size:12.5px;color:var(--ink-3);margin-top:1px}
+.sug-h .chev{margin-left:auto;color:var(--ink-3);transition:transform .35s var(--ease-out)}
+.sug.open .sug-h .chev{transform:rotate(180deg)}
+.health{padding:6px 18px 16px}
+.health .row{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-2)}
+.health .row b{color:var(--ink)}
+.sug-list{display:grid;grid-template-rows:0fr;transition:grid-template-rows .45s var(--ease-out)}
+.sug.open .sug-list{grid-template-rows:1fr}
+.sug-list>div{overflow:hidden}
+.sug-item{display:flex;align-items:center;gap:14px;padding:13px 18px;border-top:1px solid var(--line);opacity:0;transform:translateY(-4px);transition:opacity .3s,transform .3s var(--ease-out)}
+.sug.open .sug-item{opacity:1;transform:none;transition-delay:calc(120ms + var(--i)*60ms)}
+.sug-item .si{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex:none}
+.sug-item .tx{flex:1;min-width:0}
+.sug-item .tx b{display:block;font-size:13.5px}
+.sug-item .tx span{display:block;font-size:12.5px;color:var(--ink-3);margin-top:1px}
+.sug-done{padding:14px 18px;border-top:1px solid var(--line);font-size:13px;color:var(--ok);display:flex;align-items:center;gap:8px}
+
+/* table */
+.tbl-top{padding:16px 18px 12px}
+.search{position:relative}
+.search input{width:100%;height:38px;border:1px solid var(--line-2);border-radius:8px;padding:0 12px 0 36px;font-size:13.5px;background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
+.search input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(194,65,12,.12)}
+.search .ic{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--ink-3)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 10px 0 11px;border:1px solid var(--line-2);border-radius:8px;background:#fff;font-size:12.5px;font-weight:600;color:var(--ink-2);transition:border-color .15s,background .15s,color .15s,box-shadow .2s}
+.chip:hover{border-color:var(--ink-3)}
+.chip[aria-pressed="true"]{border-color:var(--ink);background:var(--bg);color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.chip .cnt{min-width:20px;height:20px;padding:0 6px;border-radius:999px;display:inline-grid;place-items:center;font-size:11.5px;background:var(--bg)}
+.chip.ok .ic,.chip.ok .cnt{color:var(--ok)}.chip.ok .cnt{background:var(--ok-050)}
+.chip.warn .ic,.chip.warn .cnt{color:var(--warn)}.chip.warn .cnt{background:var(--warn-050)}
+.chip.bad .ic,.chip.bad .cnt{color:var(--bad)}.chip.bad .cnt{background:var(--bad-050)}
+.chip.off .ic{color:var(--off)}
+.cnt.bump{animation:bump .5s var(--spring)}
+@keyframes bump{40%{transform:scale(1.35)}}
+.thead,.trow{display:grid;grid-template-columns:minmax(0,1fr) 168px 160px;align-items:center;gap:12px;padding:0 18px}
+.thead{height:38px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg);font-size:12px;font-weight:600;color:var(--ink-3)}
+.thead div:last-child{text-align:right}
+.trow{position:relative;min-height:54px;border-bottom:1px solid var(--line);background:#fff;transition:background .2s}
+.trow:hover{background:#FCFCFD}
+.trow.in{animation:rowRise .5s var(--ease-out) both;animation-delay:calc(var(--i)*28ms)}
+@keyframes rowRise{from{opacity:0;transform:translateY(8px)}}
+.trow.flash{animation:flash 1.4s var(--ease-out)}
+@keyframes flash{0%{background:#FFF6EE}100%{background:#fff}}
+.trow.flash-ok{animation:flashOk 1.6s var(--ease-out)}
+@keyframes flashOk{0%{background:#E2F5EA}100%{background:#fff}}
+.trow.sync::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(100deg,transparent 20%,rgba(255,180,140,.32) 50%,transparent 80%);background-size:250% 100%;animation:sweep .9s var(--ease-in-out) both;animation-delay:calc(var(--i)*35ms)}
+@keyframes sweep{from{background-position:120% 0}to{background-position:-30% 0}}
+.plat{display:flex;align-items:center;gap:12px;min-width:0}
+.tile{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-family:var(--head);font-weight:800;font-size:12px;letter-spacing:-.02em;flex:none}
+.plat b{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.enh{display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 7px;border-radius:999px;background:var(--enh-050);color:var(--enh);font-size:11px;font-weight:700;flex:none}
+.st{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600}
+.st.connected{color:var(--ok)}.st.processing{color:var(--warn)}.st.not{color:var(--off)}.st.issue{color:var(--bad)}.st.disabled{color:var(--off)}
+.st.processing .ic{animation:spin 2.4s linear infinite}
+.st.swap{animation:stSwap .5s var(--spring)}
+@keyframes stSwap{from{opacity:0;transform:translateY(6px) scale(.9)}}
+.st small{display:block;font-size:11.5px;font-weight:400;color:var(--ink-3)}
+.acts{display:flex;align-items:center;justify-content:flex-end;gap:6px}
+.view-l{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 8px;border-radius:7px;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.view-l:hover{background:var(--bg);color:var(--ink)}
+.more{width:30px;height:30px;border-radius:7px;display:grid;place-items:center;color:var(--ink-3)}
+.more:hover,.more[aria-expanded="true"]{background:var(--bg);color:var(--ink)}
+.empty{padding:40px 18px;text-align:center;color:var(--ink-3);font-size:13.5px;animation:fade .3s}
+
+/* =================================================================
+   Modals, drawer, toast
+   ================================================================= */
+.scrim{position:absolute;inset:0;background:rgba(17,24,39,.36);z-index:70;display:flex;justify-content:center;align-items:flex-start;padding-top:64px;animation:fade .2s}
+.scrim.out{animation:fadeOut .2s forwards}
+@keyframes fadeOut{to{opacity:0}}
+.modal{width:540px;max-width:calc(100% - 40px);background:#fff;border-radius:14px;box-shadow:var(--shadow-3);animation:modalIn .36s var(--spring);overflow:hidden}
+.modal.wide{width:680px}
+.scrim.out .modal{animation:modalOut .2s forwards}
+@keyframes modalIn{from{opacity:0;transform:translateY(-12px) scale(.96)}}
+@keyframes modalOut{to{opacity:0;transform:translateY(-6px) scale(.98)}}
+.m-h{display:flex;align-items:center;gap:12px;padding:18px 20px 6px}
+.m-h h3{font-family:var(--head);font-size:17px;line-height:22px;font-weight:700}
+.m-h small{display:block;font-size:12.5px;color:var(--ink-3);font-weight:400;font-family:var(--font)}
+.m-h .x{margin-left:auto;width:32px;height:32px;border-radius:8px;display:grid;place-items:center;color:var(--ink-3)}
+.m-h .x:hover{background:var(--bg);color:var(--ink)}
+.m-b{padding:12px 20px 18px;font-size:13.5px;line-height:20px;color:var(--ink-2)}
+.m-b.swap{animation:xfade .35s var(--ease-out)}
+.m-f{display:flex;align-items:center;gap:8px;padding:14px 20px;border-top:1px solid var(--line);background:#FCFCFD}
+.m-f .grow{flex:1}
+.score{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;color:var(--ink)}
+.score b.num{font-variant-numeric:tabular-nums}
+.sec{margin-top:16px}
+.sec h4{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink);font-weight:700}
+.sec h4 .cnt{min-width:20px;height:20px;padding:0 6px;border-radius:999px;display:inline-grid;place-items:center;font-size:11.5px}
+.sec.bad h4 .cnt{background:var(--bad-050);color:var(--bad)}
+.sec.ok h4 .cnt{background:var(--ok-050);color:var(--ok)}
+.fchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px;min-height:28px}
+.fchip{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 9px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid}
+.fchip.bad{color:var(--bad);border-color:rgba(200,38,27,.3);background:#fff}
+.fchip.ok{color:var(--ok);border-color:rgba(22,130,74,.28);background:#fff}
+.fchips .none{font-size:12.5px;color:var(--ink-3);align-self:center;animation:xfade .35s var(--ease-out)}
+.fchip.leave{animation:chipOut .35s var(--ease-out) forwards}
+.fchip.arrive{animation:chipIn .5s var(--spring)}
+@keyframes chipOut{to{opacity:0;transform:scale(.8)}}
+@keyframes chipIn{from{opacity:0;transform:scale(.6)}}
+.why{margin-top:16px;padding:12px 14px;border-radius:10px;background:var(--bg);font-size:12.5px;color:var(--ink-2);display:flex;gap:10px}
+.why .ic{color:var(--ink-3);margin-top:1px}
+.diff{margin-top:12px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.diff-row{display:grid;grid-template-columns:24px 110px minmax(0,1fr) 22px minmax(0,1fr) 26px;align-items:center;gap:10px;padding:12px 14px;border-top:1px solid var(--line);background:#fff;transition:background .3s}
+.diff-row:first-child{border-top:0}
+.diff-row .lab{font-size:12.5px;font-weight:700;color:var(--ink)}
+.diff-row .old{font-size:12.5px;color:var(--ink-3)}
+.diff-row .old s{text-decoration-color:rgba(200,38,27,.55)}
+.diff-row .new{font-size:12.5px;color:var(--ink);font-weight:600}
+.diff-row .src{display:block;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:1px}
+.diff-row .to{color:var(--ink-3)}
+.diff-row .done{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--ok);color:#fff;transform:scale(0);transition:transform .45s var(--spring)}
+.diff-row.sent{background:#F3FBF6}
+.diff-row.sent .done{transform:scale(1)}
+.diff-row.skip{opacity:.5}
+.cbox{appearance:none;width:18px;height:18px;border:2px solid var(--line-2);border-radius:5px;display:grid;place-items:center;margin:0;cursor:pointer;transition:background .15s,border-color .15s}
+.cbox:checked{background:var(--brand);border-color:var(--brand)}
+.cbox:checked::after{content:"";width:9px;height:5px;border:2px solid #fff;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+.ai-line{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2)}
+.ai-line .ic{color:var(--brand)}
+.sent-note{margin-top:14px;display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:10px;background:var(--ok-050);color:#0F5E35;font-size:13px;animation:xfade .4s var(--ease-out)}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.cmp-c{border:1px solid var(--line);border-radius:12px;padding:14px 14px 12px;transition:border-color .25s,box-shadow .25s,transform .25s var(--ease-out)}
+.cmp-c.pick{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink);transform:translateY(-2px)}
+.cmp-c.pick.danger{border-color:var(--bad);box-shadow:inset 0 0 0 1px var(--bad)}
+.cmp-c h4{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink)}
+.cmp-c ul{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:7px}
+.cmp-c li{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--ink-2)}
+.cmp-c li .ic{flex:none}
+.cmp-c .tag{display:inline-flex;margin-top:12px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 8px;border-radius:999px}
+.tag.rev{background:var(--ok-050);color:var(--ok)}
+.tag.irr{background:var(--bad-050);color:var(--bad)}
+
+/* drawer */
+.dscrim{position:absolute;inset:0;z-index:65;background:rgba(17,24,39,.28);animation:fade .25s}
+.dscrim.out{animation:fadeOut .25s forwards}
+.drawer{position:absolute;top:0;right:0;bottom:0;width:660px;max-width:92%;background:#fff;box-shadow:var(--shadow-3);display:flex;flex-direction:column;animation:drawerIn .45s var(--ease-out)}
+.dscrim.out .drawer{animation:drawerOut .25s forwards}
+@keyframes drawerIn{from{transform:translateX(100%)}}
+@keyframes drawerOut{to{transform:translateX(100%)}}
+.d-h{display:flex;align-items:center;gap:12px;padding:18px 22px 0}
+.d-h h3{font-family:var(--head);font-size:18px;font-weight:700}
+.d-h small{display:block;font-size:12.5px;color:var(--ink-3)}
+.d-h .x{margin-left:auto;width:32px;height:32px;border-radius:8px;display:grid;place-items:center;color:var(--ink-3)}
+.d-h .x:hover{background:var(--bg)}
+.tabs{position:relative;display:flex;gap:4px;padding:14px 22px 0;border-bottom:1px solid var(--line)}
+.tabs button{height:38px;padding:0 12px;font-size:13.5px;font-weight:600;color:var(--ink-3);transition:color .2s}
+.tabs button[aria-selected="true"]{color:var(--ink)}
+.tabs .ink{position:absolute;bottom:-1px;height:2px;background:var(--brand);border-radius:2px;transition:left .35s var(--ease-out),width .35s var(--ease-out)}
+.d-b{flex:1;overflow:auto;padding:20px 22px 28px}
+.d-b .pane{animation:xfade .35s var(--ease-out)}
+.d-f{display:flex;gap:8px;align-items:center;padding:14px 22px;border-top:1px solid var(--line)}
+.d-f .grow{flex:1}
+.fld{display:block;margin-bottom:14px}
+.fld span{display:block;font-size:12.5px;font-weight:600;color:var(--ink-2);margin-bottom:6px}
+.fld input,.fld textarea{width:100%;border:1px solid var(--line-2);border-radius:8px;padding:9px 12px;font-size:13.5px;outline:none;background:#fff;transition:border-color .15s,box-shadow .15s}
+.fld input:focus,.fld textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(194,65,12,.12)}
+.fld textarea{min-height:120px;resize:vertical;line-height:20px}
+.fld .hint{display:flex;justify-content:space-between;margin-top:6px;font-size:12px;color:var(--ink-3)}
+.fld textarea.filled{animation:fillGlow 1.2s var(--ease-out)}
+@keyframes fillGlow{0%{box-shadow:0 0 0 4px rgba(255,80,0,.22)}100%{box-shadow:0 0 0 0 rgba(255,80,0,0)}}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ai-box{margin-top:4px;border:1px solid #F5C7AE;background:linear-gradient(180deg,#FFF8F3,#fff);border-radius:12px;padding:14px;animation:xfade .35s var(--ease-out)}
+.ai-box .hd{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:var(--brand)}
+.ai-box p{margin-top:8px;font-size:13.5px;line-height:21px;color:var(--ink);min-height:42px}
+.ai-box .ft{display:flex;gap:8px;margin-top:12px}
+.caret{display:inline-block;width:7px;height:15px;background:var(--brand);vertical-align:-2px;margin-left:2px;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* hours */
+.hrs{display:grid;gap:4px}
+.hday{padding:10px 0 12px;border-bottom:1px solid var(--line)}
+.hday:last-child{border-bottom:0}
+.hline{display:flex;align-items:center;gap:10px}
+.hline .dn{width:92px;font-size:13.5px;font-weight:600;color:var(--ink)}
+.tog{position:relative;width:36px;height:20px;border-radius:999px;background:var(--line-2);transition:background .25s;flex:none}
+.tog::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .3s var(--spring)}
+.tog[aria-checked="true"]{background:var(--brand)}
+.tog[aria-checked="true"]::after{transform:translateX(16px)}
+.tsel{height:32px;border:1px solid var(--line-2);border-radius:7px;padding:0 8px;font-size:12.5px;background:#fff}
+.hline .to{font-size:12.5px;color:var(--ink-3)}
+.hline .closed{font-size:13px;color:var(--ink-3)}
+.hline .grow{flex:1}
+.tl{position:relative;height:10px;margin:10px 0 0 102px;border-radius:999px;background:var(--off-050)}
+.tl .open{position:absolute;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,#FF7A33,#FFA15C);transition:left .45s var(--ease-out),width .45s var(--ease-out)}
+.tl .gap{position:absolute;top:-3px;bottom:-3px;border-radius:4px;background:repeating-linear-gradient(135deg,#fff 0 3px,#E3E6EA 3px 6px);box-shadow:0 0 0 1px var(--line-2);transform-origin:50% 50%;animation:gapIn .5s var(--spring);transition:left .45s var(--ease-out),width .45s var(--ease-out)}
+@keyframes gapIn{from{transform:scaleX(0)}}
+.tl-ticks{display:flex;justify-content:space-between;margin:5px 0 0 102px;font-size:10.5px;color:var(--ink-3)}
+.brk{display:flex;align-items:center;gap:8px;margin:9px 0 0 102px;font-size:12.5px;color:var(--ink-2);animation:xfade .35s var(--ease-out)}
+.brk .tag{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3)}
+.brk .rm{width:26px;height:26px;border-radius:6px;display:grid;place-items:center;color:var(--ink-3)}
+.brk .rm:hover{background:var(--bg);color:var(--bad)}
+
+/* AI panel */
+.aip{position:absolute;top:56px;right:0;bottom:0;width:410px;z-index:55;background:#fff;border-left:1px solid var(--line);box-shadow:-18px 0 40px rgba(16,24,40,.10);display:flex;flex-direction:column;transform:translateX(105%);transition:transform .5s var(--ease-out);visibility:hidden}
+.aip.on{transform:none;visibility:visible}
+.aip-h{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.aip-h b{font-family:var(--head);font-size:15px}
+.aip-h .orb{width:30px;height:30px;border-radius:9px;background:linear-gradient(140deg,#FF7A33,#C2410C);color:#fff;display:grid;place-items:center}
+.aip-h .x{margin-left:auto;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:var(--ink-3)}
+.aip-h .x:hover{background:var(--bg)}
+.aip-b{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
+.msg{max-width:92%;font-size:13.5px;line-height:21px;animation:msgIn .35s var(--ease-out)}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}}
+.msg.me{align-self:flex-end;background:var(--ink);color:#fff;padding:9px 13px;border-radius:14px 14px 4px 14px}
+.msg.bot{align-self:flex-start;color:var(--ink)}
+.dots{display:inline-flex;gap:4px;padding:10px 12px;border-radius:12px;background:var(--bg);align-self:flex-start;animation:msgIn .3s var(--ease-out)}
+.dots i{width:6px;height:6px;border-radius:50%;background:var(--ink-3);animation:dot 1s infinite}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes dot{0%,80%,100%{opacity:.3;transform:none}40%{opacity:1;transform:translateY(-3px)}}
+.prompts{display:grid;gap:8px}
+.prompt{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;text-align:left;font-size:13px;font-weight:600;color:var(--ink);background:#fff;transition:border-color .15s,background .15s,transform .2s var(--ease-out)}
+.prompt:hover{border-color:#F5B896;background:#FFFAF6;transform:translateY(-1px)}
+.prompt .ic{color:var(--brand)}
+.acard{border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden;animation:msgIn .4s var(--ease-out);box-shadow:var(--shadow-1)}
+.acard .ah{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);font-size:12px;font-weight:700;color:var(--ink-2);background:#FCFCFD}
+.acard .ab{padding:12px}
+.acard .af{display:flex;gap:8px;padding:0 12px 12px}
+.irow{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:12.5px}
+.irow:first-child{border-top:0;padding-top:0}
+.irow .tx{flex:1;min-width:0}
+.irow .tx b{display:block;font-size:13px}
+.irow .tx span{color:var(--ink-3)}
+.rv{padding:10px 12px;border-radius:10px;background:var(--bg);font-size:12.5px;line-height:19px;color:var(--ink-2)}
+.rv .who{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.stars{color:#E5A400;letter-spacing:1px;font-size:12px}
+.stars .off{color:#D5D9DF}
+.acard textarea{width:100%;margin-top:10px;border:1px solid var(--line-2);border-radius:8px;padding:9px 11px;font-size:12.5px;line-height:19px;min-height:128px;resize:vertical;outline:none}
+.acard textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(194,65,12,.12)}
+.posted{display:flex;align-items:center;gap:8px;padding:10px 12px;font-size:12.5px;font-weight:600;color:var(--ok);animation:xfade .35s var(--ease-out)}
+.aip-f{padding:12px 14px 14px;border-top:1px solid var(--line)}
+.ask-in{display:flex;align-items:center;gap:8px;border:1px solid var(--line-2);border-radius:12px;padding:5px 5px 5px 12px;transition:border-color .15s,box-shadow .15s}
+.ask-in:focus-within{border-color:var(--brand);box-shadow:0 0 0 3px rgba(194,65,12,.12)}
+.ask-in input{flex:1;border:0;outline:none;font-size:13.5px;background:none;min-width:0}
+.send{width:32px;height:32px;border-radius:9px;background:var(--brand);color:#fff;display:grid;place-items:center;transition:transform .2s var(--ease-out),opacity .2s}
+.send:disabled{opacity:.4}
+.send:not(:disabled):hover{transform:scale(1.06)}
+.aip-f small{display:block;margin-top:7px;font-size:11px;color:var(--ink-3);text-align:center}
+
+/* toast */
+.toasts{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);z-index:95;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}
+.toast{display:flex;align-items:center;gap:10px;background:#1C2330;color:#fff;font-size:13.5px;font-weight:600;padding:11px 18px;border-radius:10px;box-shadow:var(--shadow-3);animation:toastIn .4s var(--spring);white-space:nowrap}
+.toast .ic{color:#7FE0A8}
+.toast.out{animation:toastOut .25s forwards}
+@keyframes toastIn{from{opacity:0;transform:translateY(14px) scale(.96)}}
+@keyframes toastOut{to{opacity:0;transform:translateY(8px)}}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0ms!important;transition-duration:.01ms!important;transition-delay:0ms!important}
+  .intro h1 .w>span{transform:none}
+  .intro .rise,.trow.in,.layer td,.sug-item{opacity:1;transform:none}
+  .layer td .arrow{width:22px}
+}
+</style>
+</head>
+<body>
+<div class="sc">
+  <header class="sc-bar">
+    <a class="sc-back" href="https://dbyxdesign.com/case-business-listing.html"><span data-icon="arrowLeft" data-size="16"></span>Case study</a>
+    <div class="sc-title">Listings Management<small>Interactive prototype</small></div>
+    <span class="sc-grow"></span>
+    <div class="sc-seg" id="vendor-seg">Backend
+      <div class="seg" role="group" aria-label="Listings backend">
+        <span class="knob" id="seg-knob"></span>
+        <button type="button" data-vendor="A" aria-pressed="true">Vendor A</button>
+        <button type="button" data-vendor="B" aria-pressed="false">Vendor B</button>
+      </div>
+    </div>
+    <button class="sc-pill ghost sm" data-act="restart" aria-label="Start over"><span data-icon="refresh" data-size="15"></span><span class="lbl">Start over</span></button>
+  </header>
+
+  <main class="sc-main" id="sc-main">
+    <div class="stage-box" id="stage-box">
+      <div class="stage" id="stage">
+        <div class="browser">
+          <div class="tabstrip">
+            <div class="lights" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="btab"><span class="dot" aria-hidden="true"></span><span class="t" id="btab-t">Listings Management</span></div>
+          </div>
+          <div class="viewport">
+            <div class="app" id="app">
+              <nav class="side" aria-label="Primary">
+                <div class="wordmark" aria-label="Thryv">thryv<i></i></div>
+                <button class="nav-i" data-act="soon"><span data-icon="home" data-size="19"></span>Dashboard</button>
+                <button class="nav-i" data-act="ai-open"><span data-icon="sparkle" data-size="19"></span>Thryv AI</button>
+                <button class="nav-i" data-act="soon"><span data-icon="reports" data-size="19"></span>Analytics</button>
+                <button class="nav-i" data-act="soon"><span data-icon="star" data-size="19"></span>Reviews</button>
+                <button class="nav-i on" aria-current="page"><span data-icon="pin" data-size="19"></span>Listings Management</button>
+                <button class="nav-i" data-act="soon"><span data-icon="social" data-size="19"></span>Social</button>
+                <button class="nav-i" data-act="soon"><span data-icon="globe" data-size="19"></span>Website</button>
+                <span class="grow"></span>
+                <button class="nav-i" data-act="soon"><span data-icon="gear" data-size="19"></span>Settings</button>
+              </nav>
+              <div class="body" id="body">
+                <header class="top">
+                  <span class="grow"></span>
+                  <button class="ask" id="ask-btn" data-act="ai-toggle"><span data-icon="sparkle" data-size="16"></span>Ask Thryv AI</button>
+                  <button class="icon-btn" data-act="soon" aria-label="Notifications"><span data-icon="bell" data-size="19"></span></button>
+                  <button class="icon-btn" data-act="soon" aria-label="Help"><span data-icon="help" data-size="19"></span></button>
+                  <span class="avatar" aria-label="Dana">D</span>
+                </header>
+                <div class="main" id="main">
+                  <div class="page" id="page">
+                    <div class="page-h">
+                      <h1>Listings Management</h1>
+                      <span class="grow"></span>
+                      <button class="btn btn-outline" data-act="soon"><span data-icon="plus" data-size="16"></span>Add location</button>
+                      <button class="loc-btn" id="loc-btn" data-act="loc" aria-haspopup="menu" aria-expanded="false"><span data-icon="pin" data-size="16"></span><span id="loc-name"></span><span data-icon="chevDown" data-size="16"></span></button>
+                    </div>
+                    <div class="grid">
+                      <div class="col">
+                        <section class="card" id="prof" aria-label="Business profile"></section>
+                      </div>
+                      <div class="col">
+                        <section class="card sug" id="sug" aria-label="Suggestions"></section>
+                        <section class="card" aria-label="Listings">
+                          <div class="tbl-top">
+                            <label class="search"><span data-icon="search" data-size="17"></span><input id="q" type="search" placeholder="Search by site" aria-label="Search by site" autocomplete="off"></label>
+                            <div class="chips" id="chips" role="group" aria-label="Filter by status"></div>
+                          </div>
+                          <div class="thead" role="row"><div>Site</div><div>Status</div><div>Actions</div></div>
+                          <div id="rows" role="rowgroup"></div>
+                        </section>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <aside class="aip" id="aip" aria-label="Thryv AI">
+                  <div class="aip-h"><span class="orb"><span data-icon="sparkle" data-size="16"></span></span><b>Thryv AI</b><button class="x" data-act="ai-close" aria-label="Close Thryv AI"><span data-icon="x" data-size="18"></span></button></div>
+                  <div class="aip-b" id="aip-b"></div>
+                  <div class="aip-f">
+                    <form class="ask-in" id="ask-form"><input id="ask-q" placeholder="Ask about your listings or reviews" aria-label="Ask Thryv AI" autocomplete="off"><button class="send" id="ask-send" type="submit" aria-label="Send" disabled><span data-icon="send" data-size="16"></span></button></form>
+                    <small>Thryv AI drafts. You approve before anything goes live.</small>
+                  </div>
+                </aside>
+              </div>
+              <div id="pop-root"></div>
+              <div id="modal-root"></div>
+              <div class="toasts" id="toasts" aria-live="polite"></div>
+            </div>
+          </div>
+        </div>
+        <div id="layer-root"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="intro" id="intro" role="dialog" aria-modal="true" aria-labelledby="intro-h">
+  <div class="intro-card">
+    <div class="eyebrow rise" style="--i:0">Interactive prototype · Business listings</div>
+    <h1 id="intro-h">Change the vendor. Keep the experience.</h1>
+    <p class="lede rise" style="--i:1">Listings Management for a roofer with three locations. Every screen reads from a layer between our UI and the vendor&rsquo;s API, so switching the backend in the bar above doesn&rsquo;t change what she sees. When a listing needs fixing, Thryv AI drafts the fix for her to approve.</p>
+    <div class="actions rise" style="--i:2">
+      <button class="sc-pill primary" data-act="start">Open the prototype<span data-icon="arrowRight" data-size="16"></span></button>
+    </div>
+    <p class="meta rise" style="--i:3">Thryv · Proof of concept · Demo data · Everything is clickable</p>
+  </div>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+/* -----------------------------------------------------------------
+   Helpers
+   ----------------------------------------------------------------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let EPOCH = 0, SCALE = 1;
+const wait = ms => new Promise(r => setTimeout(r, RM ? Math.min(ms, 20) : ms));
+const clone = o => JSON.parse(JSON.stringify(o));
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const plural = (n, w, p) => n === 1 ? w : (p || w + "s");
+function vt(fn){
+  if (document.startViewTransition && !RM){ try { return document.startViewTransition(fn); } catch(e){} }
+  fn(); return null;
+}
+
+/* -----------------------------------------------------------------
+   Icons
+   ----------------------------------------------------------------- */
+const I = {
+  arrowLeft:'<path d="M19 12H5.5M11 5.5 4.5 12l6.5 6.5"/>',
+  arrowRight:'<path d="M5 12h13.5M13 5.5l6.5 6.5-6.5 6.5"/>',
+  sparkle:'<path d="M12 3.5c.6 4 2.6 6 6.5 6.5-3.9.6-5.9 2.6-6.5 6.5-.6-3.9-2.6-5.9-6.5-6.5 3.9-.5 5.9-2.5 6.5-6.5z"/><path d="M18.5 15.5c.3 1.6 1 2.3 2.5 2.5-1.5.3-2.2 1-2.5 2.5-.3-1.5-1-2.2-2.5-2.5 1.5-.2 2.2-.9 2.5-2.5z"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  info:'<circle cx="12" cy="12" r="8.6"/><path d="M12 11v5.2"/><circle cx="12" cy="7.8" r=".7" fill="currentColor"/>',
+  alert:'<path d="M12 4 21 19.5H3Z"/><path d="M12 10v4.4"/><circle cx="12" cy="16.9" r=".7" fill="currentColor"/>',
+  chevDown:'<path d="m6 9 6 6 6-6"/>',
+  more:'<circle cx="12" cy="5.5" r="1.2" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/><circle cx="12" cy="18.5" r="1.2" fill="currentColor"/>',
+  refresh:'<path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4.2h-4.2"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/>',
+  home:'<path d="M3.5 10.5 12 3.5l8.5 7"/><path d="M5.5 9.6V20h13V9.6"/><path d="M9.8 20v-5.4h4.4V20"/>',
+  reports:'<path d="M5.5 19V11M12 19V5M18.5 19v-5.6"/>',
+  star:'<path d="m12 4 2.5 5.2 5.7.8-4.1 4 1 5.6L12 17l-5.1 2.6 1-5.6-4.1-4 5.7-.8Z"/>',
+  pin:'<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.4"/>',
+  social:'<circle cx="8" cy="9" r="2.6"/><circle cx="16" cy="9" r="2.6"/><path d="M3.5 18.5c.6-2.6 2.4-4 4.5-4s3.9 1.4 4.5 4M11.5 18.5c.6-2.6 2.4-4 4.5-4s3.9 1.4 4.5 4"/>',
+  globe:'<circle cx="12" cy="12" r="8.6"/><path d="M3.5 12h17M12 3.4c2.4 2.5 3.6 5.4 3.6 8.6s-1.2 6.1-3.6 8.6c-2.4-2.5-3.6-5.4-3.6-8.6S9.6 5.9 12 3.4Z"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M12 3.5v2.2M12 18.3v2.2M3.5 12h2.2M18.3 12h2.2M6 6l1.6 1.6M16.4 16.4 18 18M6 18l1.6-1.6M16.4 7.6 18 6"/>',
+  bell:'<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
+  help:'<circle cx="12" cy="12" r="8.6"/><path d="M9.7 9.5c.2-1.2 1.1-2 2.4-2 1.4 0 2.4.8 2.4 2 0 1.9-2.4 1.7-2.4 3.6"/><circle cx="12.1" cy="16.4" r=".9" fill="currentColor"/>',
+  plus:'<path d="M12 5.5v13M5.5 12h13"/>',
+  checkCircle:'<circle cx="12" cy="12" r="8.6"/><path d="m8.2 12.3 2.6 2.6 5-5.2"/>',
+  clock:'<circle cx="12" cy="12" r="8.6"/><path d="M12 7.5V12l3 2"/>',
+  minusCircle:'<circle cx="12" cy="12" r="8.6"/><path d="M8.2 12h7.6"/>',
+  pause:'<circle cx="12" cy="12" r="8.6"/><path d="M10 9v6M14 9v6"/>',
+  eye:'<path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/>',
+  link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  unlink:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/><path d="M4 4l16 16"/>',
+  edit:'<path d="m15.6 4.3 4.1 4.1-10.2 10.2-4.9.8.8-4.9 10.2-10.2Z"/>',
+  image:'<rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m4 17 5-4.5 3.5 3 3-2.5L20 17"/>',
+  bulb:'<path d="M9 17.5h6M10 20.5h4"/><path d="M12 3.5a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V17h5.2v-.7c0-.8.4-1.5 1-2A6 6 0 0 0 12 3.5Z"/>',
+  send:'<path d="M5 12 19.5 5 15 19.5l-3.2-6.3Z"/><path d="m11.8 13.2 7.7-8.2"/>',
+  external:'<path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M18 14v4.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10"/>',
+  layers:'<path d="m12 4 8.5 4.5L12 13 3.5 8.5Z"/><path d="m3.5 12.5 8.5 4.5 8.5-4.5M3.5 16.5 12 21l8.5-4.5"/>',
+  store:'<path d="M4 9.5 5.5 4.5h13L20 9.5"/><path d="M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0"/><path d="M5.5 11.5v8h13v-8"/><path d="M10 19.5v-4.5h4v4.5"/>',
+  chat:'<path d="M20.5 11.6c0 3.9-3.8 7-8.5 7-1 0-2-.1-2.9-.4L4 20.4l1.4-3.6A6.6 6.6 0 0 1 3.5 11.6c0-3.9 3.8-7 8.5-7s8.5 3.1 8.5 7Z"/>',
+  list:'<path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="5" cy="6.5" r="1" fill="currentColor"/><circle cx="5" cy="12" r="1" fill="currentColor"/><circle cx="5" cy="17.5" r="1" fill="currentColor"/>'
+};
+const FILLED = new Set(["sparkle"]);
+function ic(n, s = 20, cls = "", sw = 1.8){
+  const f = FILLED.has(n);
+  return `<svg class="ic ${cls}" width="${s}" height="${s}" viewBox="0 0 24 24" fill="${f ? "currentColor" : "none"}" stroke="${f ? "none" : "currentColor"}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n] || ""}</svg>`;
+}
+function hydrateIcons(root = document){
+  $$("[data-icon]", root).forEach(el => { el.outerHTML = ic(el.dataset.icon, +(el.dataset.size || 20), "", +(el.dataset.sw || 1.8)); });
+}
+
+/* -----------------------------------------------------------------
+   Demo data: Ridgeline Roofing, a made up roofer with three locations.
+   Site names are where listings appear. No listings vendor is named.
+   ----------------------------------------------------------------- */
+const SITES = [
+  {id:"google",  name:"Google Business Profile", t:"G",  bg:"#E8F0FE", fg:"#1A56C4"},
+  {id:"bing",    name:"Bing Places",             t:"B",  bg:"#E3F4F1", fg:"#0B6B5D"},
+  {id:"apple",   name:"Apple Maps",              t:"A",  bg:"#1C2330", fg:"#FFFFFF"},
+  {id:"yahoo",   name:"Yahoo Local",             t:"Y",  bg:"#EFE6FB", fg:"#5B1FB0", enh:true},
+  {id:"mapquest",name:"MapQuest",                t:"M",  bg:"#E9EDF2", fg:"#26364A"},
+  {id:"yelp",    name:"Yelp",                    t:"Y",  bg:"#FCE8E8", fg:"#B11C1C", enh:true},
+  {id:"yp",      name:"Yellow Pages",            t:"YP", bg:"#FFF5C2", fg:"#5C4A00", enh:true},
+  {id:"superpages",name:"Superpages",            t:"S",  bg:"#FFEBDD", fg:"#9A3D00"},
+  {id:"citysearch",name:"Citysearch",            t:"C",  bg:"#E6F1FB", fg:"#1D5B96"},
+  {id:"hotfrog", name:"Hotfrog",                 t:"H",  bg:"#E7F6E6", fg:"#2B7A28"},
+  {id:"merchant",name:"MerchantCircle",          t:"MC", bg:"#EEF0F3", fg:"#3E4A59"},
+  {id:"foursquare",name:"Foursquare",            t:"F",  bg:"#FDE7F0", fg:"#A3185A"},
+  {id:"houzz",   name:"Houzz",                   t:"Hz", bg:"#E6F5E9", fg:"#2E7D3D"},
+  {id:"facebook",name:"Facebook",                t:"f",  bg:"#E7F0FE", fg:"#1559C9"},
+  {id:"instagram",name:"Instagram",              t:"Ig", bg:"#FBE7F3", fg:"#A1206E"},
+  {id:"nextdoor",name:"Nextdoor",                t:"N",  bg:"#E2F6EA", fg:"#1D7A44", enh:true},
+  {id:"alexa",   name:"Amazon Alexa",            t:"Ax", bg:"#E2F4FB", fg:"#0B6E91"},
+  {id:"siri",    name:"Apple Siri",              t:"Si", bg:"#ECEAFB", fg:"#4B3FB0"},
+  {id:"bixby",   name:"Samsung Bixby",           t:"Bx", bg:"#E8ECF8", fg:"#2D4590"}
+];
+const SITE = Object.fromEntries(SITES.map(s => [s.id, s]));
+const ST = {c:"connected", p:"processing", n:"not", i:"issue"};
+const PROFILE_FIELDS = ["Business name","Street","City","State","ZIP code","Phone","Website","Hours","Categories","Description","Photos"];
+
+const LOCS = {
+  mesa:{
+    label:"Mesa (HQ)", street:"1840 W Juniper Ave", city:"Mesa", state:"AZ", zip:"85201", phone:"(480) 555 0142",
+    cats:["Roofing contractor","Roof repair","Gutters"], completion:62,
+    desc:"Roof repair and replacement in Mesa.",
+    status:"c c i p p c p n n i c n p c c c c c c",
+    issues:{
+      apple:[["Phone","(480) 555 0100","(480) 555 0142"],["Saturday hours","Closed","8:00 AM to 2:00 PM"],["Category","Contractor","Roofing contractor"]],
+      hotfrog:[["Categories","None listed","Roofing contractor, Roof repair"],["Website","None listed","ridgelineroofing.example"],["Photos","None","6 photos"]]
+    }
+  },
+  tempe:{
+    label:"Tempe", street:"725 S Saguaro Ln, Suite 4", city:"Tempe", state:"AZ", zip:"85281", phone:"(480) 555 0178",
+    cats:["Roofing contractor","Roof repair"], completion:78,
+    desc:"Ridgeline Roofing in Tempe. Tile, shingle and flat roofs, storm damage repair and free inspections.",
+    status:"c c c c p i c n c c c n c c c c c c p",
+    issues:{ yelp:[["Address","725 S Saguaro Ln","725 S Saguaro Ln, Suite 4"],["Saturday hours","8:00 AM to 5:00 PM","8:00 AM to 2:00 PM"]] }
+  },
+  gilbert:{
+    label:"Gilbert", street:"310 N Mesquite Rd", city:"Gilbert", state:"AZ", zip:"85234", phone:"(480) 555 0193",
+    cats:["Roofing contractor"], completion:41,
+    desc:"",
+    status:"c i c n n c p n n i n n i c c p n n n",
+    issues:{
+      bing:[["Business name","Ridgeline Roof Co","Ridgeline Roofing"],["Phone","(480) 555 0911","(480) 555 0193"]],
+      hotfrog:[["Categories","None listed","Roofing contractor"],["Website","None listed","ridgelineroofing.example"]],
+      houzz:[["Photos","None","4 photos"],["Description","None","Full description"]]
+    }
+  }
+};
+const HOURS = () => ({
+  mon:{on:true,o:420,c:1020,b:null}, tue:{on:true,o:420,c:1020,b:null}, wed:{on:true,o:420,c:1020,b:null},
+  thu:{on:true,o:420,c:1020,b:null}, fri:{on:true,o:420,c:1020,b:null}, sat:{on:true,o:480,c:840,b:null}, sun:{on:false,o:480,c:840,b:null}
+});
+const DAYS = [["mon","Monday"],["tue","Tuesday"],["wed","Wednesday"],["thu","Thursday"],["fri","Friday"],["sat","Saturday"],["sun","Sunday"]];
+const AI_DESC = "Ridgeline Roofing has repaired and replaced roofs across Mesa, Tempe and Gilbert since 2011. We work on tile, shingle and flat roofs, storm damage and gutters, with free inspections and written estimates. Every crew sweeps the site with a magnet before leaving, and we take emergency leak calls seven days a week.";
+const RAW = {
+  A:{connected:"PUBLISHED", processing:"IN_PROGRESS", not:"NOT_LISTED", issue:"DATA_CONFLICT"},
+  B:{connected:"live", processing:"pending_review", not:"unsubmitted", issue:"mismatch"}
+};
+
+/* -----------------------------------------------------------------
+   State
+   ----------------------------------------------------------------- */
+let S;
+function freshState(){
+  const locs = {};
+  for (const [id, L] of Object.entries(LOCS)){
+    const codes = L.status.split(" ");
+    locs[id] = {
+      ...clone(L),
+      rows: SITES.map((s, i) => ({ id:s.id, st:ST[codes[i]] || "connected" })),
+      issues: clone(L.issues),
+      hours: HOURS()
+    };
+  }
+  return { loc:"mesa", vendor:"A", filter:"all", q:"", locs, sugOpen:true, ai:{open:false, started:false}, posted:false, synced:"2 minutes ago" };
+}
+const L = () => S.locs[S.loc];
+const rowsOf = (loc = L()) => loc.rows;
+const count = st => rowsOf().filter(r => r.st === st || (st === "not" && r.st === "disabled")).length;
+const live = () => count("connected");
+const total = () => rowsOf().filter(r => r.st !== "disabled").length;
+
+/* -----------------------------------------------------------------
+   Toast, tab title
+   ----------------------------------------------------------------- */
+function toast(msg, icon = "check"){
+  const t = document.createElement("div");
+  t.className = "toast"; t.innerHTML = (icon ? ic(icon, 18, "", 2.2) : "") + `<span>${msg}</span>`;
+  $("#toasts").appendChild(t);
+  setTimeout(() => { t.classList.add("out"); setTimeout(() => t.remove(), 260); }, 2600);
+}
+function setTitle(t){ const el = $("#btab-t"); if (el.textContent === t) return; el.textContent = t; el.style.animation = "none"; void el.offsetWidth; el.style.animation = ""; }
+
+/* -----------------------------------------------------------------
+   Profile card
+   ----------------------------------------------------------------- */
+function renderProfile(animate){
+  const l = L();
+  $("#loc-name").textContent = "Ridgeline Roofing · " + l.label;
+  $("#prof").innerHTML = `
+    <div class="prof ${animate ? "x-fade" : ""}">
+      <div class="ph">${ic("store", 30)}</div>
+      <h2>Ridgeline Roofing<br>${esc(l.label)}</h2>
+      <p class="addr">${esc(l.street)}<br>${esc(l.city)}, ${l.state} ${l.zip}<br>${esc(l.phone)}<br>ridgelineroofing.example</p>
+      <div class="cats">${l.cats.map(c => `<span>${esc(c)}</span>`).join("")}</div>
+      <button class="btn btn-brand-o" data-act="profile" data-tab="info">${ic("edit", 15)}Edit business profile</button>
+      <div class="comp">
+        <div class="row"><span>Profile completion</span><span id="comp-n">${l.completion}%</span></div>
+        <div class="bar" id="comp-bar"><i style="width:${S.compW || 0}%"></i></div>
+        <div class="rem">${remaining()} ${plural(remaining(), "item")} left to add</div>
+      </div>
+    </div>
+    <div class="synced" id="synced">${ic("checkCircle", 15)}<span>Last synced ${S.synced}</span></div>`;
+  requestAnimationFrame(() => requestAnimationFrame(() => { const i = $("#comp-bar i"); if (i) i.style.width = l.completion + "%"; S.compW = l.completion; }));
+}
+function remaining(){ return Math.max(0, Math.round((100 - L().completion) / 9)); }
+
+/* -----------------------------------------------------------------
+   Suggestions
+   ----------------------------------------------------------------- */
+function suggestions(){
+  const out = [], rows = rowsOf();
+  const iss = rows.filter(r => r.st === "issue"), nc = rows.filter(r => r.st === "not");
+  if (iss.length) out.push({icon:"alert", tone:"bad", title:`Fix ${iss.length} ${plural(iss.length, "listing")} showing the wrong information`, why:"People see these today. A wrong phone number or hours cost you calls.", cta:"Review", act:"issue", id:iss[0].id});
+  if (nc.length){
+    const nm = nc.map(r => SITE[r.id].name), names = nc.length > 2 ? `${nm.slice(0, 2).join(", ")} and ${nc.length - 2} more` : nm.join(" and ");
+    out.push({icon:"link", tone:"warn", title:`Get listed on ${nc.length} more ${plural(nc.length, "site")}`, why:`${names} ${nc.length === 1 ? "doesn't" : "don't"} show your business yet.`, cta:`Connect ${nc.length}`, act:"connect-all"});
+  }
+  if ((L().desc || "").length < 120) out.push({icon:"edit", tone:"off", title:"Add a full description", why:"Several sites won't publish a listing without one.", cta:"Add description", act:"profile", tab:"desc"});
+  return out;
+}
+function renderSug(){
+  const list = suggestions(), lv = live(), tt = total();
+  const pct = tt ? Math.round(lv / tt * 100) : 0;
+  const tone = {bad:["var(--bad-050)","var(--bad)"], warn:["var(--warn-050)","var(--warn)"], off:["var(--off-050)","var(--off)"]};
+  const box = $("#sug");
+  box.classList.toggle("open", S.sugOpen);
+  box.innerHTML = `
+    <button class="sug-h" data-act="sug" aria-expanded="${S.sugOpen}">
+      <span class="bulb">${ic("bulb", 18)}</span>
+      <span><b>How to improve your online visibility</b><span class="n">${list.length}</span><small>${lv} of ${tt} sites live · profile ${L().completion}% complete</small></span>
+      ${ic("chevDown", 18, "chev")}
+    </button>
+    <div class="health">
+      <div class="row"><span>Listing health</span><span><b>${pct}%</b> of sites live</span></div>
+      <div class="bar ${pct >= 90 ? "ok" : ""}" id="health-bar"><i style="width:${S.healthW || 0}%"></i></div>
+    </div>
+    <div class="sug-list"><div>
+      ${list.length ? list.map((s, i) => `
+        <div class="sug-item" style="--i:${i}">
+          <span class="si" style="background:${tone[s.tone][0]};color:${tone[s.tone][1]}">${ic(s.icon, 16)}</span>
+          <span class="tx"><b>${esc(s.title)}</b><span>${esc(s.why)}</span></span>
+          <button class="btn btn-outline btn-sm" data-act="${s.act}" ${s.id ? `data-id="${s.id}"` : ""} ${s.tab ? `data-tab="${s.tab}"` : ""}>${esc(s.cta)}</button>
+        </div>`).join("") : `<div class="sug-done">${ic("checkCircle", 17)}Nothing to fix here right now.</div>`}
+    </div></div>`;
+  requestAnimationFrame(() => requestAnimationFrame(() => { const b = $("#health-bar i"); if (b) b.style.width = pct + "%"; S.healthW = pct; }));
+}
+
+/* -----------------------------------------------------------------
+   Filter chips and table
+   ----------------------------------------------------------------- */
+const CHIP = [
+  {k:"all", label:"All sites", icon:"list", tone:""},
+  {k:"connected", label:"Connected", icon:"checkCircle", tone:"ok"},
+  {k:"processing", label:"Processing", icon:"clock", tone:"warn"},
+  {k:"not", label:"Not connected", icon:"minusCircle", tone:"off"},
+  {k:"issue", label:"Issue found", icon:"alert", tone:"bad"}
+];
+let lastCounts = {};
+function renderChips(){
+  const n = {all:rowsOf().length};
+  CHIP.slice(1).forEach(c => n[c.k] = count(c.k));
+  $("#chips").innerHTML = CHIP.map(c => `<button class="chip ${c.tone}" data-act="filter" data-k="${c.k}" aria-pressed="${S.filter === c.k}">${ic(c.icon, 15)}${c.label}<span class="cnt ${lastCounts[c.k] !== undefined && lastCounts[c.k] !== n[c.k] ? "bump" : ""}">${n[c.k]}</span></button>`).join("");
+  lastCounts = n;
+}
+const STATUS = {
+  connected:{label:"Connected", icon:"checkCircle"},
+  processing:{label:"Processing", icon:"clock", sub:"Live in 2 to 5 days"},
+  not:{label:"Not connected", icon:"minusCircle"},
+  issue:{label:"Issue found", icon:"alert"},
+  disabled:{label:"Disabled", icon:"pause", sub:"Hidden until you turn it on"}
+};
+function rowHTML(r, i, anim){
+  const s = SITE[r.id], st = STATUS[r.st];
+  let act = "";
+  if (r.st === "connected") act = `<button class="view-l" data-act="view" data-id="${r.id}">${ic("external", 15)}View listing</button>`;
+  else if (r.st === "issue") act = `<button class="btn btn-brand-o btn-sm" data-act="issue" data-id="${r.id}">View details</button>`;
+  else if (r.st === "not") act = `<button class="btn btn-outline btn-sm" data-act="connect" data-id="${r.id}">${ic("link", 14)}Connect</button>`;
+  else if (r.st === "disabled") act = `<button class="btn btn-outline btn-sm" data-act="enable" data-id="${r.id}">Turn on</button>`;
+  return `<div class="trow ${anim ? "in" : ""}" role="row" id="row-${r.id}" style="--i:${i};view-transition-name:row-${r.id}">
+    <div class="plat"><span class="tile" style="background:${s.bg};color:${s.fg}">${s.t}</span><b>${esc(s.name)}</b>${s.enh ? `<span class="enh" title="Enhanced listings carry more of your profile, like photos and services">${ic("sparkle", 11)}Enhanced</span>` : ""}</div>
+    <div><span class="st ${r.st}">${ic(st.icon, 16)}<span>${st.label}${st.sub ? `<small>${st.sub}</small>` : ""}</span></span></div>
+    <div class="acts">${act}<button class="more" data-act="menu" data-id="${r.id}" aria-label="More actions for ${esc(s.name)}" aria-haspopup="menu" aria-expanded="false">${ic("more", 18)}</button></div>
+  </div>`;
+}
+function visibleRows(){
+  const q = S.q.trim().toLowerCase();
+  return rowsOf().filter(r => (S.filter === "all" || r.st === S.filter || (S.filter === "not" && r.st === "disabled")) && (!q || SITE[r.id].name.toLowerCase().includes(q)));
+}
+function renderRows(anim){
+  const rows = visibleRows();
+  $("#rows").innerHTML = rows.length ? rows.map((r, i) => rowHTML(r, i, anim)).join("") : `<div class="empty">No sites match ${S.q ? `&ldquo;${esc(S.q)}&rdquo;` : "this filter"}.</div>`;
+}
+function updateRow(id, cls){
+  const r = rowsOf().find(x => x.id === id);
+  const el = $("#row-" + id);
+  const visible = visibleRows().some(x => x.id === id);
+  if (el && visible){
+    const i = el.style.getPropertyValue("--i");
+    const tmp = document.createElement("div"); tmp.innerHTML = rowHTML(r, +i, false);
+    const nr = tmp.firstElementChild; el.replaceWith(nr);
+    $(".st", nr).classList.add("swap");
+    if (cls){ nr.classList.add(cls); }
+  } else if (!el && visible || el && !visible){ renderRows(false); }
+  renderChips(); renderSug();
+}
+function setStatus(id, st, cls){ const r = rowsOf().find(x => x.id === id); if (!r) return; r.st = st; updateRow(id, cls); }
+function syncWave(onlyConnected){
+  $$("#rows .trow").forEach((el, i) => {
+    if (onlyConnected && !$(".st.connected", el)) return;
+    el.style.setProperty("--i", i); el.classList.remove("sync"); void el.offsetWidth; el.classList.add("sync");
+    setTimeout(() => el.classList.remove("sync"), 1700 + i * 35);
+  });
+  const sy = $("#synced");
+  if (sy){ sy.classList.add("busy"); $("span", sy).textContent = "Syncing"; setTimeout(() => { S.synced = "just now"; sy.classList.remove("busy"); $("span", sy).textContent = "Last synced just now"; }, 1400); }
+}
+function renderAll(anim){ renderProfile(anim); renderSug(); renderChips(); renderRows(anim); }
+
+/* -----------------------------------------------------------------
+   Popovers: location picker and row menus
+   ----------------------------------------------------------------- */
+let POP = null;
+function closePop(){
+  if (!POP) return;
+  const p = POP; POP = null;
+  $$('[aria-expanded="true"]').forEach(b => { if (b.dataset.act === "menu" || b.dataset.act === "loc") b.setAttribute("aria-expanded", "false"); });
+  p.classList.add("out"); setTimeout(() => p.remove(), 160);
+}
+function openPop(anchor, html, alignRight = true){
+  closePop();
+  const app = $("#app").getBoundingClientRect(), r = anchor.getBoundingClientRect();
+  const p = document.createElement("div"); p.className = "pop"; p.setAttribute("role", "menu"); p.innerHTML = html;
+  $("#pop-root").appendChild(p);
+  const top = (r.bottom - app.top) / SCALE + 6;
+  const right = (app.right - r.right) / SCALE;
+  if (alignRight){ p.style.right = right + "px"; } else { p.style.left = (r.left - app.left) / SCALE + "px"; p.style.setProperty("--ox", "0%"); }
+  const h = p.offsetHeight, H = app.height / SCALE;
+  p.style.top = (top + h > H - 10 ? (r.top - app.top) / SCALE - h - 6 : top) + "px";
+  anchor.setAttribute("aria-expanded", "true");
+  POP = p;
+  const first = $("button", p); first && first.focus({preventScroll:true});
+}
+function openLocPicker(btn){
+  const opts = Object.entries(S.locs).map(([id, l]) => {
+    const iss = l.rows.filter(r => r.st === "issue").length;
+    const color = iss ? "var(--bad)" : l.rows.some(r => r.st === "processing") ? "var(--warn)" : "var(--ok)";
+    return `<button role="menuitemradio" aria-checked="${id === S.loc}" data-act="loc-pick" data-id="${id}"><span class="sdot" style="background:${color}"></span><span>Ridgeline Roofing · ${esc(l.label)}<span class="sub">${l.rows.filter(r => r.st === "connected").length} of ${l.rows.length} sites live${iss ? ` · ${iss} ${plural(iss, "issue")}` : ""}</span></span>${id === S.loc ? `<span class="sel">${ic("check", 16)}</span>` : ""}</button>`;
+  }).join("");
+  openPop(btn, opts);
+}
+function openRowMenu(btn){
+  const r = rowsOf().find(x => x.id === btn.dataset.id), s = SITE[r.id];
+  let html = "";
+  if (r.st === "not") html = `<button data-act="connect" data-id="${r.id}">${ic("link", 16)}Connect ${esc(s.name)}</button>`;
+  else if (r.st === "disabled") html = `<button data-act="enable" data-id="${r.id}">${ic("checkCircle", 16)}Turn listing back on</button><hr><button class="danger" data-act="ask-off" data-kind="disconnect" data-id="${r.id}">${ic("unlink", 16)}Disconnect</button>`;
+  else html = `<button data-act="sync-one" data-id="${r.id}">${ic("refresh", 16)}Sync now</button>${r.st === "issue" ? `<button data-act="issue" data-id="${r.id}">${ic("alert", 16)}View issue details</button>` : ""}<hr><button data-act="ask-off" data-kind="disable" data-id="${r.id}">${ic("pause", 16)}Disable listing</button><button class="danger" data-act="ask-off" data-kind="disconnect" data-id="${r.id}">${ic("unlink", 16)}Disconnect</button>`;
+  openPop(btn, html);
+}
+
+/* -----------------------------------------------------------------
+   Modals
+   ----------------------------------------------------------------- */
+function openModal(html, cls = ""){
+  closePop();
+  const root = $("#modal-root");
+  root.innerHTML = `<div class="scrim" data-act="scrim"><div class="modal ${cls}" role="dialog" aria-modal="true">${html}</div></div>`;
+  hydrateIcons(root);
+  const f = $(".modal button:not(.x), .modal input", root) || $(".modal button", root); f && f.focus({preventScroll:true});
+  return $(".modal", root);
+}
+function closeModal(){
+  const sc = $("#modal-root .scrim"); if (!sc) return;
+  sc.classList.add("out"); setTimeout(() => { if (sc.isConnected) sc.remove(); }, 210);
+}
+const head = (id, sub) => { const s = SITE[id]; return `<div class="m-h"><span class="tile" style="background:${s.bg};color:${s.fg};width:36px;height:36px;font-size:13px">${s.t}</span><div><h3>${esc(s.name)}</h3><small>${sub}</small></div><button class="x" data-act="close" aria-label="Close">${ic("x", 18)}</button></div>`; };
+
+/* Issue details */
+function fieldKey(label){
+  const k = label.toLowerCase().replace("saturday ", "");
+  if (k.startsWith("categor")) return "Categories";
+  if (k === "address") return "Street";
+  if (k.startsWith("hour")) return "Hours";
+  return PROFILE_FIELDS.find(p => p.toLowerCase() === k) || label;
+}
+const goodFields = labels => { const bad = labels.map(fieldKey); return PROFILE_FIELDS.filter(p => !bad.includes(p)); };
+function issueFields(id){ return L().issues[id] || [["Phone","Old number",L().phone]]; }
+function scoreHTML(needs, ok){
+  const tot = needs + ok;
+  return `<div class="score"><span>Visibility score</span><b class="num" id="score-n">${ok} of ${tot}</b></div><div class="bar ${needs ? "" : "ok"}" id="score-bar"><i style="width:${Math.round(ok / tot * 100)}%"></i></div>`;
+}
+function openIssue(id){
+  const f = issueFields(id), bad = f.map(x => x[0]), good = goodFields(bad);
+  const m = openModal(`${head(id, "This listing doesn't match your profile")}
+    <div class="m-b" id="iss-b">
+      ${scoreHTML(bad.length, good.length)}
+      <div class="sec bad"><h4>Needs attention <span class="cnt">${bad.length}</span></h4><div class="fchips" id="need">${bad.map(b => `<span class="fchip bad">${ic("alert", 13)}${esc(b)}</span>`).join("")}</div></div>
+      <div class="sec ok"><h4>Matches your profile <span class="cnt" id="ok-n">${good.length}</span></h4><div class="fchips" id="match">${good.map(g => `<span class="fchip ok">${ic("check", 13, "", 2.4)}${esc(g)}</span>`).join("")}</div></div>
+      <div class="why">${ic("info", 16)}<span>Syncing sends your profile again, but ${esc(SITE[id].name)} keeps its own values until they're corrected. Thryv AI can draft those corrections for you to check.</span></div>
+    </div>
+    <div class="m-f"><button class="btn btn-outline" data-act="sync-one" data-id="${id}">${ic("refresh", 15)}Sync now</button><span class="grow"></span><span class="concept">Concept</span><button class="btn btn-primary" data-act="ai-fix" data-id="${id}">${ic("sparkle", 15)}Fix with Thryv AI</button></div>`, "wide");
+  m.dataset.id = id;
+  setTitle(SITE[id].name + " · Listing details");
+}
+async function aiFix(id){
+  const ep = EPOCH, f = issueFields(id), name = SITE[id].name;
+  const b = $("#iss-b"); if (!b) return;
+  b.classList.remove("swap"); void b.offsetWidth; b.classList.add("swap");
+  b.innerHTML = `<div class="ai-line">${ic("sparkle", 15)}<span id="ai-status">Comparing ${esc(name)} with your profile</span></div><div class="dots" style="margin-top:12px"><i></i><i></i><i></i></div>`;
+  const foot = $(".modal .m-f"); foot.innerHTML = `<span class="grow"></span><button class="btn btn-outline" data-act="close">Cancel</button>`;
+  await wait(1100); if (ep !== EPOCH || !$("#iss-b")) return;
+  b.innerHTML = `<div class="ai-line">${ic("sparkle", 15)}<span>Thryv AI drafted ${f.length} ${plural(f.length, "fix", "fixes")}. Check them before anything is sent.</span></div>
+    <div class="diff" id="diff">${f.map((x, i) => `
+      <label class="diff-row" style="animation:msgIn .4s var(--ease-out) both;animation-delay:${i * 110}ms" data-i="${i}">
+        <input type="checkbox" class="cbox" checked aria-label="Send the ${esc(x[0])} fix">
+        <span class="lab">${esc(x[0])}</span>
+        <span class="old"><span class="src">${esc(name)} shows</span><s>${esc(x[1])}</s></span>
+        <span class="to">${ic("arrowRight", 16)}</span>
+        <span class="new"><span class="src">Your profile</span>${esc(x[2])}</span>
+        <span class="done">${ic("check", 14, "", 2.6)}</span>
+      </label>`).join("")}</div>`;
+  foot.innerHTML = `<button class="btn btn-ghost" data-act="issue" data-id="${id}">${ic("arrowLeft", 15)}Back</button><span class="grow"></span><button class="btn btn-outline" data-act="close">Not now</button><button class="btn btn-primary" id="send-fix" data-act="send-fix" data-id="${id}">${ic("check", 15, "", 2.4)}Send ${f.length} ${plural(f.length, "fix", "fixes")}</button>`;
+  $$("#diff .cbox").forEach(cb => cb.addEventListener("change", () => {
+    const n = $$("#diff .cbox:checked").length;
+    cb.closest(".diff-row").classList.toggle("skip", !cb.checked);
+    const btn = $("#send-fix"); btn.disabled = !n; btn.lastChild.textContent = `Send ${n} ${plural(n, "fix", "fixes")}`;
+  }));
+}
+async function sendFix(id){
+  const ep = EPOCH, name = SITE[id].name;
+  const rows = $$("#diff .diff-row"), picked = rows.filter(r => $(".cbox", r).checked);
+  $("#send-fix").disabled = true;
+  $$("#diff .cbox").forEach(c => c.disabled = true);
+  for (const r of picked){ await wait(330); if (ep !== EPOCH) return; r.classList.add("sent"); }
+  await wait(450); if (ep !== EPOCH || !$("#iss-b")) return;
+  const all = picked.length === rows.length;
+  const remainingFields = rows.filter(r => !$(".cbox", r).checked).map(r => issueFields(id)[+r.dataset.i]);
+  if (remainingFields.length) L().issues[id] = remainingFields; else delete L().issues[id];
+  const b = $("#iss-b");
+  b.classList.remove("swap"); void b.offsetWidth; b.classList.add("swap");
+  const labels = rows.map(r => r.querySelector(".lab").textContent), sentLabels = picked.map(r => r.querySelector(".lab").textContent), good = goodFields(labels);
+  b.innerHTML = `${scoreHTML(rows.length, good.length)}
+    <div class="sec bad"><h4>Needs attention <span class="cnt" id="need-n">${rows.length}</span></h4><div class="fchips" id="need">${rows.map(r => `<span class="fchip bad" data-l="${esc(r.querySelector(".lab").textContent)}">${ic("alert", 13)}${esc(r.querySelector(".lab").textContent)}</span>`).join("")}</div></div>
+    <div class="sec ok"><h4>Matches your profile <span class="cnt" id="ok-n">${good.length}</span></h4><div class="fchips" id="match"></div></div>`;
+  $(".modal .m-f").innerHTML = `<span class="grow"></span><button class="btn btn-primary" data-act="close">Done</button>`;
+  const match = $("#match");
+  good.forEach(g => match.insertAdjacentHTML("beforeend", `<span class="fchip ok">${ic("check", 13, "", 2.4)}${esc(g)}</span>`));
+  let ok = good.length, need = rows.length;
+  for (const lab of sentLabels){
+    await wait(380); if (ep !== EPOCH || !$("#need")) return;
+    const chip = $(`#need .fchip[data-l="${CSS.escape(lab)}"]`);
+    if (chip){ chip.classList.add("leave"); setTimeout(() => chip.remove(), 340); }
+    match.insertAdjacentHTML("beforeend", `<span class="fchip ok arrive">${ic("check", 13, "", 2.4)}${esc(fieldKey(lab))}</span>`);
+    ok++; need--;
+    $("#need-n").textContent = need; $("#ok-n").textContent = ok;
+    $("#score-n").textContent = `${ok} of ${ok + need}`;
+    $("#score-bar i").style.width = Math.round(ok / (ok + need) * 100) + "%";
+    if (!need){ $("#score-bar").classList.add("ok"); setTimeout(() => { const n = $("#need"); if (n) n.innerHTML = `<span class="none">Nothing left to fix</span>`; }, 360); }
+  }
+  await wait(300); if (ep !== EPOCH || !$("#iss-b")) return;
+  b.insertAdjacentHTML("beforeend", `<div class="sent-note">${ic("checkCircle", 17)}<span><b>Sent to ${esc(name)}.</b> Corrections usually show within a day. We'll keep checking and tell you if anything changes back.</span></div>`);
+  if (all){
+    setStatus(id, "processing", "flash");
+    setTimeout(() => { if (ep === EPOCH && S.locs && rowsOf().find(r => r.id === id && r.st === "processing")) setStatus(id, "connected", "flash-ok"); }, 4200);
+  }
+  toast(`${picked.length} ${plural(picked.length, "fix", "fixes")} sent to ${name}`);
+}
+
+/* Connect */
+function openConnect(id){
+  const s = SITE[id];
+  openModal(`${head(id, "Not listed yet")}
+    <div class="m-b"><p>We'll send your ${esc(L().label)} profile to ${esc(s.name)}: name, address, phone, hours, categories and description. New listings usually go live in 3 to 7 days, and you can disable or disconnect it any time.</p>
+    ${s.enh ? `<div class="why">${ic("sparkle", 16)}<span>This is an enhanced listing, so it also carries your photos and services.</span></div>` : ""}</div>
+    <div class="m-f"><span class="grow"></span><button class="btn btn-outline" data-act="close">Cancel</button><button class="btn btn-primary" data-act="do-connect" data-id="${id}">${ic("link", 15)}Connect</button></div>`);
+}
+async function connectAll(){
+  const ep = EPOCH, ids = rowsOf().filter(r => r.st === "not").map(r => r.id);
+  if (S.filter !== "all" && S.filter !== "not" && S.filter !== "processing"){ S.filter = "all"; renderChips(); renderRows(false); }
+  for (const id of ids){ await wait(240); if (ep !== EPOCH) return; setStatus(id, "processing", "flash"); }
+  toast(`Sent your profile to ${ids.length} ${plural(ids.length, "site")}`);
+}
+
+/* Disable or disconnect */
+function openOff(id, kind){
+  const s = SITE[id];
+  openModal(`<div class="m-h"><div><h3>Before you continue</h3><small>These two aren't the same. Here's what each one does to ${esc(s.name)}.</small></div><button class="x" data-act="close" aria-label="Close">${ic("x", 18)}</button></div>
+    <div class="m-b">
+      <div class="cmp">
+        <div class="cmp-c ${kind === "disable" ? "pick" : ""}" id="c-dis"><h4>${ic("pause", 17)}Disable</h4><ul>
+          <li>${ic("check", 15, "", 2.2)}Listing stays connected</li><li>${ic("check", 15, "", 2.2)}Your data is kept</li><li>${ic("check", 15, "", 2.2)}Turn it back on any time</li></ul><span class="tag rev">Reversible</span></div>
+        <div class="cmp-c danger ${kind === "disconnect" ? "pick" : ""}" id="c-dis2"><h4 style="color:var(--bad)">${ic("unlink", 17)}Disconnect</h4><ul>
+          <li>${ic("x", 15, "", 2.2)}Listing is removed</li><li>${ic("x", 15, "", 2.2)}Reviews stop syncing</li><li>${ic("x", 15, "", 2.2)}You'll need to verify it again</li></ul><span class="tag irr">Can't be undone</span></div>
+      </div>
+    </div>
+    <div class="m-f"><button class="btn btn-outline" data-act="close">Cancel</button><span class="grow"></span><button class="btn btn-outline" data-act="do-off" data-kind="disable" data-id="${id}">${ic("pause", 15)}Disable</button><button class="btn btn-danger" data-act="do-off" data-kind="disconnect" data-id="${id}">${ic("unlink", 15)}Disconnect</button></div>`, "wide");
+  const m = $(".modal");
+  $$(".m-f [data-kind]", m).forEach(b => {
+    const card = b.dataset.kind === "disable" ? $("#c-dis") : $("#c-dis2");
+    b.addEventListener("mouseenter", () => { $$(".cmp-c", m).forEach(c => c.classList.remove("pick")); card.classList.add("pick"); });
+    b.addEventListener("focus", () => { $$(".cmp-c", m).forEach(c => c.classList.remove("pick")); card.classList.add("pick"); });
+  });
+}
+
+/* -----------------------------------------------------------------
+   Edit profile drawer: info, hours with breaks, description
+   ----------------------------------------------------------------- */
+let D = null;
+const fmt = m => { const h = Math.floor(m / 60), mm = m % 60, ap = h >= 12 ? "PM" : "AM", h12 = ((h + 11) % 12) + 1; return `${h12}:${String(mm).padStart(2, "0")} ${ap}`; };
+const TIMES = []; for (let m = 360; m <= 1320; m += 30) TIMES.push(m);
+const tsel = (val, attr) => `<select class="tsel" ${attr}>${TIMES.map(t => `<option value="${t}" ${t === val ? "selected" : ""}>${fmt(t)}</option>`).join("")}</select>`;
+const TL0 = 360, TL1 = 1320;
+const pctOf = m => ((m - TL0) / (TL1 - TL0) * 100).toFixed(2) + "%";
+function openDrawer(tab = "info"){
+  closePop(); closeModal();
+  D = { tab, hours:clone(L().hours), desc:L().desc, aiDraft:null };
+  const root = $("#modal-root");
+  root.innerHTML = `<div class="dscrim" data-act="dscrim"><aside class="drawer" role="dialog" aria-modal="true" aria-label="Edit business profile">
+    <div class="d-h"><div><h3>Edit business profile</h3><small>Ridgeline Roofing · ${esc(L().label)}. Changes go to every connected site.</small></div><button class="x" data-act="dclose" aria-label="Close">${ic("x", 18)}</button></div>
+    <div class="tabs" role="tablist"><button role="tab" data-act="dtab" data-tab="info">Business info</button><button role="tab" data-act="dtab" data-tab="hours">Hours</button><button role="tab" data-act="dtab" data-tab="desc">Description</button><span class="ink"></span></div>
+    <div class="d-b" id="d-b"></div>
+    <div class="d-f"><span class="grow"></span><button class="btn btn-outline" data-act="dclose">Cancel</button><button class="btn btn-primary" data-act="dsave">Save and send</button></div>
+  </aside></div>`;
+  dTab(tab);
+  setTitle("Edit business profile");
+}
+function closeDrawer(){
+  const sc = $("#modal-root .dscrim"); if (!sc) return;
+  sc.classList.add("out"); setTimeout(() => { if (sc.isConnected) sc.remove(); }, 260); D = null; setTitle("Listings Management");
+}
+function dTab(tab){
+  D.tab = tab;
+  $$(".tabs [role=tab]").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === tab));
+  const on = $(`.tabs [data-tab="${tab}"]`), ink = $(".tabs .ink");
+  requestAnimationFrame(() => { ink.style.left = on.offsetLeft + "px"; ink.style.width = on.offsetWidth + "px"; });
+  const l = L(), b = $("#d-b");
+  if (tab === "info") b.innerHTML = `<div class="pane">
+      <label class="fld"><span>Business name</span><input value="Ridgeline Roofing"></label>
+      <div class="two"><label class="fld"><span>Phone</span><input value="${esc(l.phone)}"></label><label class="fld"><span>Website</span><input value="ridgelineroofing.example"></label></div>
+      <label class="fld"><span>Street address</span><input value="${esc(l.street)}"></label>
+      <div class="two"><label class="fld"><span>City</span><input value="${esc(l.city)}"></label><div class="two"><label class="fld"><span>State</span><input value="${l.state}"></label><label class="fld"><span>ZIP code</span><input value="${l.zip}"></label></div></div>
+      <label class="fld"><span>Categories</span><input value="${esc(l.cats.join(", "))}"></label></div>`;
+  else if (tab === "hours") b.innerHTML = `<div class="pane"><div class="hrs" id="hrs">${DAYS.map(([k]) => dayHTML(k)).join("")}</div></div>`;
+  else {
+    const n = (D.desc || "").length;
+    b.innerHTML = `<div class="pane">
+      <label class="fld"><span>Description</span><textarea id="desc" maxlength="750" placeholder="What you do, where you work and what makes you different">${esc(D.desc || "")}</textarea><span class="hint"><span>Several sites won't publish a listing without a description.</span><span id="desc-n">${n} of 750</span></span></label>
+      <div id="ai-slot">${aiDescIdle()}</div></div>`;
+    $("#desc").addEventListener("input", e => { D.desc = e.target.value; $("#desc-n").textContent = `${D.desc.length} of 750`; });
+  }
+  hydrateIcons(b);
+}
+const aiDescIdle = () => `<button class="btn btn-brand-o" data-act="ai-desc">${ic("sparkle", 15)}Write it with Thryv AI</button> <span class="concept" style="margin-left:6px">Concept</span>`;
+function dayHTML(k){
+  const d = D.hours[k], name = DAYS.find(x => x[0] === k)[1];
+  const segs = !d.on ? "" : d.b ? `<span class="open" style="left:${pctOf(d.o)};width:calc(${pctOf(d.c)} - ${pctOf(d.o)})"></span><span class="gap" style="left:${pctOf(d.b[0])};width:calc(${pctOf(d.b[1])} - ${pctOf(d.b[0])})"></span>` : `<span class="open" style="left:${pctOf(d.o)};width:calc(${pctOf(d.c)} - ${pctOf(d.o)})"></span>`;
+  return `<div class="hday" data-day="${k}">
+    <div class="hline"><span class="dn">${name}</span><button class="tog" role="switch" aria-checked="${d.on}" aria-label="${name} open" data-act="h-tog" data-day="${k}"></button>
+      ${d.on ? `${tsel(d.o, `data-h="o" data-day="${k}" aria-label="${name} opens"`)}<span class="to">to</span>${tsel(d.c, `data-h="c" data-day="${k}" aria-label="${name} closes"`)}<span class="grow"></span>${d.b ? "" : `<button class="lnk" data-act="h-break" data-day="${k}" style="font-size:12.5px">${ic("plus", 14)} Add a break</button>`}` : `<span class="closed">Closed</span>`}
+    </div>
+    ${d.on ? `<div class="tl" aria-hidden="true">${segs}</div>` : ""}
+    ${d.on && d.b ? `<div class="brk"><span class="tag">Break</span>${tsel(d.b[0], `data-h="b0" data-day="${k}" aria-label="${name} break starts"`)}<span class="to">to</span>${tsel(d.b[1], `data-h="b1" data-day="${k}" aria-label="${name} break ends"`)}<span>Closed during the break, open the rest of the day</span><button class="rm" data-act="h-rm" data-day="${k}" aria-label="Remove ${name} break">${ic("x", 15)}</button></div>` : ""}
+    ${k === "mon" && d.on ? `<div class="tl-ticks"><span>6 AM</span><span>10 AM</span><span>2 PM</span><span>6 PM</span><span>10 PM</span></div>` : ""}
+  </div>`;
+}
+function redrawDay(k, animateGap){
+  const el = $(`.hday[data-day="${k}"]`); if (!el) return;
+  const tmp = document.createElement("div"); tmp.innerHTML = dayHTML(k);
+  const n = tmp.firstElementChild;
+  if (!animateGap) $$(".gap", n).forEach(g => g.style.animation = "none");
+  el.replaceWith(n);
+}
+async function aiDesc(){
+  const ep = EPOCH, slot = $("#ai-slot");
+  slot.innerHTML = `<div class="ai-box"><div class="hd">${ic("sparkle", 15)}Thryv AI <span class="concept">Concept</span></div><p id="ai-p"><span style="color:var(--ink-3)">Reading ridgelineroofing.example and your reviews</span><span class="caret"></span></p><div class="ft" id="ai-ft" hidden><button class="btn btn-primary btn-sm" data-act="ai-use">${ic("check", 14, "", 2.4)}Use this</button><button class="btn btn-outline btn-sm" data-act="ai-desc">${ic("refresh", 14)}Try again</button><button class="btn btn-ghost btn-sm" data-act="ai-discard">Discard</button></div></div>`;
+  await wait(1000); if (ep !== EPOCH || !$("#ai-p")) return;
+  const p = $("#ai-p"); p.innerHTML = `<span id="ai-t"></span><span class="caret"></span>`;
+  await typeInto($("#ai-t"), AI_DESC, 12, ep);
+  if (ep !== EPOCH || !$("#ai-p")) return;
+  $(".caret", p) && $(".caret", p).remove();
+  D.aiDraft = AI_DESC; $("#ai-ft").hidden = false;
+}
+async function typeInto(el, text, ms, ep){
+  const words = text.split(" ");
+  for (let i = 0; i < words.length; i++){
+    if (ep !== EPOCH || !el.isConnected) return;
+    el.textContent += (i ? " " : "") + words[i];
+    const sc = el.closest(".aip-b"); if (sc) sc.scrollTop = sc.scrollHeight;
+    await wait(ms + (words[i].endsWith(".") ? ms * 6 : 0));
+  }
+}
+function saveDrawer(){
+  const l = L(); let changed = [];
+  if (D.desc !== l.desc){ const was = (l.desc || "").length < 120, now = (D.desc || "").length >= 120; l.desc = D.desc; if (was && now){ l.completion = Math.min(100, l.completion + 12); } changed.push("description"); }
+  if (JSON.stringify(D.hours) !== JSON.stringify(l.hours)){ l.hours = clone(D.hours); changed.push("hours"); }
+  closeDrawer();
+  renderProfile(false); renderSug();
+  setTimeout(() => { syncWave(true); toast(changed.length ? `Saved. Sending your ${changed.join(" and ")} to ${live()} sites` : `Saved. Your profile is up to date on ${live()} sites`); }, 280);
+}
+
+/* -----------------------------------------------------------------
+   Thryv AI panel (scripted, no model behind it)
+   ----------------------------------------------------------------- */
+const PROMPTS = [
+  ["fix", "What should I fix first?"],
+  ["issues", "Which listings have issues?"],
+  ["reply", "Draft a reply to my worst recent review"]
+];
+function aiOpen(on = !S.ai.open){
+  S.ai.open = on;
+  $("#aip").classList.toggle("on", on);
+  $("#ask-btn").classList.toggle("on", on);
+  if (on && !S.ai.started){
+    S.ai.started = true;
+    const b = $("#aip-b");
+    b.innerHTML = `<div class="msg bot">Hi Dana. I can check your listings across every site and draft fixes or review replies. Nothing goes out until you approve it.</div><div class="prompts" id="prompts">${PROMPTS.map(([k, t]) => `<button class="prompt" data-act="ai-q" data-k="${k}">${ic(k === "reply" ? "chat" : k === "issues" ? "alert" : "bulb", 16)}${t}</button>`).join("")}</div>`;
+  }
+  if (on) setTimeout(() => $("#ask-q").focus({preventScroll:true}), 350);
+}
+function addMsg(html, cls = "bot"){ const b = $("#aip-b"); b.insertAdjacentHTML("beforeend", `<div class="msg ${cls}">${html}</div>`); b.scrollTop = b.scrollHeight; return b.lastElementChild; }
+function addCard(html){ const b = $("#aip-b"); b.insertAdjacentHTML("beforeend", html); hydrateIcons(b); b.scrollTop = b.scrollHeight; return b.lastElementChild; }
+async function botSay(text, ep){
+  const b = $("#aip-b");
+  b.insertAdjacentHTML("beforeend", `<div class="dots"><i></i><i></i><i></i></div>`); b.scrollTop = b.scrollHeight;
+  await wait(700); if (ep !== EPOCH) return null;
+  $(".dots", b) && $(".dots", b).remove();
+  const m = addMsg("", "bot"); await typeInto(m, text, 22, ep); return m;
+}
+function classify(q){
+  q = q.toLowerCase();
+  if (/repl|review|respond/.test(q)) return "reply";
+  if (/which|issue|wrong|problem|list/.test(q)) return "issues";
+  if (/fix|first|start|priorit|improv/.test(q)) return "fix";
+  return "other";
+}
+async function ask(k, text){
+  const ep = EPOCH;
+  $("#prompts") && $("#prompts").remove();
+  addMsg(esc(text || PROMPTS.find(p => p[0] === k)[1]), "me");
+  const iss = rowsOf().filter(r => r.st === "issue"), nc = rowsOf().filter(r => r.st === "not");
+  if (k === "fix"){
+    if (iss.length){
+      const first = iss[0], f = issueFields(first.id);
+      const m = await botSay(`Start with the ${iss.length === 1 ? "listing" : iss.length + " listings"} showing the wrong information. ${SITE[first.id].name} doesn't match your profile on ${f.map(x => /day/.test(x[0]) ? x[0] : x[0].toLowerCase()).join(", ").replace(/, ([^,]*)$/, " and $1")}. People see that today, so it costs you calls. Connecting new sites can wait until these are right.`, ep);
+      if (!m || ep !== EPOCH) return;
+      addCard(`<div class="acard"><div class="ah">${ic("alert", 14)}${iss.length} ${plural(iss.length, "listing")} to fix</div><div class="ab">${iss.map(r => `<div class="irow"><span class="tile" style="background:${SITE[r.id].bg};color:${SITE[r.id].fg};width:26px;height:26px;font-size:11px">${SITE[r.id].t}</span><span class="tx"><b>${SITE[r.id].name}</b><span>${issueFields(r.id).map(x => x[0]).join(", ")}</span></span></div>`).join("")}</div><div class="af"><button class="btn btn-primary btn-sm" data-act="ai-review" data-id="${first.id}">${ic("sparkle", 14)}Review fixes</button><button class="btn btn-outline btn-sm" data-act="ai-dismiss">Not now</button></div></div>`);
+    } else if (nc.length){
+      const m = await botSay(`Nothing is wrong on the sites that list you. Next I'd get you onto the ${nc.length} ${plural(nc.length, "site")} that don't show you yet. It's the same profile, sent once.`, ep);
+      if (!m || ep !== EPOCH) return;
+      addCard(`<div class="acard"><div class="ah">${ic("link", 14)}${nc.length} ${plural(nc.length, "site")} to connect</div><div class="ab">${nc.map(r => SITE[r.id].name).join(", ")}</div><div class="af"><button class="btn btn-primary btn-sm" data-act="connect-all">Connect ${nc.length}</button><button class="btn btn-outline btn-sm" data-act="ai-dismiss">Not now</button></div></div>`);
+    } else await botSay("Everything looks right for this location. I'll tell you if a site changes your information.", ep);
+  } else if (k === "issues"){
+    if (!iss.length){ await botSay(`None right now. All ${live()} connected sites match your ${L().label} profile.`, ep); return; }
+    const m = await botSay(`${iss.length} ${plural(iss.length, "listing has", "listings have")} information that doesn't match your profile for ${L().label}.`, ep);
+    if (!m || ep !== EPOCH) return;
+    addCard(`<div class="acard"><div class="ab">${iss.map(r => `<div class="irow"><span class="tile" style="background:${SITE[r.id].bg};color:${SITE[r.id].fg};width:26px;height:26px;font-size:11px">${SITE[r.id].t}</span><span class="tx"><b>${SITE[r.id].name}</b><span>${issueFields(r.id).map(x => x[0]).join(", ")}</span></span><button class="btn btn-outline btn-sm" data-act="issue" data-id="${r.id}">View</button></div>`).join("")}</div></div>`);
+  } else if (k === "reply"){
+    const m = await botSay("Here's your lowest recent review, from Google, and a reply you can post. Change anything you like before you approve it.", ep);
+    if (!m || ep !== EPOCH) return;
+    addCard(`<div class="acard" id="reply-card"><div class="ah">${ic("chat", 14)}Draft reply</div><div class="ab">
+      <div class="rv"><div class="who">Alex M. <span class="stars">★<span class="off">★★★★</span></span><span style="font-weight:400;color:var(--ink-3);margin-left:auto">Google · 3 days ago</span></div>They fixed the leak fast, but left nails all over my driveway. I found three in my tire the next week.</div>
+      <textarea aria-label="Reply to Alex M.">Hi Alex, thank you for telling us, and I'm sorry about the nails. That's not how we leave a job. I'd like to cover the tire repair and send our crew lead back to sweep your driveway with a magnet. Please call me at ${L().phone} so we can set a time.\n\nDana, Ridgeline Roofing</textarea></div>
+      <div class="af"><button class="btn btn-primary btn-sm" data-act="ai-post">${ic("check", 14, "", 2.4)}Approve and post</button><button class="btn btn-outline btn-sm" data-act="ai-dismiss">Not now</button></div></div>`);
+  } else {
+    const m = await botSay("I can help with your listings, your reviews and your business profile. Try one of these.", ep);
+    if (!m || ep !== EPOCH) return;
+    addCard(`<div class="prompts" id="prompts">${PROMPTS.map(([k2, t]) => `<button class="prompt" data-act="ai-q" data-k="${k2}">${ic("sparkle", 15)}${t}</button>`).join("")}</div>`);
+  }
+}
+
+/* -----------------------------------------------------------------
+   Backend switch: a showcase control, not product UI
+   ----------------------------------------------------------------- */
+function placeKnob(){
+  const on = $(`.seg [data-vendor="${S.vendor}"]`), k = $("#seg-knob");
+  k.style.width = on.offsetWidth + "px"; k.style.transform = `translateX(${on.offsetLeft - 3}px)`;
+}
+function showLayer(){
+  const v = S.vendor, other = v === "A" ? "B" : "A";
+  const keys = ["connected", "processing", "not", "issue"];
+  $("#layer-root").innerHTML = `<div class="layer" role="note">
+    <button class="layer-x" data-act="layer-x" aria-label="Close note">${ic("x", 16)}</button>
+    <div class="k">Backend now · Vendor ${v}</div>
+    <h3>Same screens on Vendor ${v}</h3>
+    <p>The UI only talks to our listings layer. The layer turns each vendor&rsquo;s answers into the same four statuses, so the owner never learns a new word.</p>
+    <table><thead><tr><th>Vendor A sends</th><th>Vendor B sends</th><th>She sees</th></tr></thead><tbody>
+    ${keys.map((k, i) => `<tr><td style="--i:${i}"><code class="${v === "A" ? "on" : "dim"}">${RAW.A[k]}</code></td><td style="--i:${i}"><code class="${v === "B" ? "on" : "dim"}">${RAW.B[k]}</code><span class="arrow" style="--i:${i}"></span></td><td style="--i:${i}"><span class="st ${k}" style="color:#fff;font-size:12.5px">${ic(STATUS[k].icon, 14)}${STATUS[k].label}</span></td></tr>`).join("")}
+    </tbody></table>
+    <div class="foot">${ic("info", 14)}Illustrative values<button class="sc-pill primary sm" data-act="layer-x">Got it</button></div>
+  </div>`;
+}
+function hideLayer(){ const l = $(".layer"); if (!l) return; l.classList.add("out"); setTimeout(() => l.remove(), 300); }
+function setVendor(v){
+  if (v === S.vendor) return;
+  S.vendor = v;
+  $$(".seg [data-vendor]").forEach(b => b.setAttribute("aria-pressed", b.dataset.vendor === v));
+  placeKnob();
+  closePop();
+  syncWave(false);
+  showLayer();
+}
+
+/* -----------------------------------------------------------------
+   Actions
+   ----------------------------------------------------------------- */
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-act]");
+  if (POP && !e.target.closest(".pop") && !(t && (t.dataset.act === "menu" || t.dataset.act === "loc"))) closePop();
+  if (!t) return;
+  const a = t.dataset.act, id = t.dataset.id;
+  switch (a){
+    case "start": hideIntro(); break;
+    case "restart": restart(); break;
+    case "soon": toast("Not part of this prototype", "info"); break;
+    case "loc": if (POP && t.getAttribute("aria-expanded") === "true") closePop(); else openLocPicker(t); break;
+    case "loc-pick":
+      closePop();
+      if (id !== S.loc){ vt(() => { S.loc = id; S.filter = "all"; S.q = ""; $("#q").value = ""; lastCounts = {}; renderAll(false); }); setTimeout(() => { $("#page").classList.remove("enter"); void $("#page").offsetWidth; $("#page").classList.add("enter"); }, 0); }
+      break;
+    case "menu": if (POP && t.getAttribute("aria-expanded") === "true") closePop(); else openRowMenu(t); break;
+    case "filter": if (S.filter !== t.dataset.k){ vt(() => { S.filter = t.dataset.k; renderChips(); renderRows(false); }); } break;
+    case "sug": S.sugOpen = !S.sugOpen; $("#sug").classList.toggle("open", S.sugOpen); t.setAttribute("aria-expanded", S.sugOpen); break;
+    case "view": toast(`Opens the live listing on ${SITE[id].name}`, "external"); break;
+    case "issue": closePop(); openIssue(id); break;
+    case "ai-fix": aiFix(id); break;
+    case "send-fix": sendFix(id); break;
+    case "connect": closePop(); openConnect(id); break;
+    case "do-connect": closeModal(); setTimeout(() => { setStatus(id, "processing", "flash"); toast(`Profile sent to ${SITE[id].name}`); }, 160); break;
+    case "connect-all": closeModal(); connectAll(); break;
+    case "enable": closePop(); setStatus(id, "connected", "flash-ok"); toast(`${SITE[id].name} is showing your listing again`); break;
+    case "sync-one": {
+      closePop();
+      const r = rowsOf().find(x => x.id === id);
+      const el = $("#row-" + id); if (el){ el.style.setProperty("--i", 0); el.classList.remove("sync"); void el.offsetWidth; el.classList.add("sync"); }
+      if (t.classList.contains("btn")){ t.innerHTML = `${ic("refresh", 15, "spin")}Syncing`; t.disabled = true; setTimeout(() => { if (t.isConnected){ t.innerHTML = `${ic("refresh", 15)}Sync now`; t.disabled = false; } }, 1300); }
+      setTimeout(() => toast(r.st === "issue" ? `Synced. ${SITE[id].name} still shows ${issueFields(id).length} different ${plural(issueFields(id).length, "value")}` : `${SITE[id].name} is up to date`, r.st === "issue" ? "info" : "check"), 1300);
+      break;
+    }
+    case "ask-off": closePop(); openOff(id, t.dataset.kind); break;
+    case "do-off": {
+      const kind = t.dataset.kind; closeModal();
+      setTimeout(() => {
+        if (kind === "disable"){ setStatus(id, "disabled", "flash"); toast(`${SITE[id].name} is hidden. Turn it back on any time`, "pause"); }
+        else { setStatus(id, "not", "flash"); toast(`${SITE[id].name} disconnected. Reviews stopped syncing`, "unlink"); }
+      }, 160);
+      break;
+    }
+    case "close": closeModal(); setTitle("Listings Management"); break;
+    case "scrim": if (e.target === t){ closeModal(); setTitle("Listings Management"); } break;
+    case "profile": closePop(); openDrawer(t.dataset.tab || "info"); break;
+    case "dtab": dTab(t.dataset.tab); break;
+    case "dclose": closeDrawer(); break;
+    case "dscrim": if (e.target === t) closeDrawer(); break;
+    case "dsave": saveDrawer(); break;
+    case "h-tog": { const d = D.hours[t.dataset.day]; d.on = !d.on; redrawDay(t.dataset.day, false); break; }
+    case "h-break": { const d = D.hours[t.dataset.day]; if (d.o + 30 <= 720 && 780 <= d.c - 30) d.b = [720, 780]; else { const mid = Math.round((d.o + d.c) / 2 / 30) * 30; d.b = [Math.max(d.o + 30, mid - 30), Math.min(d.c - 30, mid + 30)]; } redrawDay(t.dataset.day, true); break; }
+    case "h-rm": { D.hours[t.dataset.day].b = null; redrawDay(t.dataset.day, false); break; }
+    case "ai-desc": aiDesc(); break;
+    case "ai-use": { const ta = $("#desc"); D.desc = D.aiDraft; ta.value = D.aiDraft; ta.classList.remove("filled"); void ta.offsetWidth; ta.classList.add("filled"); $("#desc-n").textContent = `${D.desc.length} of 750`; $("#ai-slot").innerHTML = aiDescIdle(); break; }
+    case "ai-discard": $("#ai-slot").innerHTML = aiDescIdle(); break;
+    case "ai-toggle": aiOpen(); break;
+    case "ai-open": aiOpen(true); break;
+    case "ai-close": aiOpen(false); break;
+    case "ai-q": ask(t.dataset.k); break;
+    case "ai-review": openIssue(id); setTimeout(() => aiFix(id), 250); break;
+    case "ai-dismiss": { const c = t.closest(".acard"); c.style.transition = "opacity .25s"; c.style.opacity = ".5"; $$(".af button", c).forEach(b => b.disabled = true); break; }
+    case "ai-post": { const c = $("#reply-card"); $(".af", c).outerHTML = `<div class="posted">${ic("checkCircle", 16)}Posted to Google · just now</div>`; $("textarea", c).readOnly = true; toast("Reply posted to Google"); break; }
+    case "layer-x": hideLayer(); break;
+  }
+});
+document.addEventListener("change", e => {
+  const s = e.target.closest(".tsel"); if (!s || !D) return;
+  const d = D.hours[s.dataset.day], v = +s.value, h = s.dataset.h;
+  if (h === "o") d.o = Math.min(v, d.c - 30); else if (h === "c") d.c = Math.max(v, d.o + 30);
+  else if (h === "b0") d.b[0] = Math.min(v, d.b[1] - 30); else if (h === "b1") d.b[1] = Math.max(v, d.b[0] + 30);
+  if (d.b){ d.b[0] = Math.max(d.b[0], d.o + 30); d.b[1] = Math.min(d.b[1], d.c - 30); if (d.b[1] <= d.b[0]) d.b = null; }
+  const el = $(`.hday[data-day="${s.dataset.day}"]`);
+  const seg = $(".tl .open", el), gap = $(".tl .gap", el);
+  if (seg){ seg.style.left = pctOf(d.o); seg.style.width = `calc(${pctOf(d.c)} - ${pctOf(d.o)})`; }
+  if (gap && d.b){ gap.style.left = pctOf(d.b[0]); gap.style.width = `calc(${pctOf(d.b[1])} - ${pctOf(d.b[0])})`; }
+  setTimeout(() => redrawDay(s.dataset.day, false), 460);
+});
+$("#q").addEventListener("input", e => { S.q = e.target.value; renderRows(false); });
+$("#ask-q").addEventListener("input", e => { $("#ask-send").disabled = !e.target.value.trim(); });
+$("#ask-form").addEventListener("submit", e => {
+  e.preventDefault(); const q = $("#ask-q").value.trim(); if (!q) return;
+  $("#ask-q").value = ""; $("#ask-send").disabled = true; ask(classify(q), q);
+});
+$$(".seg [data-vendor]").forEach(b => b.addEventListener("click", () => setVendor(b.dataset.vendor)));
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  if (POP) closePop(); else if ($("#modal-root .scrim")) { closeModal(); setTitle("Listings Management"); } else if ($("#modal-root .dscrim")) closeDrawer(); else if ($(".layer")) hideLayer(); else if (S.ai.open) aiOpen(false);
+});
+$("#main").addEventListener("scroll", closePop, {passive:true});
+
+/* -----------------------------------------------------------------
+   Stage sizing, intro, boot
+   ----------------------------------------------------------------- */
+const MIN_W = 1180, MIN_H = 660, MAX_W = 1600;
+function fit(){
+  const main = $("#sc-main");
+  const W = main.clientWidth - 40, H = main.clientHeight - (parseFloat(getComputedStyle(main).paddingBottom) || 0);
+  const s = Math.min(1, W / MIN_W, H / MIN_H);
+  const lw = Math.min(W / s, MAX_W);
+  const lh = Math.min(H / s, Math.max(MIN_H, lw * 0.72));
+  const st = $("#stage"), box = $("#stage-box");
+  st.style.width = lw + "px"; st.style.height = lh + "px"; st.style.transform = `scale(${s})`;
+  box.style.width = lw * s + "px"; box.style.height = lh * s + "px";
+  box.style.top = Math.max(0, (H - lh * s) / 2) + "px";
+  SCALE = s;
+  closePop();
+}
+addEventListener("resize", fit);
+if ("ResizeObserver" in window) new ResizeObserver(() => fit()).observe($("#sc-main"));
+
+function buildIntro(){
+  const words = ["Change", "the", "vendor.", "Keep", "the", "experience."];
+  $("#intro-h").innerHTML = words.map((w, i) => `<span class="w"><span style="--i:${i}" class="${i >= 3 ? "accent" : ""}">${w}</span></span>`).join(" ");
+}
+function hideIntro(){
+  $("#intro").classList.add("hide");
+  const box = $("#stage-box"); box.classList.remove("rise-in"); void box.offsetWidth; box.classList.add("rise-in");
+  setTimeout(() => { S.compW = 0; S.healthW = 0; renderRows(true); renderProfile(false); renderSug(); }, 350);
+}
+function restart(){
+  EPOCH++;
+  closePop(); $("#modal-root").innerHTML = ""; $("#layer-root").innerHTML = ""; D = null;
+  S = freshState(); lastCounts = {};
+  $("#q").value = ""; $("#aip-b").innerHTML = ""; aiOpen(false);
+  $$(".seg [data-vendor]").forEach(b => b.setAttribute("aria-pressed", b.dataset.vendor === "A")); placeKnob();
+  renderAll(true); setTitle("Listings Management"); $("#main").scrollTop = 0;
+}
+
+hydrateIcons();
+buildIntro();
+S = freshState();
+renderAll(false);
+fit();
+placeKnob();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeKnob);
+
+/* Deep links for demos: #issue, #fix, #ai, #reply, #hours, #desc, #off, #vendor, #gilbert */
+const hash = location.hash.replace("#", "");
+if (hash){
+  $("#intro").classList.add("hide");
+  setTimeout(() => {
+    if (hash === "issue") openIssue("apple");
+    else if (hash === "fix"){ openIssue("apple"); setTimeout(() => aiFix("apple"), 200); }
+    else if (hash === "ai") aiOpen(true);
+    else if (hash === "reply"){ aiOpen(true); setTimeout(() => ask("reply"), 400); }
+    else if (hash === "hours") openDrawer("hours");
+    else if (hash === "desc") openDrawer("desc");
+    else if (hash === "off") openOff("yelp", "disable");
+    else if (hash === "vendor") setVendor("B");
+    else if (hash === "gilbert"){ S.loc = "gilbert"; renderAll(false); }
+  }, 150);
+} else {
+  setTimeout(() => { const b = $("#intro .sc-pill.primary"); b && b.focus({ preventScroll:true }); }, 600);
+}
+})();
+</script>
+</body>
+</html>
