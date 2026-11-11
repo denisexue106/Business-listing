@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Listings and Social</title>
+<title>Listings, Reviews and Social</title>
 <meta name="description" content="Interactive prototype of Listings Management on demo data. The screens sit on a layer between the UI and the listings vendor, so switching vendors does not change what the business owner sees.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -746,6 +746,150 @@ textarea.gen,.cmp-ta.gen{background:linear-gradient(100deg,#fff 30%,#FFF4EC 50%,
 .heart[aria-pressed="true"]{color:#D6336C}
 .heart[aria-pressed="true"] .ic{fill:currentColor;animation:bump .5s var(--spring)}
 
+/* =================================================================
+   Reputation
+   ================================================================= */
+.rv-sum{display:flex;gap:16px;margin-bottom:22px}
+.rv-overall{flex:1.2 1 320px;padding:18px 20px;display:flex;flex-direction:column;animation:rowRise .55s var(--ease-out) both}
+.rv-k{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.rv-top{display:flex;gap:22px;margin-top:8px}
+.rv-big{display:flex;align-items:center;gap:6px;font-family:var(--head);font-size:44px;line-height:50px;font-weight:700;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums}
+.rv-big .star{color:#E5A400;font-size:30px;animation:bump .7s var(--spring) .4s both}
+.rv-based{margin-top:2px;font-size:13px;color:var(--ink-2)}
+.rv-dist{flex:1;display:grid;gap:6px;align-content:start;margin-top:4px}
+.rv-dist .r{display:grid;grid-template-columns:52px minmax(0,1fr) 36px;align-items:center;gap:8px;font-size:12px}
+.rv-dist .r span:first-child{color:var(--brand);font-weight:600}
+.rv-dist .r span:last-child{text-align:right;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.rv-dist .b{height:6px;border-radius:999px;background:var(--off-050);overflow:hidden}
+.rv-dist .b i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--brand-bright),#FF8A4C);transition:width 1s var(--ease-out)}
+.rv-req{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.rv-req .hd{display:flex;align-items:center;justify-content:space-between}
+.rv-req .nums{display:flex;gap:30px;margin-top:8px}
+.rv-req b{display:block;font-family:var(--head);font-size:20px;line-height:24px;color:var(--ink);font-variant-numeric:tabular-nums}
+.rv-req small{font-size:11.5px;color:var(--ink-3)}
+.rv-plats{flex:2 1 420px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.rv-plat{padding:16px 18px;display:flex;flex-direction:column;justify-content:space-between;min-height:112px;animation:rowRise .55s var(--ease-out) both;animation-delay:calc(90ms + var(--i)*70ms);transition:transform .25s var(--ease-out),box-shadow .25s}
+.rv-plat:hover{transform:translateY(-2px);box-shadow:var(--shadow-3)}
+.rv-plat .hd{display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:600;color:var(--ink)}
+.rv-plat .hd .rt{margin-left:auto;display:flex;align-items:center;gap:4px;font-weight:700;font-size:13px}
+.rv-plat .hd .star{color:#E5A400}
+.rv-plat .n{font-family:var(--head);font-size:30px;line-height:36px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.rv-tabs{position:relative;display:flex;flex-wrap:wrap;gap:2px 4px;margin-bottom:14px;border-bottom:1px solid var(--line)}
+.rv-tabs button{display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 11px;font-size:13.5px;font-weight:600;color:var(--ink-3);transition:color .2s}
+.rv-tabs button:hover{color:var(--ink-2)}
+.rv-tabs button[aria-selected="true"]{color:var(--ink)}
+.rv-tabs .c{display:inline-grid;place-items:center;min-width:22px;height:20px;padding:0 6px;border-radius:999px;background:var(--bg);font-size:11.5px;color:var(--ink-2)}
+.rv-tabs .need .c{background:var(--bad-050);color:var(--bad)}
+.rv-tabs .need .c.zero{background:var(--ok-050);color:var(--ok)}
+.rv-tabs .ink{position:absolute;left:0;top:38px;height:2px;width:0;border-radius:2px;background:var(--brand);transition:left .35s var(--ease-out),width .35s var(--ease-out),top .35s var(--ease-out)}
+.rv-bar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.rv-bar .search{width:280px}
+.rv-bar .grow{flex:1}
+.rv-ws{display:grid;grid-template-columns:340px minmax(0,1fr);gap:16px;align-items:start}
+.rv-list{overflow:hidden;animation:rowRise .5s var(--ease-out) .1s both}
+.rv-lh{display:flex;align-items:center;gap:10px;height:46px;padding:0 14px;border-bottom:1px solid var(--line);font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.rv-lh .grow{flex:1}
+.rv-bulk{animation:chipIn .4s var(--spring)}
+.rv-items{max-height:600px;overflow:auto}
+.rv-it{position:relative;display:grid;grid-template-columns:18px minmax(0,1fr);gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);cursor:pointer;background:#fff;transition:background .2s}
+.rv-it.in{animation:rowRise .45s var(--ease-out) both;animation-delay:calc(var(--i)*35ms)}
+.rv-it:hover{background:#FCFCFD}
+.rv-it.on{background:var(--brand-050)}
+.rv-it::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--brand);transform:scaleY(0);transition:transform .3s var(--ease-out)}
+.rv-it.on::before{transform:scaleY(1)}
+.rv-it:focus-visible{outline:2px solid var(--brand);outline-offset:-2px}
+.rv-it .cbox{margin-top:4px}
+.rv-it .rh{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--ink);min-width:0}
+.rv-it .rh .who{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rv-it .rh .dt{margin-left:auto;font-size:11.5px;font-weight:500;color:var(--ink-3);white-space:nowrap}
+.av{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:var(--bg);display:grid;place-items:center;flex:none;font-size:10px;font-weight:700;color:var(--ink-2)}
+.av.lg{width:42px;height:42px;font-size:13px}
+.av.sm{width:22px;height:22px;font-size:9.5px;background:var(--brand-050);color:var(--brand);border-color:#F5C7AE}
+.rv-it .meta{display:flex;align-items:center;gap:8px;margin-top:4px;font-size:11.5px;color:var(--ink-3)}
+.sent-dot{display:inline-flex;align-items:center;gap:5px}
+.sent-dot i{width:7px;height:7px;border-radius:50%}
+.rv-it .loc{display:flex;align-items:center;gap:4px;margin-top:3px;font-size:11.5px;color:var(--ink-3)}
+.rv-it p{margin-top:5px;font-size:12.5px;line-height:18px;color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rtag{display:inline-flex;align-items:center;height:20px;margin-top:7px;padding:0 8px;border-radius:5px;font-size:11px;font-weight:700}
+.rtag.need{background:var(--bad);color:#fff}
+.rtag.done{background:var(--ok-050);color:var(--ok)}
+.rtag.swap,.badge.swap{animation:stSwap .5s var(--spring)}
+.rv-det-wrap{position:sticky;top:12px;animation:rowRise .5s var(--ease-out) .16s both}
+.rv-det{padding:18px 20px 20px;animation:xfade .35s var(--ease-out)}
+.rv-det .hd{display:flex;align-items:flex-start;gap:12px}
+.rv-det .nm{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--ink)}
+.rv-det .sub{display:flex;align-items:center;gap:8px;margin-top:3px;font-size:12px;color:var(--ink-3)}
+.badge{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:999px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.badge.warn{background:var(--warn-050);color:var(--warn)}
+.badge.gray{background:var(--bg);color:var(--ink-2)}
+.rv-det .txt{margin-top:14px;font-size:14px;line-height:22px;color:var(--ink)}
+.rv-rep{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.rv-sh{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.rv-sh .l{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--ink-2)}
+.rv-sh .l .ic{color:var(--brand)}
+.rv-sh .grow{flex:1}
+.rv-regen{display:inline-flex;align-items:center;gap:4px;font-size:12.5px}
+.tone-sel{height:30px;padding:0 8px;border:1px solid var(--line-2);border-radius:7px;background:#fff;font-size:12.5px}
+.rv-sug{display:block;width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:#FCFCFD;text-align:left;font-size:12.5px;line-height:19px;color:var(--ink-2);transition:border-color .2s,background .2s,transform .2s var(--ease-out)}
+.rv-sug:hover{border-color:var(--brand);background:#FFF8F3;transform:translateY(-1px)}
+.rv-sug[disabled]{pointer-events:none}
+.rv-sug.gen{color:var(--ink-3);background:linear-gradient(100deg,#FCFCFD 30%,#FFF1E8 50%,#FCFCFD 70%);background-size:250% 100%;animation:shimmer 1.4s linear infinite}
+#rv-sug-t{white-space:pre-line}
+.rv-sug .use{display:inline-flex;align-items:center;gap:4px;margin-top:6px;font-size:11.5px;font-weight:700;color:var(--brand)}
+.rv-box{margin-top:12px;border:1px solid var(--line-2);border-radius:10px;transition:border-color .15s,box-shadow .15s}
+.rv-box:focus-within{border-color:var(--brand);box-shadow:0 0 0 3px rgba(194,65,12,.12)}
+.rv-box textarea{display:block;width:100%;min-height:112px;padding:10px 12px;border:0;border-radius:10px 10px 0 0;background:transparent;font-size:13.5px;line-height:20px;resize:vertical;outline:none}
+.rv-box textarea.filled{animation:fillGlow 1.2s var(--ease-out)}
+.rv-box .ft{display:flex;align-items:center;gap:8px;padding:8px 10px;border-top:1px solid var(--line)}
+.rv-box .ft .grow{flex:1}
+.rv-box .ft .n{font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.mine-r{padding:12px 14px;border-radius:10px;background:var(--bg);animation:xfade .4s var(--ease-out)}
+.mine-r .h{display:flex;justify-content:space-between;margin-bottom:4px;font-size:12px;font-weight:700;color:var(--ink-3)}
+.mine-r p{font-size:13.5px;line-height:21px;color:var(--ink)}
+.bk{display:grid;gap:12px;max-height:min(52vh,440px);margin-top:10px;overflow:auto;padding:2px}
+.bk-it{display:grid;grid-template-columns:18px minmax(0,1fr);gap:12px;padding:12px;border:1px solid var(--line);border-radius:12px;transition:opacity .25s,border-color .3s;animation:msgIn .4s var(--ease-out) both;animation-delay:calc(var(--i)*80ms)}
+.bk-it.skip{opacity:.5}
+.bk-it.done{border-color:rgba(22,130,74,.35)}
+.bk-it .cbox{margin-top:12px}
+.bk-rv{padding:10px 12px;border:1px solid var(--line);border-radius:10px}
+.bk-rv .rh{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--ink)}
+.bk-rv .rh .lc{display:inline-flex;align-items:center;gap:4px;margin-left:auto;font-size:11.5px;font-weight:500;color:var(--ink-3)}
+.bk-rv .meta{display:flex;align-items:center;gap:8px;margin-top:4px;font-size:11.5px;color:var(--ink-3)}
+.bk-rv p{margin-top:6px;font-size:12.5px;line-height:19px;color:var(--ink-2)}
+.bk-ai{margin-top:10px}
+.bk-ai .h{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--ink)}
+.bk-ai .h .grow{flex:1}
+.bk-ai .tag{display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 8px;border-radius:999px;background:var(--brand-050);color:var(--brand-700);font-size:10.5px;font-weight:700}
+.bk-ai .icon-btn{width:28px;height:28px}
+.bk-ai .bub{display:block;width:100%;min-height:40px;margin-top:6px;padding:10px 12px;border-radius:10px;background:#EEF4FC;font-size:12.5px;line-height:19px;color:var(--ink);transition:background .4s}
+.bk-ai textarea.bub{border:1px solid var(--line-2);resize:vertical;outline:none;min-height:76px}
+.bk-ai textarea.bub:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(194,65,12,.12)}
+.bk-ai .bub.gen{color:var(--ink-3);background:linear-gradient(100deg,#EEF4FC 30%,#FFF1E8 50%,#EEF4FC 70%);background-size:250% 100%;animation:shimmer 1.4s linear infinite}
+.bk-it.done .bub{background:var(--ok-050)}
+.okc{width:20px;height:20px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;transform:scale(0);transition:transform .45s var(--spring)}
+.bk-it.done .okc{transform:scale(1)}
+.tpls{display:grid;gap:8px;max-height:250px;overflow:auto}
+.tpl{padding:10px 12px;border:1px solid var(--line);border-radius:10px;animation:msgIn .4s var(--ease-out) both;animation-delay:calc(var(--i)*60ms)}
+.tpl.fresh{animation:chipIn .5s var(--spring)}
+.tpl .h{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink)}
+.tpl .h .grow{flex:1}
+.tpl p{margin-top:6px;font-size:12.5px;line-height:19px;color:var(--ink-2)}
+.tpl-new{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.tpl-new .two{grid-template-columns:minmax(0,1fr) 150px}
+.tin{width:100%;padding:8px 11px;border:1px solid var(--line-2);border-radius:8px;background:#fff;font-size:13px;outline:none;transition:border-color .15s,box-shadow .15s}
+.tin:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(194,65,12,.12)}
+textarea.tin{display:block;min-height:76px;margin-top:10px;line-height:19px;resize:vertical}
+.tpl-new .row{display:flex;align-items:center;gap:8px;margin-top:10px}
+.tpl-new .row .grow{flex:1}
+.thm{display:grid;gap:10px}
+.thm .r{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;font-size:12.5px}
+.thm .r b{font-weight:600;color:var(--ink)}
+.thm .r small{font-size:11.5px;color:var(--ink-3);white-space:nowrap}
+.thm .bar2{grid-column:1/-1;display:flex;gap:2px;height:6px;border-radius:999px;overflow:hidden;background:var(--off-050)}
+.thm .bar2 i{display:block;height:100%;width:0;transition:width .9s var(--ease-out)}
+.thm .bar2 .p{background:var(--ok)}
+.thm .bar2 .c{background:var(--bad)}
+
 /* narrow content: the AI panel is open, or the window is small */
 @container main (max-width: 900px){
   .grid{grid-template-columns:minmax(0,1fr)}
@@ -787,19 +931,35 @@ textarea.gen,.cmp-ta.gen{background:linear-gradient(100deg,#fff 30%,#FFF4EC 50%,
   .cev{justify-content:center;padding:4px}
 }
 
+@container main (max-width: 900px){
+  .rv-sum{flex-direction:column}
+  .rv-overall,.rv-plats{flex:none}
+  .rv-ws{grid-template-columns:290px minmax(0,1fr)}
+}
+@container main (max-width: 640px){
+  .rv-ws{grid-template-columns:minmax(0,1fr)}
+  .rv-items{max-height:340px}
+  .rv-det-wrap{position:static}
+  .rv-bar .search{width:auto;flex:1}
+  .rv-bar .grow{display:none}
+  .rv-top{flex-direction:column;gap:10px}
+  .rv-plat{min-height:96px}
+}
+
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0ms!important;transition-duration:.01ms!important;transition-delay:0ms!important}
   .intro h1 .w>span{transform:none}
   .intro .rise,.trow.in,.layer td,.sug-item,.brow{opacity:1;transform:none}
   .layer td .arrow{width:22px}
   .spark{clip-path:none}
+  .rv-dist .b i,.thm .bar2 i{transition:none}
 }
 </style>
 </head>
 <body>
 <div class="sc">
   <header class="sc-bar">
-    <div class="sc-title">Listings and Social<small>Interactive prototype</small></div>
+    <div class="sc-title">Listings, Reviews and Social<small>Interactive prototype</small></div>
     <span class="sc-grow"></span>
     <div class="sc-seg" id="vendor-seg">Backend
       <div class="seg" role="group" aria-label="Listings backend">
@@ -827,7 +987,7 @@ textarea.gen,.cmp-ta.gen{background:linear-gradient(100deg,#fff 30%,#FFF4EC 50%,
                 <button class="nav-i" data-act="soon"><span data-icon="home" data-size="19"></span>Dashboard</button>
                 <button class="nav-i" data-act="ai-open"><span data-icon="sparkle" data-size="19"></span>Thryv AI</button>
                 <button class="nav-i" data-act="soon"><span data-icon="reports" data-size="19"></span>Analytics</button>
-                <button class="nav-i" data-act="soon"><span data-icon="star" data-size="19"></span>Reviews</button>
+                <button class="nav-i" data-act="nav" data-page="reviews"><span data-icon="star" data-size="19"></span>Reputation<span class="nbadge" id="nb-reviews" aria-label="9 reviews waiting for a reply">9</span></button>
                 <button class="nav-i on" aria-current="page" data-act="nav" data-page="listings"><span data-icon="pin" data-size="19"></span>Listings Management</button>
                 <button class="nav-i" data-act="nav" data-page="social"><span data-icon="social" data-size="19"></span>Social<span class="nbadge" id="nb-social" aria-label="3 comments waiting">3</span></button>
                 <button class="nav-i" data-act="soon"><span data-icon="globe" data-size="19"></span>Website</button>
@@ -868,6 +1028,7 @@ textarea.gen,.cmp-ta.gen{background:linear-gradient(100deg,#fff 30%,#FFF4EC 50%,
                     </div>
                   </div>
                   <div class="page" id="page-social" hidden></div>
+                  <div class="page" id="page-reviews" hidden></div>
                 </div>
                 <aside class="aip" id="aip" aria-label="Thryv AI">
                   <div class="aip-h"><span class="orb"><span data-icon="sparkle" data-size="16"></span></span><b>Thryv AI</b><button class="x" data-act="ai-close" aria-label="Close Thryv AI"><span data-icon="x" data-size="18"></span></button></div>
@@ -894,7 +1055,7 @@ textarea.gen,.cmp-ta.gen{background:linear-gradient(100deg,#fff 30%,#FFF4EC 50%,
   <div class="intro-card">
     <div class="eyebrow rise" style="--i:0">Interactive prototype · Business listings</div>
     <h1 id="intro-h">Change the vendor. Keep the experience.</h1>
-    <p class="lede rise" style="--i:1">Listings and Social for a roofer with three locations. Every listing reads from a layer between our UI and the vendor&rsquo;s API, so switching the backend in the bar above doesn&rsquo;t change what she sees. Thryv AI knows which screen she&rsquo;s on and drafts the fixes, replies and posts for her to approve.</p>
+    <p class="lede rise" style="--i:1">Listings, reviews and social for a roofer with three locations. Every listing reads from a layer between our UI and the vendor&rsquo;s API, so switching the backend in the bar above doesn&rsquo;t change what she sees. Thryv AI knows which screen she&rsquo;s on and drafts the fixes, review replies and posts for her to approve.</p>
     <div class="actions rise" style="--i:2">
       <button class="sc-pill primary" data-act="start">Open the prototype<span data-icon="arrowRight" data-size="16"></span></button>
     </div>
@@ -971,6 +1132,7 @@ const I = {
   copy:'<rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5"/>',
   eyeOff:'<path d="M4 4l16 16"/><path d="M9.9 6.1A9 9 0 0 1 12 5.8c6 0 9.5 6.2 9.5 6.2a16 16 0 0 1-2.6 3.3M6.6 7.7A15.6 15.6 0 0 0 2.5 12S6 18.2 12 18.2a8.8 8.8 0 0 0 3.6-.8"/>',
   trend:'<path d="m4 16 5-5 3.5 3.5L20 7"/><path d="M15 7h5v5"/>',
+  download:'<path d="M12 4.5v10.5M7.5 10.5 12 15l4.5-4.5"/><path d="M5 19.5h14"/>',
   users:'<circle cx="9" cy="9" r="3.2"/><path d="M3.5 19c.7-3 2.8-4.6 5.5-4.6s4.8 1.6 5.5 4.6"/><path d="M15.5 6.2a3 3 0 0 1 0 5.6M17.5 14.6c1.6.6 2.6 2 3 4.4"/>'
 };
 const FILLED = new Set(["sparkle"]);
@@ -1102,6 +1264,52 @@ const REPLY = {
   warmer:"Hi Alex, I'm really sorry. You trusted us with your home, and we left a mess behind and a flat tire on top of it. That's on us. I'd like to pay for the tire and have our crew lead come back to sweep with a magnet. Call me at {phone} whenever it suits you.\n\nDana, Ridgeline Roofing",
   formal:"Dear Alex, thank you for your feedback. We apologize for the nails left on your driveway. Ridgeline Roofing will cover the tire repair, and our crew lead will return to complete a full magnet sweep. Please contact me at {phone} to arrange a time.\n\nDana, Owner, Ridgeline Roofing"
 };
+
+/* Reviews demo data. Days are offsets from today. pros and cons tag what each review talks about. */
+const REVIEWS = [
+  {id:"r1", who:"Jenna R.", src:"facebook", rating:5, d:-1, loc:"mesa", pros:["storm"], text:"Our tile roof was leaking into the guest room after the last storm. Dana's crew found the cracked underlayment, fixed it the next morning and sent photos of everything.", draft:"Thank you, Jenna! Storm leaks are stressful, and we're glad the photos showed you exactly what we fixed. Enjoy the dry guest room."},
+  {id:"r2", who:"Alex M.", src:"google", rating:1, d:-3, loc:"mesa", pros:["storm"], cons:["clean"], text:"They fixed the leak fast, but left nails all over my driveway. I found three in my tire the next week.", draft:REPLY.base},
+  {id:"r3", who:"Omar S.", src:"yelp", rating:4, d:-5, loc:"tempe", cons:["sched"], text:"Good work recoating our flat roof. It took a day longer than quoted because of the heat, but they kept us posted the whole time.", draft:"Thanks, Omar. Sorry the heat stretched it to an extra day, and thank you for your patience. That new coating should keep the flat roof in good shape for years."},
+  {id:"r4", who:"Linda P.", src:"google", rating:5, d:-6, loc:"gilbert", pros:["price"], text:"The free inspection was actually free. No upsell, just photos and an honest answer that our roof has a few good years left.", draft:"Thank you, Linda! An honest answer is the whole point of a free inspection. Call us when it's time and we'll take another look."},
+  {id:"r5", who:"Grace T.", src:"nextdoor", rating:5, d:-8, loc:"mesa", pros:["price","clean"], text:"Three neighbors recommended them and now I see why. Fair price, clean site, and they answered every text.", draft:"Thanks, Grace, and please thank your neighbors for us! We're happy to help anyone on your street."},
+  {id:"r6", who:"Derek W.", src:"google", rating:2, d:-9, loc:"tempe", cons:["est"], text:"The estimate took almost two weeks to arrive. The work itself was fine once they showed up.", draft:"Derek, two weeks is too long to wait for an estimate, and I'm sorry. Thank you for telling us. I'd like to hear what happened, so please call me at {phone}.\n\nDana"},
+  {id:"r7", who:"Priya N.", src:"facebook", rating:5, d:-12, loc:"gilbert", pros:["storm"], text:"A storm took off a section of shingles on a Sunday. They tarped it that afternoon and finished the repair on Tuesday.", draft:"Thank you, Priya! Sunday storms are exactly why we keep a crew on call. Glad we could get you covered fast."},
+  {id:"r8", who:"Ben H.", src:"yelp", rating:3, d:-14, loc:"mesa", cons:["sched"], text:"The roof looks great. Communication about the start date could have been better, we were given two different days.", draft:"Thanks, Ben, and I'm sorry about the mixed messages on the start date. That's on us. Glad you like how the roof turned out."},
+  {id:"r9", who:"Rosa V.", src:"google", rating:4, d:-18, loc:"tempe", text:"Solid gutter install. One downspout needed a second visit, but they came back without any fuss.", draft:"Thanks, Rosa! Glad we could sort out that downspout. Enjoy the new gutters this monsoon season."},
+  {id:"r10", who:"Kevin R.", src:"facebook", rating:5, d:-20, loc:"mesa", pros:["storm"], text:"Had a leak after the monsoon and you were out the same day. Thanks Dana!", reply:{d:-19, text:"Thanks Kevin, we're glad we got there fast. Call us anytime the next storm gives you trouble."}},
+  {id:"r11", who:"Marcus L.", src:"google", rating:5, d:-24, loc:"gilbert", pros:["clean"], text:"Replaced our whole roof in two days. The magnet sweep at the end was a nice touch, not a single nail left behind.", reply:{d:-23, text:"Thank you, Marcus! The magnet sweep is a rule for every crew. Enjoy the new roof."}},
+  {id:"r12", who:"Hannah C.", src:"yelp", rating:4, d:-27, loc:"tempe", pros:["clean","price"], text:"Professional and tidy. The price was a bit higher than another quote, but they explained it line by line.", reply:{d:-26, text:"Thanks, Hannah. We appreciate you comparing, and we're glad the breakdown helped."}},
+  {id:"r13", who:"Tom K.", src:"google", rating:2, d:-31, loc:"mesa", cons:["sched"], text:"Missed the first appointment window and nobody called. They made up for it with a discount, but it was frustrating.", reply:{d:-30, text:"Tom, you're right, and I'm sorry we didn't call. Thank you for giving us another chance. Dana"}},
+  {id:"r14", who:"Elena F.", src:"facebook", rating:5, d:-35, loc:"gilbert", pros:["clean"], text:"From the inspection to the final cleanup, everything was on schedule. The crew even moved our patio furniture back.", reply:{d:-34, text:"Thank you, Elena! We'll pass this along to the crew. They'll be glad to hear it."}},
+  {id:"r15", who:"Chris D.", src:"google", rating:5, d:-41, loc:"tempe", pros:["storm","price"], text:"Called during a downpour and they had someone on the roof within two hours. Fair price for an emergency call.", reply:{d:-40, text:"Thanks, Chris! Glad we could get there before the next round of rain."}},
+  {id:"r16", who:"Sam O.", src:"other", rating:4, d:-48, loc:"mesa", pros:["price"], text:"Good experience overall. Clear written estimate, and they finished when they said they would.", reply:{d:-47, text:"Thank you, Sam. We appreciate the kind words and the business."}}
+];
+/* account totals include older reviews than the list shows, as on a real account summary */
+const RV_SUM = {avg:4.4, total:86, dist:[[5, 64], [4, 18], [3, 7], [2, 6], [1, 5]], req:{sent:31, rate:29, gen:9},
+  plats:[["google", 4.5, 48], ["facebook", 4.7, 21], ["yelp", 4.0, 12], ["other", 4.2, 5]]};
+const RV_TONES = ["Friendly", "Professional", "Empathetic"];
+const RV_POOL = {
+  Positive:{
+    Friendly:["Thanks so much, {name}! We loved working on your roof, and we're here whenever you need us."],
+    Professional:["Thank you for your review, {name}. We appreciate you choosing {biz} and are glad the work met your expectations.", "Thank you, {name}. We're pleased the project went well and appreciate you taking the time to share it."],
+    Empathetic:["{name}, thank you for trusting us with your home. Reviews like yours mean a lot to our crews.", "This made our whole team's day, {name}. Thank you for letting us take care of your roof."]
+  },
+  Neutral:{
+    Friendly:["Thanks for the honest review, {name}! We're glad the roof turned out well, and we're working on the rest."],
+    Professional:["Thank you for the feedback, {name}. We're glad the work turned out well, and we'll use your comments to improve how we communicate.", "We appreciate the honest review, {name}, and we'll use your notes to do better."],
+    Empathetic:["Thank you for your patience, {name}. Mixed messages are frustrating, and you deserved a smoother experience.", "We appreciate you sharing this, {name}. You should be able to count on us at every step, not just the finished roof."]
+  },
+  Negative:{
+    Friendly:["{name}, we're sorry this happened. We'd really like to make it right, so please give us a call at {phone}."],
+    Professional:["{name}, we apologize for your experience. Please contact us at {phone} so we can understand what happened and make it right.", "Thank you for bringing this to our attention, {name}. We take it seriously and would like the chance to resolve it. Please call {phone}."],
+    Empathetic:["{name}, I'm truly sorry. That's not the experience we want for anyone, and I'd like to make it right. Please call me at {phone}.\n\nDana", "We hear you, {name}, and we're sorry we fell short. Please reach out at {phone} so we can fix this."]
+  }
+};
+const RV_TPLS = [
+  {label:"Thank a happy customer", tone:"Friendly", text:"Thank you so much for the kind words! It was a pleasure working on your roof, and we're here whenever you need us."},
+  {label:"Make it right", tone:"Empathetic", text:"We're sorry we fell short. We'd like the chance to make it right, so please call us at (480) 555 0142."},
+  {label:"Thanks for the feedback", tone:"Professional", text:"Thank you for your feedback. We read every review and use it to improve how we work."}
+];
 const RAW = {
   A:{connected:"PUBLISHED", processing:"IN_PROGRESS", not:"NOT_LISTED", issue:"DATA_CONFLICT"},
   B:{connected:"live", processing:"pending_review", not:"unsubmitted", issue:"mismatch"}
@@ -1123,17 +1331,20 @@ function freshState(){
     };
   }
   return { page:"listings", biz:"Ridgeline Roofing", web:"ridgelineroofing.example", loc:"mesa", vendor:"A", filter:"all", q:"", locs, sugOpen:true,
-    ai:{open:false, started:false, ctx:null}, posted:false, synced:"2 minutes ago", social:freshSocial() };
+    ai:{open:false, started:false, ctx:null}, posted:false, synced:"2 minutes ago", social:freshSocial(), reviews:freshReviews() };
 }
 function freshSocial(){
   const dow = (new Date().getDay() + 6) % 7;
   return { posts:clone(POSTS), comments:clone(COMMENTS).map(c => ({...c, done:false, hidden:false, liked:false, reply:""})),
     view:"list", filter:"all", calStart:-dow - 7, nextdoor:false, alertShut:false, lastDeleted:null };
 }
+function freshReviews(){
+  return {list:clone(REVIEWS).map(r => ({...r, reply:r.reply || null})), tab:"needs", q:"", sort:"newest", sel:null, editing:false, checked:[], tone:{}, gen:{}, drafts:{}, tpls:clone(RV_TPLS)};
+}
 const L = () => S.locs[S.loc];
 const rowsOf = (loc = L()) => loc.rows;
 const count = st => rowsOf().filter(r => r.st === st).length;
-const pageTitle = () => S.page === "social" ? "Social" : "Listings Management";
+const pageTitle = () => S.page === "social" ? "Social" : S.page === "reviews" ? "Reputation" : "Listings Management";
 const live = () => count("connected");
 const total = () => rowsOf().filter(r => r.st !== "disabled").length;
 
@@ -1743,6 +1954,12 @@ function aiState(){
 }
 function promptsFor(){
   const a = aiState();
+  if (S.page === "reviews"){ const need = needsReply(); return [
+    need.some(r => r.rating <= 2) && ["neg", "Help me answer the negative reviews"],
+    need.some(r => r.rating >= 4) && ["bulk", "Thank all my happy customers"],
+    ["themes", "What are customers saying?"],
+    need.some(r => r.id === "r2") && ["reply", "Draft a reply to my worst recent review"]
+  ].filter(Boolean).slice(0, 4); }
   if (S.page === "social") return [
     a.waiting.length && ["comments", "Help me reply to comments"],
     a.failed && ["failed", "Why didn't my Instagram post go out?"],
@@ -1757,12 +1974,19 @@ function promptsFor(){
     ["reply", "Draft a reply to my worst recent review"]
   ].filter(Boolean).slice(0, 4);
 }
-const P_ICON = {fix:"bulb", issues:"alert", connect:"link", desc:"edit", hours:"clock", reply:"star", comments:"chat", failed:"alert", post:"edit", when:"calendar"};
+const P_ICON = {neg:"alert", bulk:"heart", themes:"chat", fix:"bulb", issues:"alert", connect:"link", desc:"edit", hours:"clock", reply:"star", comments:"chat", failed:"alert", post:"edit", when:"calendar"};
 const promptsHTML = () => `<div class="prompts">${promptsFor().map(([k, t], i) => `<button class="prompt" data-act="ai-q" data-k="${k}" data-t="${esc(t)}" style="animation:msgIn .4s var(--ease-out) both;animation-delay:${300 + i * 70}ms">${ic(P_ICON[k] || "sparkle", 16)}${t}</button>`).join("")}</div>`;
 function briefHTML(){
   const a = aiState(), items = [];
   let head;
-  if (S.page === "social"){
+  if (S.page === "reviews"){
+    head = `${ic("star", 14)}Reputation right now`;
+    const need = needsReply(), neg = need.filter(r => r.rating <= 2), pos = need.filter(r => r.rating >= 4);
+    if (!need.length) items.push(["var(--ok)", "Every review has a reply", "", ""]);
+    if (neg.length) items.push(["var(--bad)", `${neg.length} negative ${plural(neg.length, "review")} waiting for a reply`, "Reply", `data-act="ai-rv-neg"`]);
+    if (pos.length) items.push(["var(--ok)", `${pos.length} happy ${plural(pos.length, "customer")} to thank`, "Draft all", `data-act="ai-rv-bulk"`]);
+    items.push(["#E5A400", `Rated ${RV_SUM.avg.toFixed(1)} from ${RV_SUM.total} reviews across every site`, "", ""]);
+  } else if (S.page === "social"){
     head = `${ic("social", 14)}Social right now`;
     const q = a.waiting.filter(c => c.q).length;
     if (a.waiting.length) items.push(["var(--brand)", `${a.waiting.length} ${plural(a.waiting.length, "comment")} waiting for a reply${q ? `. ${q === 1 ? "One is a question" : q + " are questions"}` : ""}`, "Reply", `data-act="ai-comments"`]);
@@ -1778,7 +2002,7 @@ function briefHTML(){
   }
   return `<div class="brief"><div class="bh">${head}</div>${items.map((x, i) => `<div class="brow" style="--i:${i}"><span class="sdot" style="background:${x[0]}"></span><span class="tx">${x[1]}</span>${x[2] ? `<button class="btn btn-outline btn-sm" ${x[3]}>${x[2]}</button>` : ""}</div>`).join("")}</div>`;
 }
-const ctxKey = () => S.page === "social" ? "social" : "listings:" + S.loc;
+const ctxKey = () => S.page === "listings" ? "listings:" + S.loc : S.page;
 function aiOpen(on = !S.ai.open){
   S.ai.open = on;
   $("#aip").classList.toggle("on", on);
@@ -1795,9 +2019,9 @@ function aiContext(){
   S.ai.started = true; S.ai.ctx = key;
   $$("#aip-b .prompts").forEach(p => p.remove());
   if (first) b.insertAdjacentHTML("beforeend", `<div class="msg bot">Hi Dana. Here's what needs you right now. I draft, you approve, and nothing goes out without you.</div>`);
-  else b.insertAdjacentHTML("beforeend", `<div class="aidiv">${S.page === "social" ? "Now on Social" : "Now on " + esc(L().label)}</div>`);
+  else b.insertAdjacentHTML("beforeend", `<div class="aidiv">${S.page === "social" ? "Now on Social" : S.page === "reviews" ? "Now on Reputation" : "Now on " + esc(L().label)}</div>`);
   b.insertAdjacentHTML("beforeend", briefHTML() + promptsHTML());
-  $("#ask-q").placeholder = S.page === "social" ? "Ask about your posts or comments" : "Ask about your listings or reviews";
+  $("#ask-q").placeholder = S.page === "social" ? "Ask about your posts or comments" : S.page === "reviews" ? "Ask about your reviews" : "Ask about your listings or reviews";
   b.scrollTop = b.scrollHeight;
 }
 function addMsg(html, cls = "bot"){ const b = $("#aip-b"); b.insertAdjacentHTML("beforeend", `<div class="msg ${cls}">${html}</div>`); b.scrollTop = b.scrollHeight; return b.lastElementChild; }
@@ -1821,6 +2045,12 @@ async function typeTA(ta, text, ms, ep, onStep){
 }
 function classify(q){
   q = q.toLowerCase();
+  if (/what are (customers|people|they) saying|theme|what do (customers|people) (say|like|mention)/.test(q)) return "themes";
+  if (S.page === "reviews"){
+    if (/negative|bad review|angry|unhappy|complain|one star|1 star|low/.test(q)) return "neg";
+    if (/thank|positive|happy|five star|5 star|all of them|every|bulk/.test(q)) return "bulk";
+    if (/saying|insight|summar|trend|mention/.test(q)) return "themes";
+  }
   if (/comment/.test(q)) return "comments";
   if (/review|repl|respond/.test(q)) return "reply";
   if (/(fail|didn.?t|did not|why).*(post|instagram|go out)|(instagram|post).*(fail|didn.?t|missing|skip)/.test(q)) return "failed";
@@ -1871,6 +2101,30 @@ async function ask(k, text){
     const m = await botSay("I added a 12 to 1 PM break Monday through Friday. Check it, then save to send it to every connected site.", ep);
     if (!m || ep !== EPOCH) return;
     aiHours();
+  } else if (k === "neg"){
+    const neg = needsReply().filter(r => r.rating <= 2).sort((x, y) => y.d - x.d);
+    if (!neg.length){ await botSay("Every negative review already has a reply. Nice work.", ep); return; }
+    const m = await botSay(`${neg.length} negative ${plural(neg.length, "review is", "reviews are")} waiting. ${neg[0].who} is the most recent, so I'd start there. I drafted an apology that offers to talk it through, without promising anything you haven't decided.`, ep);
+    if (!m || ep !== EPOCH) return;
+    rvOpen(neg[0].id, true);
+  } else if (k === "bulk"){
+    const pos = needsReply().filter(r => r.rating >= 4);
+    if (!pos.length){ await botSay("Every happy customer already has a thank you.", ep); return; }
+    const m = await botSay(`${pos.length} happy ${plural(pos.length, "customer is", "customers are")} waiting for a thank you. I drafted a short reply for each one that mentions what they wrote about. Check them, then publish.`, ep);
+    if (!m || ep !== EPOCH) return;
+    const go = () => { S.reviews.checked = pos.map(r => r.id); rvList(false); setTimeout(() => rvBulk(pos.map(r => r.id)), 250); };
+    if (S.page !== "reviews"){ goPage("reviews"); setTimeout(go, 420); } else go();
+  } else if (k === "themes"){
+    const m = await botSay("People praise how fast you handle storm leaks and how clear your pricing is. The complaints are mostly about scheduling: start dates that change and appointment windows nobody called about.", ep);
+    if (!m || ep !== EPOCH) return;
+    addCard(themesCard());
+    requestAnimationFrame(() => requestAnimationFrame(() => $$("#aip-b .thm .bar2 i").forEach(i => { if (!i.style.width) i.style.width = i.dataset.w + "%"; })));
+  } else if (k === "reply" && S.page === "reviews"){
+    const r = S.reviews.list.find(x => x.id === "r2");
+    if (r.reply){ await botSay("Alex M.'s review already has your reply. Want me to look at the other negative reviews?", ep); addCard(`<div class="prompts">${[["neg", "Help me answer the negative reviews"]].map(([k2, t2]) => `<button class="prompt" data-act="ai-q" data-k="${k2}" data-t="${esc(t2)}">${ic("alert", 16)}${t2}</button>`).join("")}</div>`); return; }
+    const m = await botSay("Here's your lowest recent review, from Alex M. on Google. I put a draft in the reply box. Change the tone or anything else before you send it.", ep);
+    if (!m || ep !== EPOCH) return;
+    rvOpen("r2", true);
   } else if (k === "reply"){
     const m = await botSay("Here's your lowest recent review, from Google, and a reply you can post. Change anything you like before you approve it.", ep);
     if (!m || ep !== EPOCH) return;
@@ -1948,6 +2202,7 @@ function placeKnob2(seg){
   const on = $('button[aria-pressed="true"]', seg), k = $(".knob", seg); if (!on || !k) return;
   k.style.width = on.offsetWidth + "px"; k.style.transform = `translateX(${on.offsetLeft}px)`;
 }
+const PAGES = {listings:"#page", social:"#page-social", reviews:"#page-reviews"};
 function goPage(p){
   if (S.page === p) return;
   closePop();
@@ -1956,9 +2211,9 @@ function goPage(p){
   /* switched right away, not inside a view transition, so anything that opens next sees the new page.
      The page slides in with .enter and its rows, cards and counters run their own entrance motion. */
   S.page = p;
-  $("#page").hidden = p !== "listings"; $("#page-social").hidden = p !== "social";
-  if (p === "social") renderSocial(true); else { S.compW = 0; S.healthW = 0; renderAll(true); }
-  const pg = p === "social" ? $("#page-social") : $("#page");
+  Object.entries(PAGES).forEach(([k, sel]) => $(sel).hidden = k !== p);
+  if (p === "social") renderSocial(true); else if (p === "reviews") renderReviews(true); else { S.compW = 0; S.healthW = 0; renderAll(true); }
+  const pg = $(PAGES[p]);
   pg.classList.remove("enter"); void pg.offsetWidth; pg.classList.add("enter");
   setTitle(pageTitle());
   $("#main").scrollTop = 0;
@@ -2008,12 +2263,13 @@ function kpisHTML(w){
 }
 function countUp(root){
   $$("[data-to]", root).forEach(el => {
-    const to = +el.dataset.to;
-    if (RM){ el.textContent = to.toLocaleString(); return; }
+    const to = +el.dataset.to, dec = +(el.dataset.dec || 0);
+    const show = v => dec ? v.toFixed(dec) : Math.round(v).toLocaleString();
+    if (RM){ el.textContent = show(to); return; }
     const t0 = performance.now(), dur = 950;
-    const step = now => { const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(to * e).toLocaleString(); if (k < 1) requestAnimationFrame(step); };
-    el.textContent = "0"; requestAnimationFrame(step);
-    setTimeout(() => { el.textContent = to.toLocaleString(); }, dur + 400);
+    const step = now => { const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = show(to * e); if (k < 1) requestAnimationFrame(step); };
+    el.textContent = show(0); requestAnimationFrame(step);
+    setTimeout(() => { el.textContent = show(to); }, dur + 400);
   });
 }
 const legendHTML = () => `<span><span class="sdot" style="background:var(--ok)"></span>Published</span><span><span class="sdot" style="background:#1D5FA8"></span>Scheduled</span><span><span class="sdot" style="background:var(--bad)"></span>Needs attention</span>`;
@@ -2368,6 +2624,345 @@ function cmRemove(id, after){
 }
 
 /* -----------------------------------------------------------------
+   Reputation: reviews from every site in one workspace.
+   Layout: overall rating and review
+   requests, a card per site, tabs by site, a list with checkboxes and
+   a reply pane with a suggested reply, tones and templates.
+   ----------------------------------------------------------------- */
+const RSRC = {
+  google:{n:"Google", t:"G", bg:"#E8F0FE", fg:"#1A56C4"},
+  facebook:{n:"Facebook", t:"f", bg:"#E7F0FE", fg:"#1559C9"},
+  yelp:{n:"Yelp", t:"Y", bg:"#FCE8E8", fg:"#B11C1C"},
+  nextdoor:{n:"Nextdoor", t:"N", bg:"#E2F6EA", fg:"#1D7A44"},
+  yahoo:{n:"Yahoo", t:"Y", bg:"#EFE6FB", fg:"#5B1FB0"},
+  other:{n:"Other", t:"O", bg:"#EEF0F3", fg:"#3E4A59"}
+};
+const RV_TABS = [["needs","Needs response"],["all","All sites"],["google","Google"],["yelp","Yelp"],["facebook","Facebook"],["nextdoor","Nextdoor"],["yahoo","Yahoo"],["other","Other"]];
+const SORTS = {newest:"Newest first", oldest:"Oldest first", last30:"Last 30 days", last90:"Last 90 days"};
+const THEMES = [["storm","Fast storm and leak repairs"],["price","Clear, fair pricing"],["clean","Clean job sites"],["sched","Scheduling and start dates"],["est","Waiting for estimates"]];
+let BK = null;
+const needsReply = () => S.reviews.list.filter(r => !r.reply);
+const sentiment = n => n >= 4 ? ["Positive", "var(--ok)"] : n === 3 ? ["Neutral", "var(--off)"] : ["Negative", "var(--bad)"];
+const initials = n => n.replace(/[^A-Za-z ]/g, "").split(/\s+/).filter(Boolean).map(w => w[0]).join("").slice(0, 2).toUpperCase();
+const starsHTML = n => `<span class="stars" role="img" aria-label="${n} of 5 stars">${"★".repeat(n)}<span class="off">${"★".repeat(5 - n)}</span></span>`;
+const srcTile = (s, z = 18) => `<span class="tile" style="width:${z}px;height:${z}px;border-radius:${Math.round(z / 3.5)}px;font-size:${Math.round(z * .48)}px;background:${RSRC[s].bg};color:${RSRC[s].fg}" title="${RSRC[s].n}">${RSRC[s].t}</span>`;
+const fullDate = d => dayDate(d).toLocaleDateString("en-US", {month:"short", day:"numeric", year:"numeric"});
+const firstName = r => r.who.split(" ")[0];
+function rvSuggestion(r, tone, n){
+  const pool = (tone === "Friendly" && r.draft ? [r.draft] : []).concat(RV_POOL[sentiment(r.rating)[0]][tone]);
+  return pool[((n % pool.length) + pool.length) % pool.length].replace(/\{name\}/g, firstName(r)).replace(/\{phone\}/g, S.locs[r.loc].phone).replace(/\{biz\}/g, S.biz);
+}
+function rvCounts(){
+  const l = S.reviews.list, c = {needs:l.filter(r => !r.reply).length, all:l.length};
+  ["google", "yelp", "facebook", "nextdoor", "yahoo", "other"].forEach(k => c[k] = l.filter(r => r.src === k).length);
+  return c;
+}
+function rvVisible(){
+  const R = S.reviews, q = R.q.trim().toLowerCase();
+  let l = R.list.filter(r => R.tab === "all" ? true : R.tab === "needs" ? !r.reply : r.src === R.tab);
+  if (q) l = l.filter(r => (r.who + " " + r.text).toLowerCase().includes(q));
+  if (R.sort === "last30") l = l.filter(r => r.d >= -30);
+  if (R.sort === "last90") l = l.filter(r => r.d >= -90);
+  return l.sort((a, b) => R.sort === "oldest" ? a.d - b.d : b.d - a.d);
+}
+function renderReviews(anim){
+  const R = S.reviews;
+  $("#page-reviews").innerHTML = `
+    <div class="page-h"><h1>Reputation</h1><span class="grow"></span><span class="sub" style="margin:0">Every review from every location, in one place</span></div>
+    <div class="rv-sum">${rvOverallHTML()}<div class="rv-plats">${RV_SUM.plats.map(([s, avg, n], i) => `<div class="card rv-plat" style="--i:${i}"><div class="hd">${srcTile(s, 24)}<span>${RSRC[s].n} reviews</span><span class="rt"><span class="star">★</span>${avg.toFixed(1)}</span></div><span class="n" data-to="${n}">${n}</span></div>`).join("")}</div></div>
+    <div class="rv-tabs" role="tablist" aria-label="Reviews by site" id="rv-tabs"><span class="ink"></span></div>
+    <div class="rv-bar"><label class="search">${ic("search", 17)}<input id="rv-q" type="search" placeholder="Search reviews" aria-label="Search reviews" autocomplete="off" value="${esc(R.q)}"></label><span class="grow"></span>
+      <button class="btn btn-outline" data-act="rv-sort" id="rv-sort" aria-haspopup="menu" aria-expanded="false">${ic("list", 15)}<span>Filter: ${SORTS[R.sort]}</span></button>
+      <button class="btn btn-outline" data-act="rv-dl">${ic("download", 15)}Download</button></div>
+    <div class="rv-ws">
+      <section class="card rv-list" aria-label="Reviews"><div class="rv-lh" id="rv-lh"></div><div class="rv-items" id="rv-items" role="listbox" aria-label="Reviews"></div></section>
+      <section class="card rv-det-wrap" id="rv-det" aria-label="Selected review"></section>
+    </div>`;
+  $("#rv-q").addEventListener("input", e => { R.q = e.target.value; rvList(false); });
+  rvTabs(); rvList(anim);
+  requestAnimationFrame(() => requestAnimationFrame(() => $$("#page-reviews .rv-dist .b i").forEach(i => i.style.width = i.dataset.w + "%")));
+  if (anim) countUp($("#page-reviews .rv-sum"));
+}
+function rvOverallHTML(){
+  const s = RV_SUM;
+  return `<div class="card rv-overall"><span class="rv-k">Overall rating</span>
+    <div class="rv-top"><div><div class="rv-big"><span data-to="${s.avg}" data-dec="1">${s.avg.toFixed(1)}</span><span class="star">★</span></div><div class="rv-based">Based on ${s.total} reviews</div></div>
+      <div class="rv-dist">${s.dist.map(([n, p], i) => `<div class="r"><span>${n} ${plural(n, "star")}</span><span class="b"><i data-w="${p}" style="transition-delay:${250 + i * 80}ms"></i></span><span>${p}%</span></div>`).join("")}</div></div>
+    <div class="rv-req"><div class="hd"><span class="rv-k">Review requests</span><button class="lnk" data-act="soon" style="font-size:12.5px">View more</button></div>
+      <div class="nums"><div><b data-to="${s.req.sent}">${s.req.sent}</b><small>Invites sent</small></div><div><b><span data-to="${s.req.rate}">${s.req.rate}</span>%</b><small>Response rate</small></div><div><b data-to="${s.req.gen}">${s.req.gen}</b><small>Reviews generated</small></div></div></div></div>`;
+}
+function rvTabs(){
+  const R = S.reviews, c = rvCounts(), box = $("#rv-tabs"); if (!box) return;
+  $$("button", box).forEach(b => b.remove());
+  $(".ink", box).insertAdjacentHTML("beforebegin", RV_TABS.map(([k, l]) => `<button role="tab" class="${k === "needs" ? "need" : ""}" data-act="rv-tab" data-k="${k}" aria-selected="${R.tab === k}">${l}<span class="c ${c[k] ? "" : "zero"}" data-k="${k}">${c[k]}</span></button>`).join(""));
+  rvInk();
+}
+function rvInk(){
+  requestAnimationFrame(() => {
+    const on = $('#rv-tabs [aria-selected="true"]'), ink = $("#rv-tabs .ink"); if (!on || !ink) return;
+    ink.style.left = on.offsetLeft + "px"; ink.style.width = on.offsetWidth + "px"; ink.style.top = (on.offsetTop + on.offsetHeight - 2) + "px";
+  });
+}
+function rvItemHTML(r, i, anim){
+  const R = S.reviews, [sl, sc] = sentiment(r.rating), on = r.id === R.sel;
+  return `<div class="rv-it ${on ? "on" : ""} ${anim ? "in" : ""}" id="rvi-${r.id}" role="option" aria-selected="${on}" tabindex="${on ? 0 : -1}" data-act="rv-pick" data-id="${r.id}" style="--i:${i}">
+    <input type="checkbox" class="cbox" data-act="rv-check" data-id="${r.id}" ${R.checked.includes(r.id) ? "checked" : ""} ${r.reply ? "disabled" : ""} aria-label="Select the review from ${esc(r.who)}">
+    <div style="min-width:0"><div class="rh"><span class="av">${initials(r.who)}</span><span class="who">${esc(r.who)}</span>${srcTile(r.src, 16)}<span class="dt">${mdy(r.d)}</span></div>
+      <div class="meta">${starsHTML(r.rating)}<span class="sent-dot"><i style="background:${sc}"></i>${sl}</span></div>
+      <div class="loc">${ic("pin", 12)}${esc(S.locs[r.loc].label)}</div>
+      <p>${esc(r.text)}</p>
+      <span class="rtag ${r.reply ? "done" : "need"}">${r.reply ? "Replied" : "Response needed"}</span></div></div>`;
+}
+function rvList(anim){
+  const R = S.reviews, box = $("#rv-items"); if (!box) return;
+  const l = rvVisible();
+  if (!l.some(r => r.id === R.sel)) { R.sel = l[0] ? l[0].id : null; R.editing = false; }
+  box.innerHTML = l.length ? l.map((r, i) => rvItemHTML(r, i, anim)).join("")
+    : `<div class="empty">${ic(R.q ? "search" : "checkCircle", 24)}<p>${R.q ? "No reviews match your search." : R.tab === "needs" ? "Every review has a reply. Nice work." : "No reviews from this site yet."}</p>${R.q ? `<button class="btn btn-outline btn-sm" data-act="rv-clear">Clear search</button>` : R.tab !== "all" ? `<button class="btn btn-outline btn-sm" data-act="rv-tab" data-k="all">Show all sites</button>` : ""}</div>`;
+  rvHead(); rvDetail();
+}
+function rvHead(){
+  const R = S.reviews, head = $("#rv-lh"); if (!head) return;
+  const vis = rvVisible(), open = vis.filter(r => !r.reply), n = R.checked.length;
+  const all = open.length && open.every(r => R.checked.includes(r.id));
+  head.innerHTML = `<input type="checkbox" class="cbox" data-act="rv-all" ${all ? "checked" : ""} ${open.length ? "" : "disabled"} aria-label="Select every review here that needs a reply"><span>${n ? `${n} selected` : `${vis.length} ${plural(vis.length, "review")}`}</span><span class="grow"></span>${n ? `<button class="btn btn-primary btn-sm rv-bulk" data-act="rv-bulk">${ic("sparkle", 14)}Reply to ${n}</button>` : ""}`;
+}
+function rvMarkSel(){
+  $$("#rv-items .rv-it").forEach(el => { const on = el.dataset.id === S.reviews.sel; el.classList.toggle("on", on); el.setAttribute("aria-selected", on); el.tabIndex = on ? 0 : -1; });
+}
+function rvDetail(){
+  const R = S.reviews, box = $("#rv-det"); if (!box) return;
+  const r = R.list.find(x => x.id === R.sel);
+  if (!r){ box.innerHTML = `<div class="empty">${ic("star", 24)}<p>Pick a review to read it and reply.</p></div>`; return; }
+  box.innerHTML = `<div class="rv-det">
+    <div class="hd"><span class="av lg">${initials(r.who)}</span><div style="flex:1;min-width:0"><div class="nm">${esc(r.who)}${srcTile(r.src, 18)}</div><div class="sub">${starsHTML(r.rating)}<span>${fullDate(r.d)}</span></div><div class="sub">${ic("pin", 12)}${esc(S.biz)} · ${esc(S.locs[r.loc].label)}</div></div>
+      <span class="badge ${r.reply ? "gray" : "warn"}" id="rv-badge">${r.reply ? "Reply left" : "No reply"}</span>
+      <button class="more" data-act="rv-more" data-id="${r.id}" aria-label="More actions for this review" aria-haspopup="menu" aria-expanded="false">${ic("more", 18)}</button></div>
+    <p class="txt">${esc(r.text)}</p>
+    <div class="rv-rep" id="rv-rep">${r.reply && !R.editing ? rvMineHTML(r) : rvComposeHTML(r)}</div></div>`;
+  if (!r.reply || R.editing) rvWire(r);
+}
+const rvMineHTML = r => `<div class="mine-r"><div class="h"><span>Your reply · ${r.reply.d === 0 ? "Just now" : mdy(r.reply.d)}</span><button class="lnk" data-act="rv-edit" data-id="${r.id}">Edit</button></div><p>${esc(r.reply.text)}</p></div>`;
+function rvComposeHTML(r){
+  const R = S.reviews, tone = R.tone[r.id] || "Friendly";
+  const draft = R.drafts[r.id] != null ? R.drafts[r.id] : (R.editing && r.reply ? r.reply.text : "");
+  return `<div class="rv-sh"><span class="l">${ic("sparkle", 14)}Suggested reply</span><span class="concept">Concept</span><span class="grow"></span>
+      <select class="tone-sel" id="rv-tone" aria-label="Tone of the suggested reply">${RV_TONES.map(t => `<option ${t === tone ? "selected" : ""}>${t}</option>`).join("")}</select>
+      <button class="lnk rv-regen" data-act="rv-regen" data-id="${r.id}">${ic("refresh", 14)}Regenerate</button></div>
+    <button class="rv-sug" id="rv-sug" data-act="rv-use" data-id="${r.id}"><span id="rv-sug-t">${esc(rvSuggestion(r, tone, R.gen[r.id] || 0))}</span><span class="use">${ic("arrowRight", 13)}Use this reply</span></button>
+    <div class="rv-box"><textarea id="rv-text" maxlength="4096" placeholder="Reply to ${esc(r.who)}" aria-label="Reply to ${esc(r.who)}">${esc(draft)}</textarea>
+      <div class="ft"><button class="btn btn-ghost btn-sm" data-act="rv-tpl">${ic("list", 14)}Templates</button><span class="grow"></span><span class="n" id="rv-n">${draft.length}/4096</span>${R.editing ? `<button class="btn btn-outline btn-sm" data-act="rv-cancel-edit">Cancel</button>` : ""}<button class="btn btn-primary btn-sm" id="rv-send" data-act="rv-send" data-id="${r.id}" ${draft.trim() ? "" : "disabled"}>${ic("send", 14)}${R.editing ? "Update reply" : "Send reply"}</button></div></div>
+    <div class="ai-src">${ic("info", 13)}Thryv AI drafts. Nothing posts to ${RSRC[r.src].n} until you send it.</div>`;
+}
+function rvWire(r){
+  const R = S.reviews, ta = $("#rv-text"), tone = $("#rv-tone");
+  ta && ta.addEventListener("input", () => { R.drafts[r.id] = ta.value; rvBoxState(); });
+  tone && tone.addEventListener("change", () => { R.tone[r.id] = tone.value; R.gen[r.id] = -1; rvRegen(r.id); });
+}
+function rvBoxState(){ const ta = $("#rv-text"); if (!ta) return; $("#rv-n").textContent = `${ta.value.length}/4096`; $("#rv-send").disabled = !ta.value.trim(); }
+async function rvRegen(id){
+  const ep = EPOCH, R = S.reviews, r = R.list.find(x => x.id === id), box = $("#rv-sug"), t = $("#rv-sug-t");
+  if (!r || !box || box.disabled) return;
+  R.gen[id] = (R.gen[id] == null ? 0 : R.gen[id]) + 1;
+  box.disabled = true; box.classList.add("gen"); t.textContent = "Writing a new version";
+  await wait(550); if (ep !== EPOCH || !t.isConnected) return;
+  t.textContent = ""; box.classList.remove("gen");
+  await typeInto(t, rvSuggestion(r, R.tone[id] || "Friendly", R.gen[id]), 7, ep);
+  if (t.isConnected) box.disabled = false;
+}
+async function rvUse(id, text){
+  const ep = EPOCH, R = S.reviews, r = R.list.find(x => x.id === id), ta = $("#rv-text");
+  if (!r || !ta || R.sel !== id || ta.readOnly) return;
+  const v = text != null ? text : rvSuggestion(r, R.tone[id] || "Friendly", R.gen[id] || 0);
+  ta.classList.add("gen"); ta.readOnly = true;
+  await wait(250); if (ep !== EPOCH || !ta.isConnected) return;
+  await typeTA(ta, v, 6, ep, val => { R.drafts[id] = val; rvBoxState(); });
+  if (!ta.isConnected) return;
+  ta.classList.remove("gen"); ta.readOnly = false; ta.classList.remove("filled"); void ta.offsetWidth; ta.classList.add("filled");
+  ta.focus({preventScroll:true});
+}
+function rvCountsUpdate(){
+  const c = rvCounts();
+  $$("#rv-tabs .c").forEach(el => { bumpText(el, c[el.dataset.k]); el.classList.toggle("zero", !c[el.dataset.k]); });
+  const nb = $("#nb-reviews");
+  if (nb){ if (c.needs) bumpText(nb, c.needs); else nb.textContent = 0; nb.classList.toggle("zero", !c.needs); nb.setAttribute("aria-label", `${c.needs} ${plural(c.needs, "review")} waiting for a reply`); }
+  const need = needsReply(), neg = need.filter(r => r.rating <= 2).length, pos = need.filter(r => r.rating >= 4).length;
+  briefRow("ai-rv-neg", neg ? `${neg} negative ${plural(neg, "review")} waiting for a reply` : "Every negative review has a reply", !neg);
+  briefRow("ai-rv-bulk", pos ? `${pos} happy ${plural(pos, "customer")} to thank` : "Every happy customer has a thank you", !pos);
+}
+function rvMarkReplied(r, text){
+  r.reply = {text, d:0};
+  delete S.reviews.drafts[r.id];
+  S.reviews.checked = S.reviews.checked.filter(x => x !== r.id);
+  const it = $("#rvi-" + r.id);
+  if (it){ const tg = $(".rtag", it); tg.className = "rtag done swap"; tg.textContent = "Replied"; const cb = $(".cbox", it); cb.checked = false; cb.disabled = true; }
+}
+/* in Needs response, a review she just answered folds away and the next one opens */
+function rvCollapse(id){
+  const R = S.reviews, it = $("#rvi-" + id); if (!it || R.tab !== "needs") return;
+  const items = $$("#rv-items .rv-it"), idx = items.indexOf(it), next = items.slice(idx + 1).concat(items.slice(0, idx).reverse()).find(el => !R.list.find(x => x.id === el.dataset.id).reply);
+  it.style.height = it.offsetHeight + "px"; it.style.overflow = "hidden"; void it.offsetHeight;
+  it.style.transition = "height .4s var(--ease-out), opacity .3s, padding .4s var(--ease-out)";
+  it.style.height = "0px"; it.style.opacity = "0"; it.style.paddingTop = it.style.paddingBottom = "0px";
+  setTimeout(() => {
+    if (!it.isConnected) return;
+    it.remove();
+    if (R.sel === id){ R.sel = next ? next.dataset.id : null; R.editing = false; rvMarkSel(); rvDetail(); }
+    if (!$("#rv-items .rv-it")) rvList(false); else rvHead();
+  }, 430);
+}
+function rvSend(id){
+  const R = S.reviews, r = R.list.find(x => x.id === id), ta = $("#rv-text");
+  if (!r || !ta || !ta.value.trim()) return;
+  const was = !!r.reply;
+  rvMarkReplied(r, ta.value.trim()); R.editing = false;
+  const rep = $("#rv-rep"); rep.innerHTML = rvMineHTML(r);
+  const b = $("#rv-badge"); b.className = "badge gray swap"; b.textContent = "Reply left";
+  rvCountsUpdate(); rvHead();
+  toast(was ? `Reply updated on ${RSRC[r.src].n}` : `Reply posted on ${RSRC[r.src].n}`);
+  rvSyncPanel(r);
+  if (!was) setTimeout(() => rvCollapse(id), 1100);
+}
+/* the AI panel and this page share Alex M.'s review, so a reply in one shows in the other */
+function rvSyncPanel(r){
+  if (r.id !== "r2") return;
+  const c = $("#reply-card"); if (!c || !$(".af", c)) return;
+  $(".af", c).outerHTML = `<div class="posted">${ic("checkCircle", 16)}Posted to Google from Reputation</div>`;
+  $("textarea", c).value = r.reply.text; $("textarea", c).readOnly = true; $$(".tones .topic", c).forEach(b => b.disabled = true);
+}
+function rvSetFromPanel(text){
+  const r = S.reviews.list.find(x => x.id === "r2"); if (!r) return;
+  r.reply = text ? {text, d:0} : null;
+  rvCountsUpdate();
+  if (S.page === "reviews"){ rvTabs(); rvList(false); }
+}
+/* open a review from anywhere (the AI panel uses this), optionally typing in the suggested reply */
+function rvOpen(id, draft){
+  const go = () => {
+    const R = S.reviews;
+    R.sel = id; R.editing = false;
+    if (!rvVisible().some(r => r.id === id)){ R.tab = "all"; R.q = ""; const q = $("#rv-q"); if (q) q.value = ""; }
+    rvTabs(); rvList(false);
+    /* bring the workspace into view, then the review inside its own list */
+    const ws = $("#page-reviews .rv-ws"), main = $("#main");
+    const stacked = ws && getComputedStyle(ws).gridTemplateColumns.trim().split(/\s+/).length < 2, target = stacked ? $("#rv-det") : ws;
+    if (target) main.scrollTo({top:target.offsetTop - 12, behavior:RM ? "auto" : "smooth"});
+    const it = $("#rvi-" + id), box = $("#rv-items");
+    if (it && box) box.scrollTo({top:it.offsetTop - box.offsetTop - 8, behavior:RM ? "auto" : "smooth"});
+    if (draft) setTimeout(() => rvUse(id), 380);
+  };
+  if (S.page !== "reviews"){ goPage("reviews"); setTimeout(go, 420); } else go();
+}
+function openRvMenu(btn, kind){
+  if (kind === "sort"){ const R = S.reviews; openPop(btn, Object.entries(SORTS).map(([k, l]) => `<button role="menuitemradio" aria-checked="${R.sort === k}" data-act="rv-sort-pick" data-k="${k}">${l}${R.sort === k ? `<span class="sel">${ic("check", 16)}</span>` : ""}</button>`).join("")); return; }
+  openPop(btn, `<button data-act="rv-orig" data-id="${btn.dataset.id}">${ic("external", 16)}View original review</button><button data-act="rv-link">${ic("link", 16)}Copy link</button><hr><button data-act="rv-flag">${ic("alert", 16)}Flag review</button>`);
+}
+function rvDownload(){
+  const rows = [["Author", "Location", "Site", "Rating", "Status", "Review"]].concat(S.reviews.list.map(r => [r.who, S.locs[r.loc].label, RSRC[r.src].n, r.rating, r.reply ? "Replied" : "Needs response", r.text]));
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+  try {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"})); a.download = "Ridgeline Roofing reviews.csv";
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800);
+  } catch (e) {}
+  toast(`Downloaded ${S.reviews.list.length} reviews as a spreadsheet`);
+}
+
+/* Bulk reply with Thryv AI */
+function rvBulk(ids){
+  const R = S.reviews, list = ids.map(id => R.list.find(r => r.id === id)).filter(r => r && !r.reply);
+  if (!list.length) return;
+  BK = {ids:list.map(r => r.id), inc:new Set(list.map(r => r.id)), text:{}, v:{}, busy:true};
+  openModal(`<div class="m-h"><span class="bulb">${ic("sparkle", 18)}</span><div><h3 id="bk-h">Reply to ${list.length} ${plural(list.length, "review")}</h3><small>Thryv AI drafted a reply for each one. Check them before you publish.</small></div><button class="x" data-act="close" aria-label="Close">${ic("x", 18)}</button></div>
+    <div class="m-b"><button class="lnk" data-act="bk-all" id="bk-all" style="font-size:12.5px">Deselect all</button><div class="bk" id="bk">${list.map((r, i) => bkItemHTML(r, i)).join("")}</div></div>
+    <div class="m-f"><span class="concept">Concept</span><span class="grow"></span><button class="btn btn-outline" data-act="close">Cancel</button><button class="btn btn-outline" data-act="bk-regen">${ic("refresh", 15)}Regenerate selected</button><button class="btn btn-primary" id="bk-pub" data-act="bk-pub" disabled>${ic("send", 15)}<span>Publish ${list.length} ${plural(list.length, "reply", "replies")}</span></button></div>`, "wide", {fresh:true});
+  setTitle("Reply to reviews");
+  const ep = EPOCH;
+  Promise.all(list.map((r, i) => bkGen(r.id, 350 + i * 420, ep))).then(() => { if (BK && ep === EPOCH){ BK.busy = false; bkState(); } });
+}
+function bkItemHTML(r, i){
+  return `<div class="bk-it" id="bk-${r.id}" style="--i:${i}"><input type="checkbox" class="cbox" data-act="bk-inc" data-id="${r.id}" checked aria-label="Include the reply to ${esc(r.who)}">
+    <div style="min-width:0"><div class="bk-rv"><div class="rh"><span class="av">${initials(r.who)}</span>${esc(r.who)}${srcTile(r.src, 16)}<span class="lc">${ic("pin", 12)}${esc(S.locs[r.loc].label)}</span></div>
+      <div class="meta">${starsHTML(r.rating)}<span>Review · ${mdy(r.d)}</span></div><p>${esc(r.text)}</p></div>
+      <div class="bk-ai"><div class="h"><span class="av sm">D</span>Dana<span class="tag">${ic("sparkle", 11)}Drafted by Thryv AI</span><span class="grow"></span><button class="icon-btn" data-act="bk-one" data-id="${r.id}" aria-label="Write a new version of this reply">${ic("refresh", 14)}</button><button class="icon-btn" data-act="bk-edit" data-id="${r.id}" aria-label="Edit this reply">${ic("edit", 14)}</button><span class="okc" aria-hidden="true">${ic("check", 12, "", 3)}</span></div>
+      <div class="bub gen" id="bkb-${r.id}">Writing a reply</div></div></div></div>`;
+}
+async function bkGen(id, delay, ep){
+  await wait(delay); if (ep !== EPOCH || !BK || !$("#bkb-" + id)) return;
+  const r = S.reviews.list.find(x => x.id === id);
+  let el = $("#bkb-" + id);
+  if (el.tagName === "TEXTAREA"){ const d = document.createElement("div"); d.className = "bub"; d.id = el.id; el.replaceWith(d); el = d; }
+  BK.v[id] = BK.v[id] == null ? 0 : BK.v[id] + 1; BK.text[id] = "";
+  bkState();
+  el.classList.add("gen"); el.textContent = "Writing a reply";
+  await wait(450); if (ep !== EPOCH || !el.isConnected) return;
+  el.classList.remove("gen"); el.textContent = "";
+  const text = rvSuggestion(r, "Friendly", BK.v[id]);
+  await typeInto(el, text, 6, ep);
+  if (!el.isConnected || !BK) return;
+  BK.text[id] = text; bkState();
+}
+function bkState(){
+  if (!BK) return;
+  const inc = BK.ids.filter(id => BK.inc.has(id)), ready = inc.filter(id => (BK.text[id] || "").trim()).length, b = $("#bk-pub");
+  if (b){ b.disabled = !inc.length || ready < inc.length; b.lastChild.textContent = `Publish ${inc.length} ${plural(inc.length, "reply", "replies")}`; }
+  const all = $("#bk-all"); if (all) all.textContent = inc.length === BK.ids.length ? "Deselect all" : "Select all";
+}
+async function bkPublish(){
+  const ep = EPOCH, R = S.reviews, ids = BK.ids.filter(id => BK.inc.has(id) && (BK.text[id] || "").trim());
+  if (!ids.length) return;
+  $("#bk-pub").disabled = true; $$("#bk .cbox, #bk .icon-btn").forEach(c => c.disabled = true);
+  for (const id of ids){
+    await wait(280); if (ep !== EPOCH) return;
+    const el = $("#bk-" + id); el && el.classList.add("done");
+    const r = R.list.find(x => x.id === id); rvMarkReplied(r, BK.text[id].trim()); rvSyncPanel(r);
+  }
+  await wait(650); if (ep !== EPOCH) return;
+  BK = null; closeModal(); rvCountsUpdate(); rvHead();
+  toast(`Published ${ids.length} ${plural(ids.length, "reply", "replies")}`);
+  if (R.tab === "needs") ids.forEach((id, i) => setTimeout(() => rvCollapse(id), 350 + i * 120));
+  else { const r = R.list.find(x => x.id === R.sel); if (r && ids.includes(r.id)) rvDetail(); }
+}
+
+/* Reply templates */
+function openTemplates(){
+  const R = S.reviews;
+  openModal(`<div class="m-h"><span class="bulb">${ic("list", 18)}</span><div><h3>Reply templates</h3><small>Start from a template, then make it personal before you send.</small></div><button class="x" data-act="close" aria-label="Close">${ic("x", 18)}</button></div>
+    <div class="m-b"><div class="tpls" id="tpls">${R.tpls.map((t, i) => tplHTML(t, i)).join("")}</div>
+      <div class="tpl-new"><span class="lbl-s" style="margin-top:2px">New template</span>
+        <div class="two"><input class="tin" id="tpl-l" placeholder="Name, like Thank a happy customer" aria-label="Template name"><select class="tone-sel" id="tpl-t" aria-label="Tone">${RV_TONES.map(t => `<option>${t}</option>`).join("")}</select></div>
+        <textarea class="tin" id="tpl-x" placeholder="Reply text" aria-label="Template text"></textarea>
+        <div class="row"><button class="btn btn-brand-o btn-sm" data-act="tpl-gen">${ic("sparkle", 14)}Write it with Thryv AI</button><span class="grow"></span><button class="btn btn-primary btn-sm" data-act="tpl-add">${ic("plus", 14)}Add template</button></div></div></div>`, "wide", {fresh:true});
+  setTitle("Reply templates");
+}
+const tplHTML = (t, i) => `<div class="tpl" style="--i:${i}"><div class="h"><b>${esc(t.label)}</b><span class="badge gray">${t.tone}</span><span class="grow"></span><button class="btn btn-outline btn-sm" data-act="tpl-use" data-i="${i}">Use</button></div><p>${esc(t.text)}</p></div>`;
+async function tplGen(){
+  const ep = EPOCH, ta = $("#tpl-x"), tone = $("#tpl-t").value; if (!ta || ta.readOnly) return;
+  const pool = RV_POOL.Positive[tone], n = (S.reviews.tplN = (S.reviews.tplN || 0) + 1);
+  ta.classList.add("gen"); ta.readOnly = true;
+  await wait(400); if (ep !== EPOCH || !ta.isConnected) return;
+  await typeTA(ta, pool[n % pool.length].replace(/,? ?\{name\},?/g, "").replace(/^\s*,?\s*/, "").replace(/\{biz\}/g, S.biz).replace(/^./, c => c.toUpperCase()), 7, ep);
+  ta.classList.remove("gen"); ta.readOnly = false;
+}
+function tplAdd(){
+  const l = $("#tpl-l"), x = $("#tpl-x"), t = $("#tpl-t");
+  const bad = [l, x].filter(el => !el.value.trim());
+  if (bad.length){ bad.forEach(el => { el.classList.remove("nudge"); void el.offsetWidth; el.classList.add("nudge"); }); bad[0].focus(); return; }
+  const tpl = {label:l.value.trim(), tone:t.value, text:x.value.trim()};
+  S.reviews.tpls.push(tpl);
+  $("#tpls").insertAdjacentHTML("beforeend", tplHTML(tpl, 0));
+  const el = $("#tpls").lastElementChild; el.scrollIntoView({block:"nearest", behavior:RM ? "auto" : "smooth"}); el.classList.add("fresh");
+  l.value = ""; x.value = "";
+  toast("Template added");
+}
+function themesCard(){
+  const list = S.reviews.list;
+  const rows = THEMES.map(([k, l]) => ({l, pro:list.filter(r => (r.pros || []).includes(k)).length, con:list.filter(r => (r.cons || []).includes(k)).length})).filter(t => t.pro || t.con);
+  const max = Math.max(...rows.map(t => t.pro + t.con));
+  return `<div class="acard"><div class="ah">${ic("chat", 14)}What customers mention most</div><div class="ab"><div class="thm">${rows.map((t, i) => `<div class="r" style="animation:rowIn .4s var(--ease-out) both;animation-delay:${i * 80}ms"><b>${t.l}</b><small>${t.pro ? `${t.pro} praise` : ""}${t.pro && t.con ? " · " : ""}${t.con ? `${t.con} ${plural(t.con, "complaint")}` : ""}</small><span class="bar2"><i class="p" data-w="${t.pro / max * 100}"></i><i class="c" data-w="${t.con / max * 100}"></i></span></div>`).join("")}</div><div class="ai-src">${ic("info", 13)}From the ${list.length} most recent reviews across all three locations.</div></div><div class="af"><button class="btn btn-outline btn-sm" data-act="ai-rv-neg">Answer the complaints</button></div></div>`;
+}
+
+/* -----------------------------------------------------------------
    Backend switch: a showcase control, not product UI
    ----------------------------------------------------------------- */
 function placeKnob(){
@@ -2404,7 +2999,7 @@ function setVendor(v){
    ----------------------------------------------------------------- */
 document.addEventListener("click", e => {
   const t = e.target.closest("[data-act]");
-  if (POP && !e.target.closest(".pop") && !(t && ["menu", "loc", "pmenu"].includes(t.dataset.act))) closePop();
+  if (POP && !e.target.closest(".pop") && !(t && ["menu", "loc", "pmenu", "rv-more", "rv-sort"].includes(t.dataset.act))) closePop();
   if (!t || t.disabled) return;
   const a = t.dataset.act, id = t.dataset.id;
   switch (a){
@@ -2483,6 +3078,7 @@ document.addEventListener("click", e => {
       $(".af", c).outerHTML = `<div class="posted">${ic("checkCircle", 16)}Posted to Google · just now<button class="lnk" data-act="ai-unpost">Undo</button></div>`;
       $("textarea", c).readOnly = true; $$(".tones .topic", c).forEach(b => b.disabled = true);
       toast("Reply posted to Google");
+      rvSetFromPanel($("textarea", c).value.trim());
       setTimeout(() => { const u = $('#reply-card [data-act="ai-unpost"]'); u && u.remove(); }, 8000);
       break;
     }
@@ -2491,10 +3087,49 @@ document.addEventListener("click", e => {
       $(".posted", c).outerHTML = `<div class="af" style="animation:xfade .3s var(--ease-out)"><button class="btn btn-primary btn-sm" data-act="ai-post">${ic("check", 14, "", 2.4)}Approve and post</button><button class="btn btn-outline btn-sm" data-act="ai-dismiss">Not now</button></div>`;
       $("textarea", c).readOnly = false; $$(".tones .topic", c).forEach(b => b.disabled = false);
       toast("Reply removed from Google", "info");
+      rvSetFromPanel(null);
       break;
     }
     case "nudge-post": goPage("social"); setTimeout(() => { openCompose({nets:["facebook", "google"], when:"now"}); setTimeout(() => aiCompose("hours"), 450); }, 420); break;
     case "layer-x": hideLayer(); break;
+
+    /* Reputation */
+    case "rv-tab": { const k = t.dataset.k; if (S.reviews.tab === k) break; S.reviews.tab = k; S.reviews.editing = false; $$("#rv-tabs [role=tab]").forEach(b => b.setAttribute("aria-selected", b.dataset.k === k)); rvInk(); rvList(true); break; }
+    case "rv-pick": { const R = S.reviews; if (R.sel === id) break; R.sel = id; R.editing = false; rvMarkSel(); rvDetail(); break; }
+    case "rv-check": { const R = S.reviews; R.checked = t.checked ? [...new Set([...R.checked, id])] : R.checked.filter(x => x !== id); rvHead(); break; }
+    case "rv-all": { const R = S.reviews, open = rvVisible().filter(r => !r.reply).map(r => r.id); R.checked = t.checked ? open : []; $$("#rv-items .rv-it .cbox:not(:disabled)").forEach(c => c.checked = t.checked); rvHead(); break; }
+    case "rv-bulk": rvBulk(S.reviews.checked); break;
+    case "rv-clear": S.reviews.q = ""; $("#rv-q").value = ""; rvList(false); $("#rv-q").focus(); break;
+    case "rv-sort": if (POP && t.getAttribute("aria-expanded") === "true") closePop(); else openRvMenu(t, "sort"); break;
+    case "rv-sort-pick": { closePop(true); const k = t.dataset.k; S.reviews.sort = k; const b = $("#rv-sort"); if (b) b.lastChild.textContent = `Filter: ${SORTS[k]}`; rvList(true); break; }
+    case "rv-more": if (POP && t.getAttribute("aria-expanded") === "true") closePop(); else openRvMenu(t, "more"); break;
+    case "rv-orig": closePop(); toast(`Opens the review on ${RSRC[S.reviews.list.find(r => r.id === id).src].n}`, "external"); break;
+    case "rv-link": closePop(); toast("Link copied", "link"); break;
+    case "rv-flag": closePop(); toast("Review flagged for moderation", "alert"); break;
+    case "rv-dl": rvDownload(); break;
+    case "rv-regen": rvRegen(id); break;
+    case "rv-use": rvUse(id); break;
+    case "rv-send": rvSend(id); break;
+    case "rv-edit": { const R = S.reviews; R.editing = true; R.drafts[id] = R.list.find(r => r.id === id).reply.text; rvDetail(); const ta = $("#rv-text"); ta && ta.focus(); break; }
+    case "rv-cancel-edit": { const R = S.reviews; R.editing = false; delete R.drafts[R.sel]; rvDetail(); break; }
+    case "rv-tpl": openTemplates(); break;
+    case "tpl-use": { const tpl = S.reviews.tpls[+t.dataset.i]; closeModal(); setTimeout(() => rvUse(S.reviews.sel, tpl.text), 240); break; }
+    case "tpl-gen": tplGen(); break;
+    case "tpl-add": tplAdd(); break;
+    case "bk-inc": { if (!BK) break; t.checked ? BK.inc.add(id) : BK.inc.delete(id); $("#bk-" + id).classList.toggle("skip", !t.checked); bkState(); break; }
+    case "bk-all": { if (!BK) break; const all = BK.inc.size === BK.ids.length; BK.inc = new Set(all ? [] : BK.ids); $$("#bk .bk-it").forEach(el => { const on = !all; $(".cbox", el).checked = on; el.classList.toggle("skip", !on); }); bkState(); break; }
+    case "bk-one": if (BK) bkGen(id, 0, EPOCH); break;
+    case "bk-edit": {
+      if (!BK) break;
+      const el = $("#bkb-" + id); if (!el || el.tagName === "TEXTAREA" || el.classList.contains("gen")) break;
+      const ta = document.createElement("textarea"); ta.className = "bub"; ta.id = el.id; ta.value = BK.text[id] || el.textContent; ta.setAttribute("aria-label", "Edit this reply");
+      el.replaceWith(ta); ta.focus(); ta.addEventListener("input", () => { BK.text[id] = ta.value; bkState(); });
+      break;
+    }
+    case "bk-regen": if (BK){ BK.busy = true; const ep = EPOCH; Promise.all(BK.ids.filter(x => BK.inc.has(x)).map((x, i) => bkGen(x, i * 300, ep))).then(() => { if (BK){ BK.busy = false; bkState(); } }); } break;
+    case "bk-pub": bkPublish(); break;
+    case "ai-rv-neg": { const neg = needsReply().filter(r => r.rating <= 2).sort((x, y) => y.d - x.d); if (neg.length) rvOpen(neg[0].id, true); break; }
+    case "ai-rv-bulk": { const pos = needsReply().filter(r => r.rating >= 4).map(r => r.id); if (!pos.length) break; const go = () => { S.reviews.checked = pos; rvList(false); setTimeout(() => rvBulk(pos), 250); }; if (S.page !== "reviews"){ goPage("reviews"); setTimeout(go, 420); } else go(); break; }
 
     /* Social */
     case "compose": closePop(); if ($("#modal-root .dscrim")) closeDrawer(); setTimeout(() => openCompose(), $("#modal-root .dscrim") ? 260 : 0); break;
@@ -2617,6 +3252,14 @@ document.addEventListener("keydown", e => {
     const n = e.key === "Home" ? 0 : e.key === "End" ? items.length - 1 : e.key === "ArrowDown" ? (i + 1) % items.length : (i - 1 + items.length) % items.length;
     items[n] && items[n].focus(); e.preventDefault(); return;
   }
+  /* review list: arrow keys move, Enter or Space opens */
+  const it = document.activeElement && document.activeElement.classList && document.activeElement.classList.contains("rv-it") ? document.activeElement : null;
+  if (it && ["ArrowDown", "ArrowUp", "Home", "End"].includes(e.key)){
+    const items = $$("#rv-items .rv-it"), i = items.indexOf(it);
+    const n = items[e.key === "Home" ? 0 : e.key === "End" ? items.length - 1 : e.key === "ArrowDown" ? Math.min(i + 1, items.length - 1) : Math.max(i - 1, 0)];
+    if (n){ n.focus(); n.click(); n.scrollIntoView({block:"nearest"}); } e.preventDefault(); return;
+  }
+  if (it && (e.key === "Enter" || e.key === " ")){ it.click(); e.preventDefault(); return; }
   /* dialogs and drawers keep focus inside while open */
   if (e.key === "Tab"){
     const r = $("#modal-root .scrim:not(.out) .modal") || $("#modal-root .dscrim:not(.out) .drawer");
@@ -2675,9 +3318,9 @@ function restart(){
   S = freshState(); lastCounts = {}; lastP = {};
   $("#q").value = ""; $("#aip-b").innerHTML = ""; $("#ask-q").value = ""; $("#ask-send").disabled = true; aiOpen(false);
   $$(".side .nav-i[data-page]").forEach(b => { const on = b.dataset.page === "listings"; b.classList.toggle("on", on); on ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"); });
-  $("#page").hidden = false; $("#page-social").hidden = true; $("#page-social").innerHTML = "";
+  $("#page").hidden = false; $("#page-social").hidden = true; $("#page-social").innerHTML = ""; $("#page-reviews").hidden = true; $("#page-reviews").innerHTML = ""; BK = null;
   $$(".seg [data-vendor]").forEach(b => b.setAttribute("aria-pressed", b.dataset.vendor === "A")); placeKnob();
-  refreshSocialCounts(); placeNav();
+  refreshSocialCounts(); rvCountsUpdate(); placeNav();
   renderAll(true); setTitle(pageTitle()); $("#main").scrollTop = 0;
 }
 
@@ -2688,10 +3331,11 @@ renderAll(false);
 fit();
 placeKnob();
 placeNav();
+rvCountsUpdate();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { placeKnob(); placeNav(); });
 
 /* Deep links for demos: #issue, #fix, #ai, #reply, #hours, #desc, #off, #vendor, #gilbert,
-   #social, #compose, #comments, #calendar */
+   #social, #compose, #comments, #calendar, #reviews, #bulk */
 const hash = location.hash.replace("#", "");
 if (hash){
   $("#intro").classList.add("hide");
@@ -2707,6 +3351,8 @@ if (hash){
     else if (hash === "gilbert"){ S.loc = "gilbert"; renderAll(false); }
     else if (hash === "social") goPage("social");
     else if (hash === "calendar"){ S.social.view = "cal"; goPage("social"); }
+    else if (hash === "reviews") goPage("reviews");
+    else if (hash === "bulk"){ goPage("reviews"); setTimeout(() => { const pos = needsReply().filter(r => r.rating >= 4).map(r => r.id); S.reviews.checked = pos; rvList(false); rvBulk(pos); }, 450); }
     else if (hash === "compose"){ goPage("social"); setTimeout(() => openCompose(), 420); }
     else if (hash === "comments"){ goPage("social"); setTimeout(() => openComments({draft:firstWaiting()}), 420); }
   }, 150);
