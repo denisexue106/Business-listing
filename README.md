@@ -55,3 +55,13 @@ Demo deep links: `#issue`, `#fix`, `#ai`, `#reply`, `#hours`, `#desc`, `#off`, `
 - One standalone `index.html`. Open it in a browser, or serve the folder.
 
 Designed by Denise Barrett. Case study at [dbyxdesign.com](https://dbyxdesign.com/case-business-listing.html).
+## Phone version
+
+`mobile.html` shows the owner's phone, for the Mobile section of the case study. On a desktop it shows inside a phone frame; on a phone it fills the screen.
+
+**Reviews.** The rating summary, a Thryv AI brief (Concept) that points to the negative reviews still waiting, and the reviews that need a response. Open Alex M.'s review and the suggested reply types in; switch between Friendly, Professional and Empathetic, regenerate it, then post it to Google from the button pinned to the bottom.
+
+**Social.** The Instagram post that didn't publish, the last 30 days of reach, likes and comments, a customer question with a drafted answer, and what's coming up. Open the post to see how it did and reply to the comment.
+
+Deep links: `mobile.html#reviews`, `#review`, `#review/professional`, `#review/empathetic`, `#replied`, `#social`, `#post`, `#post-replied`. Add `?rec` to draw a touch where each tap lands, for screen recordings.
+

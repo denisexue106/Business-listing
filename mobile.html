@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Reviews and social on a phone · Interactive prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Reviews and social on the owner's phone: reply to a review with Thryv AI, check how posts did, answer a comment.
+   Tokens, demo data (Ridgeline Roofing) and copy come from index.html. Thryv AI is a concept. */
+:root{
+  --font:"Open Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --head:"Montserrat","Open Sans",system-ui,sans-serif;
+  --ios:system-ui,-apple-system,"SF Pro Text","Segoe UI",sans-serif;
+  --brand:#C2410C; --brand-700:#9A3412; --brand-050:#FFF1EA;
+  --ink:#1C2330; --ink-2:#4A5463; --ink-3:#66717F; --line:#E6E8EC; --line-2:#D5D9DF; --bg:#F6F7F9; --paper:#FFFFFF;
+  --ok:#16824A; --ok-050:#E7F5EE; --warn:#9A5B00; --warn-050:#FFF4E0; --bad:#C8261B; --bad-050:#FDECEA; --enh:#5B3FD6; --enh-050:#EFEBFF;
+  --star:#E8A317;
+  --shadow-1:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.08); --shadow-3:0 12px 32px rgba(16,24,40,.16),0 4px 10px rgba(16,24,40,.08);
+  --orb:radial-gradient(120% 120% at 20% 10%,#8B74FF 0%,#5B3FD6 50%,#3B2596 100%);
+  --ease-out:cubic-bezier(.2,.8,.2,1); --ease-in-out:cubic-bezier(.65,0,.35,1); --spring:cubic-bezier(.34,1.4,.64,1);
+  --sb:54px; --tabs:83px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--font);color:var(--ink);-webkit-font-smoothing:antialiased;background:#041a3b}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ic{display:block;flex:none}
+ul{list-style:none}
+
+.stage{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:32px 16px;background:radial-gradient(110% 80% at 50% 0%,#0d4a93 0%,#07326A 48%,#041a3b 100%)}
+.sc-label{display:flex;align-items:center;gap:12px;font:500 13px/18px "Inter",system-ui,sans-serif;color:rgba(255,255,255,.74)}
+.sc-pill{height:30px;padding:0 14px;border-radius:999px;background:rgba(255,255,255,.12);color:#fff;font:600 12px/30px "Inter",system-ui,sans-serif;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+.device{position:relative;flex:none;width:390px;height:844px;border-radius:58px;overflow:hidden;background:var(--bg);box-shadow:0 0 0 11px #0a0d13,0 0 0 13px #343d4b,0 40px 90px rgba(0,0,0,.55);isolation:isolate}
+@media (max-width:430px){.stage{display:block;padding:0;background:var(--bg)}.device{width:100vw;height:100vh;height:100dvh;border-radius:0;box-shadow:none}.chrome-out{display:none!important}}
+
+.sbar{position:absolute;inset:0 0 auto;height:var(--sb);z-index:40;color:#000;pointer-events:none}
+.sb-time{position:absolute;left:0;top:17px;width:calc(50% - 62px);padding-left:14px;text-align:center;font:600 17px/22px var(--ios);letter-spacing:-.3px}
+.sb-isl{position:absolute;left:50%;top:11px;width:124px;height:36px;margin-left:-62px;border-radius:20px;background:#000}
+.sb-r{position:absolute;right:0;top:19px;width:calc(50% - 62px);padding-right:12px;display:flex;justify-content:center;align-items:center;gap:6px}
+.sb-r svg{display:block;fill:currentColor}
+.homebar{position:absolute;left:50%;bottom:8px;width:134px;height:5px;margin-left:-67px;border-radius:3px;background:#000;z-index:60;pointer-events:none}
+
+.scr{position:absolute;inset:0;display:none;flex-direction:column;padding-top:var(--sb);background:var(--bg);overflow:hidden}
+.scr.on{display:flex}
+.scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
+.scroll::-webkit-scrollbar,.chips::-webkit-scrollbar,.kpis::-webkit-scrollbar{display:none}
+@keyframes inPush{from{transform:translateX(100%)}to{transform:none}}
+@keyframes outPush{to{transform:translateX(-28%);filter:brightness(.94)}}
+@keyframes inPop{from{transform:translateX(-28%);filter:brightness(.94)}to{transform:none;filter:none}}
+@keyframes outPop{to{transform:translateX(100%)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.scr.in-push{animation:inPush .44s var(--ease-out) both;z-index:3;box-shadow:-12px 0 30px rgba(0,0,0,.12)}
+.scr.out-push{animation:outPush .44s var(--ease-out) both;z-index:2}
+.scr.in-pop{animation:inPop .44s var(--ease-out) both;z-index:2}
+.scr.out-pop{animation:outPop .44s var(--ease-out) both;z-index:3}
+.scr.in-tab{animation:fadeIn .22s ease-out both;z-index:3}
+.scr.out-tab{z-index:2}
+
+.ib{width:44px;height:44px;display:grid;place-items:center;border-radius:50%;color:var(--ink);flex:none}
+.ib:active{background:rgba(0,0,0,.06)}
+.lt-head{flex:none;padding:0 6px 4px 16px}
+.lt-row{display:flex;align-items:center;justify-content:space-between;height:46px}
+.biz{display:flex;align-items:center;gap:8px;height:36px;padding:0 10px 0 2px;font-size:15px;font-weight:600}
+.logo{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:var(--brand);color:#fff;font:800 12px/1 var(--head);letter-spacing:.02em}
+.biz .ic{color:var(--ink-3)}
+.lt-title{margin-top:2px;font:800 32px/40px var(--head);letter-spacing:-.02em}
+.body{padding:10px 16px calc(var(--tabs) + 24px)}
+.card{border-radius:18px;background:var(--paper);box-shadow:var(--shadow-1)}
+.sec-t{display:flex;align-items:center;justify-content:space-between;margin:22px 2px 10px;font:700 15px/20px var(--head)}
+.sec-t a{font:600 13px/18px var(--font);color:var(--brand)}
+.concept{display:inline-flex;align-items:center;height:18px;padding:0 7px;border-radius:999px;background:var(--enh-050);color:var(--enh);font-size:10.5px;font-weight:700;font-style:normal;letter-spacing:.02em}
+.orb{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:#fff;background:var(--orb);box-shadow:0 4px 12px rgba(91,63,214,.3)}
+.orb.sm{width:26px;height:26px;box-shadow:none}
+.stars{color:var(--star);letter-spacing:1px;font-size:14px;line-height:1}
+.stars .off{color:#D5D9DF}
+.tile{flex:none;display:inline-grid;place-items:center;font-weight:800;font-family:var(--head)}
+.badge{min-width:18px;height:18px;padding:0 5px;border-radius:9px;display:inline-grid;place-items:center;background:var(--bad);color:#fff;font-size:11px;font-weight:700}
+
+/* reviews */
+.sum{display:flex;align-items:center;gap:18px;padding:16px}
+.avg{display:flex;flex-direction:column;align-items:center;gap:5px;padding-right:16px;border-right:1px solid var(--line)}
+.avg b{font:800 38px/40px var(--head)}
+.avg small{font-size:12px;color:var(--ink-3)}
+.dist{flex:1;display:flex;flex-direction:column;gap:5px}
+.dist div{display:grid;grid-template-columns:12px 1fr 22px;align-items:center;gap:8px;font-size:12px;color:var(--ink-2)}
+.dist i{display:block;height:6px;border-radius:3px;background:var(--line)}
+.dist i b{display:block;height:100%;border-radius:3px;background:var(--star)}
+.brief{display:flex;align-items:center;gap:12px;width:100%;margin-top:12px;padding:14px 10px 14px 14px;border-radius:18px;text-align:left;border:1.5px solid transparent;background:linear-gradient(#fff,#fff) padding-box,linear-gradient(120deg,#5B3FD6,#C2410C) border-box;box-shadow:0 8px 22px rgba(91,63,214,.12)}
+.brief b{display:flex;align-items:center;gap:6px;font-size:15px}
+.brief span.t{display:block;margin-top:3px;font-size:13px;line-height:18px;color:var(--ink-2)}
+.go{margin-left:auto;color:var(--ink-3)}
+.chips{display:flex;gap:8px;margin:18px -16px 0;padding:0 16px;overflow-x:auto;scrollbar-width:none}
+.chip{flex:none;display:flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 1px var(--line-2);font-size:14px;font-weight:600}
+.chip em{font-style:normal;color:var(--ink-3);font-weight:500}
+.chip.on{background:var(--ink);color:#fff;box-shadow:none}
+.chip.on em{color:rgba(255,255,255,.7)}
+.rlist{margin-top:12px;overflow:hidden}
+.rrow{position:relative;display:flex;gap:12px;width:100%;padding:14px 14px 14px;text-align:left}
+.rrow+.rrow::before{content:"";position:absolute;left:62px;right:0;top:0;height:1px;background:var(--line)}
+.av{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--brand-050);color:var(--brand-700);font:700 13px/1 var(--head)}
+.rm{flex:1;min-width:0}
+.rh{display:flex;align-items:center;gap:7px;font-size:15px}
+.rh .ago{margin-left:auto;font-size:12px;color:var(--ink-3);white-space:nowrap}
+.rm .stars{display:block;margin-top:4px}
+.rm p{margin-top:5px;font-size:14px;line-height:20px;color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.needs{display:inline-flex;margin-top:7px;height:20px;padding:0 8px;align-items:center;border-radius:999px;background:var(--bad-050);color:var(--bad);font-size:11px;font-weight:700}
+.rrow.gone{animation:gone .45s var(--ease-in-out) forwards}
+@keyframes gone{to{opacity:0;transform:translateX(30px)}}
+
+.tabbar{position:absolute;left:0;right:0;bottom:0;z-index:5;display:flex;height:var(--tabs);padding:2px 6px 30px;background:rgba(255,255,255,.93);backdrop-filter:saturate(1.6) blur(16px);-webkit-backdrop-filter:saturate(1.6) blur(16px);box-shadow:0 -1px 0 var(--line)}
+.tab{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10.5px;font-weight:600;color:var(--ink-3)}
+.tab.on{color:var(--brand)}
+.tab .badge{position:absolute;top:2px;left:calc(50% + 6px);min-width:17px;height:17px;font-size:10px}
+
+/* detail screens */
+.nav-sm{flex:none;display:grid;grid-template-columns:110px 1fr 110px;align-items:center;height:48px;padding:0 4px;background:var(--paper);box-shadow:0 1px 0 var(--line)}
+.back{display:flex;align-items:center;height:44px;padding-right:8px;color:var(--brand);font-size:16px;font-weight:600}
+.nav-t{text-align:center;font:700 16px/20px var(--head)}
+.nav-r{justify-self:end;display:flex}
+.d-body{padding:14px 16px 130px}
+.rv{padding:16px}
+.rv .rh b{font-size:16px}
+.rv .meta{margin-top:3px;font-size:12px;color:var(--ink-3)}
+.rv p{margin-top:10px;font-size:15px;line-height:22px}
+.themes{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.theme{height:24px;padding:0 9px;border-radius:999px;display:inline-flex;align-items:center;font-size:12px;font-weight:600}
+.theme.con{background:var(--bad-050);color:var(--bad)}
+.theme.pro{background:var(--ok-050);color:var(--ok)}
+.reply{margin-top:12px;padding:14px 16px 12px}
+.rc-h{display:flex;align-items:center;gap:8px;font:700 14px/18px var(--head)}
+.tones{display:flex;gap:4px;margin-top:12px;padding:3px;border-radius:12px;background:var(--bg)}
+.tone{flex:1;height:36px;border-radius:9px;font-size:13px;font-weight:600;color:var(--ink-2);transition:background .2s,color .2s,box-shadow .2s}
+.tone.on{background:#fff;color:var(--ink);box-shadow:var(--shadow-1)}
+.draft{margin-top:12px;min-height:150px;padding:12px 14px;border-radius:12px;background:#FBFAFF;box-shadow:inset 0 0 0 1px #E4DEFC;font-size:15px;line-height:22px;white-space:pre-wrap;transition:opacity .2s}
+.draft.swap{opacity:.25}
+.caret{display:inline-block;width:2px;height:17px;margin-left:1px;vertical-align:-3px;background:var(--enh);animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.rc-acts{display:flex;gap:8px;margin-top:10px}
+.ghost{display:flex;align-items:center;gap:6px;height:38px;padding:0 12px;border-radius:10px;font-size:14px;font-weight:600;color:var(--ink-2);box-shadow:inset 0 0 0 1px var(--line-2);background:#fff}
+.posted{margin-top:12px;padding:14px 16px;animation:pop .45s var(--spring) both}
+@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.posted .ph{display:flex;align-items:center;gap:8px;font:700 14px/18px var(--head)}
+.posted .ph .ok{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--ok);color:#fff}
+.posted .ph small{margin-left:auto;font:500 12px/16px var(--font);color:var(--ink-3)}
+.posted p{margin-top:10px;padding-left:12px;border-left:3px solid var(--brand);font-size:14px;line-height:21px;color:var(--ink-2);white-space:pre-wrap}
+.bbar{position:absolute;left:0;right:0;bottom:0;z-index:5;padding:12px 16px 34px;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 -1px 0 var(--line);transition:transform .35s var(--ease-out)}
+.bbar.hide{transform:translateY(110%)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:52px;border-radius:14px;background:var(--brand);color:#fff;font-size:16px;font-weight:700}
+.btn:active{background:var(--brand-700)}
+
+/* social */
+.alert{display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;background:var(--bad-050);box-shadow:inset 0 0 0 1px #F6C9C4}
+.alert .ai{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:#fff;color:var(--bad)}
+.alert b{display:block;font-size:14px;line-height:19px}
+.alert small{display:block;margin-top:2px;font-size:12.5px;line-height:17px;color:var(--ink-2)}
+.sm-btn{flex:none;height:34px;padding:0 14px;border-radius:10px;background:var(--bad);color:#fff;font-size:13px;font-weight:700}
+.kpis{display:flex;gap:10px;margin:12px -16px 0;padding:0 16px;overflow-x:auto;scrollbar-width:none}
+.kpi{flex:none;width:118px;padding:12px;border-radius:16px;background:#fff;box-shadow:var(--shadow-1)}
+.kpi small{display:block;font-size:12px;color:var(--ink-3)}
+.kpi b{display:block;margin-top:2px;font:800 22px/28px var(--head)}
+.kpi svg{display:block;margin-top:4px}
+.cmt{display:block;width:100%;padding:14px;text-align:left}
+.cmt .rh b{font-size:14px}
+.cmt p{margin-top:6px;font-size:14px;line-height:20px;color:var(--ink)}
+.q{display:inline-flex;height:20px;margin-left:2px;padding:0 7px;align-items:center;border-radius:999px;background:var(--warn-050);color:var(--warn);font-size:11px;font-weight:700}
+.cmt .aib{display:inline-flex;align-items:center;gap:6px;margin-top:10px;height:34px;padding:0 12px;border-radius:10px;background:var(--enh-050);color:var(--enh);font-size:13px;font-weight:700}
+.post{display:flex;gap:12px;width:100%;padding:12px;text-align:left}
+.post+.post{border-top:1px solid var(--line)}
+.thumb{flex:none;width:64px;height:64px;border-radius:12px;overflow:hidden;background:var(--bg)}
+.thumb svg,.media svg{display:block;width:100%;height:100%}
+.thumb.txt{display:grid;place-items:center;color:var(--ink-3)}
+.pm{flex:1;min-width:0}
+.pm .when{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--ink-3)}
+.pm p{margin-top:4px;font-size:14px;line-height:19px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.nets{display:flex;gap:4px}
+.stats-row{display:flex;gap:14px;margin-top:6px;font-size:12px;color:var(--ink-2)}
+.stats-row span{display:flex;align-items:center;gap:4px}
+.pill{display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:999px;font-size:11px;font-weight:700}
+.pill.sched{background:var(--brand-050);color:var(--brand-700)}
+.pill.pub{background:var(--ok-050);color:var(--ok)}
+.media{height:218px;margin:-14px -16px 0;overflow:hidden}
+.p-card{padding:14px 16px 16px;overflow:hidden}
+.p-card .pm p{display:block;-webkit-line-clamp:unset;font-size:15px;line-height:22px;color:var(--ink)}
+.results{display:grid;grid-template-columns:repeat(3,1fr);margin-top:14px;border-radius:14px;background:var(--bg)}
+.results div{padding:10px 8px;text-align:center}
+.results div+div{box-shadow:inset 1px 0 0 var(--line)}
+.results small{display:block;font-size:11.5px;color:var(--ink-3)}
+.results b{display:block;font:800 18px/24px var(--head)}
+.c-card{margin-top:12px;padding:14px 16px}
+.c-draft{margin-top:12px;padding:12px 14px;border-radius:12px;background:#FBFAFF;box-shadow:inset 0 0 0 1px #E4DEFC}
+.c-draft .rc-h{font-size:13px}
+.c-draft p{margin-top:8px;font-size:14px;line-height:21px;white-space:pre-wrap}
+.c-acts{display:flex;gap:8px;margin-top:10px}
+.c-acts .btn{width:auto;flex:1;height:42px;font-size:14px;border-radius:10px}
+.c-acts .ghost{height:42px}
+.more-c{display:block;margin:14px auto 0;font-size:14px;font-weight:600;color:var(--brand)}
+
+.toast{position:absolute;left:50%;bottom:118px;z-index:70;display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;background:rgba(28,35,48,.94);color:#fff;font-size:14px;font-weight:600;white-space:nowrap;opacity:0;transform:translate(-50%,16px);transition:opacity .25s,transform .35s var(--ease-out);pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast .ic{color:#7BD67A}
+.touches{position:absolute;inset:0;z-index:90;pointer-events:none}
+.touch{position:absolute;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:rgba(20,30,50,.16);box-shadow:inset 0 0 0 2px rgba(255,255,255,.9),0 0 0 1px rgba(20,30,50,.2);animation:touch .7s var(--ease-out) forwards}
+@keyframes touch{0%{transform:scale(.55);opacity:1}100%{transform:scale(1.3);opacity:0}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="stage">
+  <p class="sc-label chrome-out">Interactive prototype · Reviews and social on a phone <button class="sc-pill" type="button" data-act="restart">Restart</button></p>
+  <div class="device" id="device">
+    <div class="sbar" aria-hidden="true">
+      <span class="sb-time">9:41</span><span class="sb-isl"></span>
+      <span class="sb-r">
+        <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+        <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2.4c2.3 0 4.4.9 6 2.4l1.2-1.3A10.4 10.4 0 0 0 8 .6 10.4 10.4 0 0 0 .8 3.5L2 4.8a8.6 8.6 0 0 1 6-2.4z"/><path d="M8 5.9c1.4 0 2.6.5 3.6 1.4l1.2-1.3A7 7 0 0 0 8 4.1a7 7 0 0 0-4.8 1.9l1.2 1.3c1-.9 2.2-1.4 3.6-1.4z"/><path d="M8 9.3c.5 0 1 .2 1.3.5L8 11.3 6.7 9.8c.3-.3.8-.5 1.3-.5z"/></svg>
+        <svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="22" height="12" rx="3.6" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="19" height="9" rx="2.2"/><path d="M24 4.5v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2z" opacity=".45"/></svg>
+      </span>
+    </div>
+
+    <section class="scr" data-s="reviews" aria-label="Reviews">
+      <div class="lt-head"><div class="lt-row"><span class="biz"><span class="logo">RR</span>Ridgeline Roofing<span data-i="chevDown" data-s="18"></span></span><span><button class="ib" type="button" aria-label="Search" data-act="soon"><span data-i="search"></span></button></span></div><h1 class="lt-title">Reviews</h1></div>
+      <div class="scroll" id="rvscroll"><div class="body">
+        <div class="card sum" id="sum"></div>
+        <button class="brief" type="button" data-act="open-review"><span class="orb"><span data-i="sparkle" data-s="20" data-w="1.9"></span></span><span><b>Thryv AI <em class="concept">Concept</em></b><span class="t" id="brief-t">2 negative reviews are waiting. Start with Alex M., who found nails in his driveway.</span></span><span class="go" data-i="chevRight" data-s="20"></span></button>
+        <div class="chips"><button class="chip on" type="button">Needs response <em id="needs-n">9</em></button><button class="chip" type="button">All <em>86</em></button><button class="chip" type="button">Google <em>48</em></button><button class="chip" type="button">Facebook <em>21</em></button><button class="chip" type="button">Yelp <em>12</em></button></div>
+        <ul class="card rlist" id="rlist"></ul>
+      </div></div>
+      <nav class="tabbar" aria-label="App"></nav>
+    </section>
+
+    <section class="scr" data-s="review" aria-label="Review">
+      <div class="nav-sm"><button class="back" type="button" data-act="back-reviews"><span data-i="chevLeft" data-s="28" data-w="2"></span>Reviews</button><span class="nav-t">Review</span><span class="nav-r"><button class="ib" type="button" aria-label="More" data-act="soon"><span data-i="moreH"></span></button></span></div>
+      <div class="scroll"><div class="d-body" id="rvbody"></div></div>
+      <div class="bbar" id="rvbar"><button class="btn" type="button" data-act="post-reply"><span data-i="send" data-s="20" data-w="2"></span>Post reply to Google</button></div>
+    </section>
+
+    <section class="scr" data-s="social" aria-label="Social">
+      <div class="lt-head"><div class="lt-row"><span class="biz"><span class="logo">RR</span>Ridgeline Roofing<span data-i="chevDown" data-s="18"></span></span><span><button class="ib" type="button" aria-label="New post" data-act="soon"><span data-i="plus"></span></button></span></div><h1 class="lt-title">Social</h1></div>
+      <div class="scroll" id="soscroll"><div class="body" id="sobody"></div></div>
+      <nav class="tabbar" aria-label="App"></nav>
+    </section>
+
+    <section class="scr" data-s="post" aria-label="Post">
+      <div class="nav-sm"><button class="back" type="button" data-act="back-social"><span data-i="chevLeft" data-s="28" data-w="2"></span>Social</button><span class="nav-t">Post</span><span class="nav-r"><button class="ib" type="button" aria-label="More" data-act="soon"><span data-i="moreH"></span></button></span></div>
+      <div class="scroll" id="poscroll"><div class="d-body" id="pobody" style="padding-bottom:40px"></div></div>
+    </section>
+
+    <div class="toast" id="toast" role="status"></div>
+    <div class="touches" id="touches" aria-hidden="true"></div>
+    <div class="homebar" aria-hidden="true"></div>
+  </div>
+</div>
+
+<script>
+(() => {
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const I = {
+  search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>', x:'<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>', check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  chevDown:'<path d="m6 9 6 6 6-6"/>', chevLeft:'<path d="m15 6-6 6 6 6"/>', chevRight:'<path d="m9 6 6 6-6 6"/>',
+  moreH:'<circle cx="5.5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1.6" fill="currentColor" stroke="none"/>',
+  sparkle:'<path d="M12 3.5c.6 4 2.6 6 6.5 6.5-3.9.6-5.9 2.6-6.5 6.5-.6-3.9-2.6-5.9-6.5-6.5 3.9-.5 5.9-2.5 6.5-6.5z"/><path d="M18.5 15.5c.3 1.6 1 2.3 2.5 2.5-1.5.3-2.2 1-2.5 2.5-.3-1.5-1-2.2-2.5-2.5 1.5-.2 2.2-.9 2.5-2.5z"/>',
+  pin:'<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>',
+  star:'<path d="m12 3.8 2.5 5.2 5.7.8-4.1 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4.1-4 5.7-.8z"/>',
+  megaphone:'<path d="M4 10v4a1 1 0 0 0 1 1h2l7 4.5V4.5L7 9H5a1 1 0 0 0-1 1z"/><path d="M17.5 9a4 4 0 0 1 0 6"/>',
+  grid:'<rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/>',
+  refresh:'<path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3M19.5 4.5v4h-4"/>', edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/>',
+  send:'<path d="M20.5 3.5 10 14M20.5 3.5 14 20.5l-4-6.5-6.5-4z"/>', alert:'<path d="M12 4 2.8 19.5h18.4z"/><path d="M12 10v4.5M12 17.2v.2"/>',
+  eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>',
+  heart:'<path d="M12 19.5s-7.5-4.4-7.5-9.6A4.1 4.1 0 0 1 12 7.5a4.1 4.1 0 0 1 7.5 2.4c0 5.2-7.5 9.6-7.5 9.6z"/>',
+  comment:'<path d="M20 11.5a8 8 0 0 1-11.7 7.1L4 20l1.3-4A8 8 0 1 1 20 11.5z"/>', clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  image:'<rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="m4 17 5.5-5 4 3.5 2.5-2 4 3.5"/>'
+};
+const ic = (n, s = 24, sw = 1.8) => `<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n] || ""}</svg>`;
+const paintIcons = (root = document) => $$("[data-i]", root).forEach(el => { el.outerHTML = ic(el.dataset.i, +(el.dataset.s || 24), +(el.dataset.w || 1.8)).replace('class="ic"', `class="ic ${el.className}"`); });
+
+/* demo data, from index.html */
+const PHONE = "(480) 555 0142";
+const RSRC = {google:{n:"Google", t:"G", bg:"#E8F0FE", fg:"#1A56C4"}, facebook:{n:"Facebook", t:"f", bg:"#E7F0FE", fg:"#1559C9"}, yelp:{n:"Yelp", t:"Y", bg:"#FCE8E8", fg:"#B11C1C"}, instagram:{n:"Instagram", t:"Ig", bg:"#FBE7F3", fg:"#A1206E"}};
+const RV_SUM = {avg:4.4, total:86, dist:[[5, 64], [4, 18], [3, 7], [2, 6], [1, 5]]};
+const REVIEWS = [
+  {id:"r1", who:"Jenna R.", src:"facebook", rating:5, ago:"Yesterday", text:"Our tile roof was leaking into the guest room after the last storm. Dana's crew found the cracked underlayment, fixed it the next morning and sent photos of everything."},
+  {id:"r2", who:"Alex M.", src:"google", rating:1, ago:"3 days ago", loc:"Mesa", text:"They fixed the leak fast, but left nails all over my driveway. I found three in my tire the next week.", pros:["Fast storm and leak repairs"], cons:["Clean job sites"]},
+  {id:"r3", who:"Omar S.", src:"yelp", rating:4, ago:"5 days ago", text:"Good work recoating our flat roof. It took a day longer than quoted because of the heat, but they kept us posted the whole time."},
+  {id:"r6", who:"Derek W.", src:"google", rating:2, ago:"9 days ago", text:"The estimate took almost two weeks to arrive. The work itself was fine once they showed up."},
+  {id:"r8", who:"Ben H.", src:"yelp", rating:3, ago:"2 weeks ago", text:"The roof looks great. Communication about the start date could have been better, we were given two different days."}
+];
+const DRAFTS = {
+  Friendly:[`Hi Alex, thank you for telling us, and I'm sorry about the nails. That's not how we leave a job. I'd like to cover the tire repair and send our crew lead back to sweep your driveway with a magnet. Please call me at ${PHONE} so we can set a time.\n\nDana, Ridgeline Roofing`,
+            `Alex, I'm sorry about the nails. We'll cover the tire repair and sweep your driveway with a magnet. Please call me at ${PHONE}.\n\nDana`],
+  Professional:[`Alex, we apologize for your experience. Please contact us at ${PHONE} so we can understand what happened and make it right.`,
+                `Thank you for bringing this to our attention, Alex. We take it seriously and would like the chance to resolve it. Please call ${PHONE}.`],
+  Empathetic:[`Alex, I'm truly sorry. That's not the experience we want for anyone, and I'd like to make it right. Please call me at ${PHONE}.\n\nDana`,
+              `We hear you, Alex, and we're sorry we fell short. Please reach out at ${PHONE} so we can fix this.`]
+};
+const MEDIA = {m1:{sky:["#9CC9F0","#E8F3FC"], roof:"#B5532A", wall:"#F1E4D3", sun:true}, m2:{sky:["#F9C58D","#FDEBD3"], roof:"#4A5463", wall:"#E7E1D8", sun:true}, m3:{sky:["#B9D7C9","#EEF6F1"], roof:"#7A3B1E", wall:"#EDE3D6", split:true}, m4:{sky:["#7D8BA1","#C9D1DC"], roof:"#3E4A59", wall:"#DDD6CC", rain:true}};
+let ART_N = 0;
+function art(id){
+  const m = MEDIA[id], g = "sky" + (++ART_N);
+  return `<svg viewBox="0 0 160 160" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="${g}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${m.sky[0]}"/><stop offset="1" stop-color="${m.sky[1]}"/></linearGradient></defs><rect width="160" height="160" fill="url(#${g})"/>${m.sun ? `<circle cx="124" cy="36" r="13" fill="#FFE29A"/>` : ""}${m.rain ? `<path d="M30 20l-6 14M60 14l-6 14M92 22l-6 14M124 12l-6 14M144 30l-6 14" stroke="rgba(255,255,255,.6)" stroke-width="2.5" stroke-linecap="round"/>` : ""}<rect y="126" width="160" height="34" fill="#C9D3BE"/><rect x="38" y="86" width="84" height="44" fill="${m.wall}"/><path d="M26 90 80 50l54 40Z" fill="${m.roof}"/><path d="M40 80h80M52 71h56M64 62h32" stroke="rgba(255,255,255,.28)" stroke-width="2"/><rect x="72" y="104" width="16" height="26" fill="#8A5A3B"/><rect x="46" y="98" width="16" height="12" fill="#BFD8EE"/><rect x="98" y="98" width="16" height="12" fill="#BFD8EE"/>${m.split ? `<rect x="80" width="80" height="160" fill="rgba(255,255,255,.16)"/><path d="M80 0v160" stroke="#fff" stroke-width="2"/>` : ""}</svg>`;
+}
+const POSTS = {
+  p1:{st:"scheduled", when:"Tomorrow, 7:00 PM", nets:["facebook","instagram"], m:"m3", text:"Before and after in Gilbert. This shingle roof had three layers and a soft deck. Our crew stripped it to the rafters, replaced the decking and put down a new architectural shingle in two days."},
+  p2:{st:"scheduled", when:"In 3 days, 9:00 AM", nets:["google"], m:null, text:"We're open Saturdays from 8 AM to 2 PM for free roof inspections across Mesa, Tempe and Gilbert. Call (480) 555 0142 to book a time."},
+  p5:{st:"published", when:"6 days ago", nets:["facebook","instagram","google"], m:"m1", reach:1240, likes:86, comments:9, text:"Fresh tile roof in Mesa. New underlayment, new battens and the original tile cleaned and reset."},
+  p6:{st:"published", when:"10 days ago", nets:["facebook","instagram"], m:"m2", reach:910, likes:64, comments:6, text:"Meet the crew behind your roof. Every job ends with a magnet sweep of the yard and driveway, so you won't find nails after we leave."}
+};
+const COMMENT = {who:"Maria G.", net:"facebook", ago:"2 hours ago", text:"Do you do free estimates in Chandler too? Our tile roof is about 20 years old.",
+  draft:`Hi Maria, yes, we do free estimates in Chandler. Twenty years is a good time for a check, since the underlayment under tile usually wears out before the tile does. Call us at ${PHONE} or message us here and we'll set up a time. Dana`};
+const S = {cur:null, epoch:0, tone:"Friendly", alt:0, replied:false, needs:9, commented:false, busy:false};
+
+const tile = (src, z = 18) => `<span class="tile" style="width:${z}px;height:${z}px;border-radius:${Math.round(z / 3.5)}px;font-size:${Math.round(z * .48)}px;background:${RSRC[src].bg};color:${RSRC[src].fg}" title="${RSRC[src].n}">${RSRC[src].t}</span>`;
+const stars = n => `<span class="stars" role="img" aria-label="${n} of 5 stars">${"★".repeat(n)}<span class="off">${"★".repeat(5 - n)}</span></span>`;
+const initials = n => n.replace(/[^A-Za-z ]/g, "").split(/\s+/).filter(Boolean).map(w => w[0]).join("").slice(0, 2).toUpperCase();
+const fmt = n => n.toLocaleString("en-US");
+function tabbar(on){
+  return [["listings","Listings","pin"],["reviews","Reviews","star"],["social","Social","megaphone"],["more","More","grid"]].map(([k, l, i]) =>
+    `<button class="tab ${k === on ? "on" : ""}" type="button" data-act="tab" data-tab="${k}" ${k === on ? 'aria-current="page"' : ""}>${ic(i, 24)}${l}${k === "reviews" ? `<span class="badge" data-needs>${S.needs}</span>` : ""}</button>`).join("");
+}
+
+/* navigation */
+const MOTION = ["in-push","out-push","in-pop","out-pop","in-tab","out-tab"];
+function show(name, how = "none"){
+  const next = $(`.scr[data-s="${name}"]`), prev = S.cur && $(`.scr[data-s="${S.cur}"]`);
+  if (!next || prev === next) return;
+  $$(".scr").forEach(s => { s.classList.remove(...MOTION); if (s !== prev && s !== next) s.classList.remove("on"); });
+  next.classList.add("on"); S.cur = name;
+  if (!prev) return;
+  if (how === "none" || REDUCED){ prev.classList.remove("on"); return; }
+  next.classList.add("in-" + how); prev.classList.add("out-" + how);
+  setTimeout(() => { prev.classList.remove("out-" + how); next.classList.remove("in-" + how); if (prev.dataset.s !== S.cur) prev.classList.remove("on"); }, how === "tab" ? 260 : 500);
+}
+let toastT;
+function toast(msg){ const t = $("#toast"); t.innerHTML = ic("check", 18, 2.4) + esc(msg); t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 2000); }
+
+/* reviews */
+function renderReviews(){
+  $("#sum").innerHTML = `<div class="avg"><b>${RV_SUM.avg}</b>${stars(4)}<small>${RV_SUM.total} reviews</small></div><div class="dist">${RV_SUM.dist.map(([s, n]) => `<div><span>${s}</span><i><b style="width:${Math.round(n / 64 * 100)}%"></b></i><span>${n}</span></div>`).join("")}</div>`;
+  $("#rlist").innerHTML = REVIEWS.filter(r => !(S.replied && r.id === "r2")).map(r =>
+    `<li><button class="rrow" type="button" data-act="${r.id === "r2" ? "open-review" : "soon"}" data-id="${r.id}"><span class="av">${initials(r.who)}</span><span class="rm"><span class="rh"><b>${esc(r.who)}</b>${tile(r.src)}<span class="ago">${r.ago}</span></span>${stars(r.rating)}<p>${esc(r.text)}</p>${r.rating <= 2 ? '<span class="needs">Needs reply</span>' : ""}</span></button></li>`).join("");
+  $("#needs-n").textContent = S.needs;
+  $("#brief-t").textContent = S.replied ? "Derek W. is still waiting on a reply. Your average this month is 4.4." : "2 negative reviews are waiting. Start with Alex M., who found nails in his driveway.";
+  $$("[data-needs]").forEach(b => b.textContent = S.needs);
+}
+function reviewHTML(){
+  const r = REVIEWS[1];
+  const head = `<div class="card rv"><div class="rh"><span class="av">${initials(r.who)}</span><span><b>${r.who}</b><span class="meta" style="display:block">${r.ago} · ${r.loc}</span></span><span style="margin-left:auto">${tile(r.src, 22)}</span></div><div style="margin-top:10px">${stars(r.rating)}</div><p>${esc(r.text)}</p><div class="themes">${r.cons.map(c => `<span class="theme con">${c}</span>`).join("")}${r.pros.map(c => `<span class="theme pro">${c}</span>`).join("")}</div></div>`;
+  if (S.replied) return head + `<div class="card posted"><div class="ph"><span class="ok">${ic("check", 14, 3)}</span>Your reply<small>Posted to Google just now</small></div><p>${esc(DRAFTS[S.tone][S.alt])}</p></div>`;
+  return head + `<div class="card reply"><div class="rc-h"><span class="orb sm">${ic("sparkle", 15, 2)}</span>Suggested reply<em class="concept">Concept</em></div>
+    <div class="tones" role="radiogroup" aria-label="Tone">${Object.keys(DRAFTS).map(t => `<button class="tone ${t === S.tone ? "on" : ""}" type="button" role="radio" aria-checked="${t === S.tone}" data-act="tone" data-tone="${t}">${t}</button>`).join("")}</div>
+    <div class="draft" id="draft">${esc(DRAFTS[S.tone][S.alt])}</div>
+    <div class="rc-acts"><button class="ghost" type="button" data-act="regen">${ic("refresh", 16, 2)}Regenerate</button><button class="ghost" type="button" data-act="soon">${ic("edit", 16, 2)}Edit</button></div></div>`;
+}
+function renderReview(){ $("#rvbody").innerHTML = reviewHTML(); $("#rvbar").classList.toggle("hide", S.replied); }
+async function typeDraft(ep){
+  const d = $("#draft"); if (!d) return; const full = DRAFTS[S.tone][S.alt];
+  if (REDUCED){ d.textContent = full; return; }
+  d.innerHTML = '<span class="caret"></span>';
+  const words = full.split(/(\s+)/); let out = "";
+  for (const w of words){ if (ep !== S.epoch) return; out += w; d.innerHTML = esc(out) + '<span class="caret"></span>'; if (w.trim()) await wait(34); }
+  d.textContent = full;
+}
+async function setTone(t, regen){
+  if (S.replied) return;
+  const ep = ++S.epoch;
+  if (regen) S.alt = (S.alt + 1) % DRAFTS[S.tone].length; else { if (t === S.tone) return; S.tone = t; S.alt = 0; }
+  $$(".tone").forEach(b => { const on = b.dataset.tone === S.tone; b.classList.toggle("on", on); b.setAttribute("aria-checked", on); });
+  const d = $("#draft"); d.classList.add("swap"); await wait(180); if (ep !== S.epoch) return; d.classList.remove("swap");
+  typeDraft(ep);
+}
+async function postReply(){
+  if (S.replied) return;
+  S.replied = true; S.needs = 8; S.epoch++;
+  renderReview(); renderReviews(); toast("Reply posted to Google");
+}
+
+/* social */
+function postRow(id){
+  const p = POSTS[id];
+  return `<button class="post" type="button" data-act="${id === "p5" ? "open-post" : "soon"}"><span class="thumb ${p.m ? "" : "txt"}">${p.m ? art(p.m) : ic("comment", 26, 1.6)}</span><span class="pm"><span class="when">${p.st === "scheduled" ? `<span class="pill sched">Scheduled</span>` : `<span class="pill pub">Published</span>`}${p.when}<span class="nets" style="margin-left:auto">${p.nets.map(n => tile(n, 18)).join("")}</span></span><p>${esc(p.text)}</p>${p.reach ? `<span class="stats-row"><span>${ic("eye", 14)}${fmt(p.reach)}</span><span>${ic("heart", 14)}${p.likes}</span><span>${ic("comment", 14)}${p.comments}</span></span>` : ""}</span></button>`;
+}
+function spark(points, color){ const w = 94, h = 26, max = Math.max(...points), d = points.map((v, i) => `${i ? "L" : "M"}${(i * w / (points.length - 1)).toFixed(1)} ${(h - v / max * (h - 3) - 1).toFixed(1)}`).join(" "); return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><path d="${d}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`; }
+function renderSocial(){
+  $("#sobody").innerHTML =
+    `<div class="alert"><span class="ai">${ic("alert", 20, 2)}</span><span style="flex:1;min-width:0"><b>Instagram didn&rsquo;t publish a post</b><small>Instagram needs a photo with every post. Add one and try again.</small></span><button class="sm-btn" type="button" data-act="toast" data-msg="Opens the post to add a photo">Fix</button></div>
+    <p class="sec-t">Last 30 days</p>
+    <div class="kpis"><div class="kpi"><small>Reach</small><b>3,000</b>${spark([4, 6, 5, 9, 7, 12, 10, 14], "#C2410C")}</div><div class="kpi"><small>Likes</small><b>193</b>${spark([3, 5, 4, 7, 9, 8, 11, 12], "#16824A")}</div><div class="kpi"><small>Comments</small><b>20</b>${spark([2, 1, 3, 2, 4, 3, 5, 6], "#5B3FD6")}</div></div>
+    <p class="sec-t">Comments to answer <a href="#" data-act="soon">See all 3</a></p>
+    ${S.commented ? `<div class="card cmt"><span class="rh"><b>All caught up on Maria&rsquo;s question</b></span><p style="color:var(--ink-3)">Your reply is live on Facebook.</p></div>` :
+      `<div class="card"><button class="cmt" type="button" data-act="open-post"><span class="rh"><span class="av" style="width:30px;height:30px;font-size:11px">${initials(COMMENT.who)}</span><b>${COMMENT.who}</b>${tile(COMMENT.net, 18)}<span class="q">Question</span><span class="ago">${COMMENT.ago}</span></span><p>${esc(COMMENT.text)}</p><span class="aib">${ic("sparkle", 15, 2)}Reply with Thryv AI</span></button></div>`}
+    <p class="sec-t">Coming up</p><div class="card">${postRow("p1")}${postRow("p2")}</div>
+    <p class="sec-t">Published</p><div class="card">${postRow("p5")}${postRow("p6")}</div>`;
+}
+function postHTML(){
+  const p = POSTS.p5;
+  const reply = S.commented
+    ? `<div class="card posted"><div class="ph"><span class="ok">${ic("check", 14, 3)}</span>Your reply<small>On Facebook just now</small></div><p>${esc(COMMENT.draft)}</p></div>`
+    : `<div class="c-draft"><div class="rc-h"><span class="orb sm">${ic("sparkle", 14, 2)}</span>Draft reply<em class="concept">Concept</em></div><p id="cdraft">${esc(COMMENT.draft)}</p><div class="c-acts"><button class="btn" type="button" data-act="post-comment">${ic("send", 18, 2)}Reply</button><button class="ghost" type="button" data-act="soon">${ic("edit", 16, 2)}Edit</button></div></div>`;
+  return `<div class="card p-card"><div class="media">${art(p.m)}</div><div class="pm" style="margin-top:14px"><span class="when"><span class="pill pub">Published</span>${p.when}<span class="nets" style="margin-left:auto">${p.nets.map(n => tile(n, 20)).join("")}</span></span><p>${esc(p.text)}</p></div>
+    <div class="results"><div><small>Reach</small><b>${fmt(p.reach)}</b></div><div><small>Likes</small><b>${p.likes}</b></div><div><small>Comments</small><b>${p.comments}</b></div></div></div>
+    <p class="sec-t">Comments</p>
+    <div class="card c-card"><span class="rh"><span class="av" style="width:30px;height:30px;font-size:11px">${initials(COMMENT.who)}</span><b style="font-size:14px">${COMMENT.who}</b>${tile(COMMENT.net, 18)}<span class="q">Question</span><span class="ago">${COMMENT.ago}</span></span><p style="margin-top:8px;font-size:14px;line-height:20px">${esc(COMMENT.text)}</p>${S.commented ? "" : reply}</div>
+    ${S.commented ? reply : ""}
+    <button class="more-c" type="button" data-act="soon">See 8 more comments</button>`;
+}
+function renderPost(){ $("#pobody").innerHTML = postHTML(); }
+async function typeComment(ep){
+  const d = $("#cdraft"); if (!d || REDUCED) return; const full = COMMENT.draft;
+  d.innerHTML = '<span class="caret"></span>'; let out = "";
+  for (const w of full.split(/(\s+)/)){ if (ep !== S.epoch) return; out += w; d.innerHTML = esc(out) + '<span class="caret"></span>'; if (w.trim()) await wait(30); }
+  d.textContent = full;
+}
+
+/* taps */
+function tab(name){ if (name === "listings" || name === "more"){ toast("Not part of this prototype"); return; } if (name === S.cur) return; if (name === "reviews") renderReviews(); else renderSocial(); $$(".tabbar").forEach(t => t.innerHTML = tabbar(name)); show(name, "tab"); }
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-act]"); if (!b) return; e.preventDefault();
+  const a = b.dataset.act;
+  if (a === "open-review"){ renderReview(); show("review", "push"); if (!S.replied){ const ep = ++S.epoch; setTimeout(() => typeDraft(ep), 420); } }
+  else if (a === "back-reviews"){ renderReviews(); show("reviews", "pop"); }
+  else if (a === "tone") setTone(b.dataset.tone);
+  else if (a === "regen") setTone(null, true);
+  else if (a === "post-reply") postReply();
+  else if (a === "tab") tab(b.dataset.tab);
+  else if (a === "open-post"){ renderPost(); show("post", "push"); if (!S.commented){ const ep = ++S.epoch; setTimeout(() => typeComment(ep), 420); } }
+  else if (a === "back-social"){ renderSocial(); show("social", "pop"); }
+  else if (a === "post-comment"){ S.commented = true; S.epoch++; renderPost(); toast("Reply posted on Facebook"); }
+  else if (a === "toast") toast(b.dataset.msg);
+  else if (a === "soon") toast("Not part of this prototype");
+  else if (a === "restart"){ history.replaceState(null, "", location.pathname + location.search); boot(); }
+});
+if (new URLSearchParams(location.search).has("rec")){
+  document.addEventListener("pointerdown", e => { const d = $("#device").getBoundingClientRect(), t = document.createElement("span"); t.className = "touch"; t.style.left = `${e.clientX - d.left}px`; t.style.top = `${e.clientY - d.top}px`; $("#touches").appendChild(t); setTimeout(() => t.remove(), 750); }, true);
+}
+
+/* deep links: #reviews #review #review/professional #review/empathetic #replied #social #post #post-replied */
+function boot(){
+  S.cur = null; S.epoch++; S.tone = "Friendly"; S.alt = 0; S.replied = false; S.needs = 9; S.commented = false;
+  $$(".scr").forEach(s => s.classList.remove("on"));
+  const [name, arg] = (location.hash.slice(1) || "reviews").split("/");
+  if (arg){ const t = arg[0].toUpperCase() + arg.slice(1); if (DRAFTS[t]) S.tone = t; }
+  if (name === "replied" || name === "post-replied"){ S.replied = name === "replied"; S.needs = S.replied ? 8 : 9; S.commented = name === "post-replied"; }
+  $$(".tabbar").forEach(t => t.innerHTML = tabbar(name.startsWith("post") || name === "social" ? "social" : "reviews"));
+  renderReviews(); renderSocial();
+  if (name === "review" || name === "replied"){ renderReview(); show("review"); }
+  else if (name === "social") show("social");
+  else if (name === "post" || name === "post-replied"){ renderPost(); show("post"); }
+  else show("reviews");
+}
+paintIcons();
+boot();
+})();
+</script>
+</body>
+</html>
