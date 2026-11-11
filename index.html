@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Listings Management</title>
+<title>Listings and Social</title>
 <meta name="description" content="Interactive prototype of Listings Management on demo data. The screens sit on a layer between the UI and the listings vendor, so switching vendors does not change what the business owner sees.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -67,8 +67,6 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;
 .sc{position:relative;display:flex;flex-direction:column;height:100vh;height:100dvh}
 .sc :focus-visible{outline:2px solid var(--sc-accent-light);outline-offset:2px}
 .sc-bar{flex:none;height:60px;display:flex;align-items:center;gap:14px;padding:0 20px}
-.sc-back{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px 0 8px;border-radius:999px;border:1px solid var(--sc-rule);color:var(--sc-muted);font-size:13px;font-weight:500;white-space:nowrap;transition:color .2s,border-color .2s,background .2s}
-.sc-back:hover{color:#fff;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.04)}
 .sc-title{font-family:var(--sc-display);font-weight:800;font-size:16px;letter-spacing:-.02em;white-space:nowrap}
 .sc-title small{display:block;font-family:var(--sc-font);font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--sc-subtle);margin-top:1px}
 .sc-grow{flex:1}
@@ -156,8 +154,15 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;
 .wordmark i{width:6px;height:6px;border-radius:50%;background:var(--brand-bright);display:inline-block}
 .nav-i{display:flex;align-items:center;gap:11px;width:100%;height:38px;padding:0 10px;border-radius:8px;font-size:13.5px;white-space:nowrap;color:var(--ink-2);text-align:left;transition:background .15s,color .15s}
 .nav-i:hover{background:var(--bg)}
-.nav-i.on{background:var(--brand-050);color:var(--brand);font-weight:600}
+.nav-i.on{color:var(--brand);font-weight:600}
+.nav-i.on:hover{background:transparent}
 .nav-i .ic{color:currentColor}
+.side{position:relative}
+.nav-i{position:relative;z-index:1}
+.nav-ind{position:absolute;left:12px;right:12px;top:0;height:38px;border-radius:8px;background:var(--brand-050);pointer-events:none;z-index:0;transition:transform .5s var(--spring)}
+.nbadge{margin-left:auto;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--brand);color:#fff;font-size:11px;font-weight:700;display:inline-grid;place-items:center;transition:transform .3s var(--spring),opacity .3s}
+.nbadge.zero{transform:scale(0);opacity:0}
+.bump{animation:bump .5s var(--spring)}
 .side .grow{flex:1}
 .body{flex:1;min-width:0;display:flex;flex-direction:column;position:relative}
 .top{height:56px;flex:none;display:flex;align-items:center;gap:10px;padding:0 22px;background:#fff;border-bottom:1px solid var(--line)}
@@ -169,7 +174,8 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;
 .icon-btn{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;color:var(--ink-2);transition:background .15s}
 .icon-btn:hover{background:var(--bg)}
 .avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(145deg,#F7B58C,#C2410C);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px}
-.main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;position:relative;scroll-behavior:smooth}
+.main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;position:relative;scroll-behavior:smooth;container:main/inline-size;transition:padding-right .5s var(--ease-out)}
+.body.ai-on .main{padding-right:410px}
 .page{padding:26px 28px 90px;max-width:1300px;margin:0 auto}
 .page.enter{animation:viewIn .45s var(--ease-out)}
 @keyframes viewIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
@@ -446,6 +452,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;
 .aip-h .x{margin-left:auto;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:var(--ink-3)}
 .aip-h .x:hover{background:var(--bg)}
 .aip-b{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
+.aip-b>*{flex-shrink:0}
 .msg{max-width:92%;font-size:13.5px;line-height:21px;animation:msgIn .35s var(--ease-out)}
 @keyframes msgIn{from{opacity:0;transform:translateY(8px)}}
 .msg.me{align-self:flex-end;background:var(--ink);color:#fff;padding:9px 13px;border-radius:14px 14px 4px 14px}
@@ -491,19 +498,308 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;
 @keyframes toastIn{from{opacity:0;transform:translateY(14px) scale(.96)}}
 @keyframes toastOut{to{opacity:0;transform:translateY(8px)}}
 
+/* toast with an action */
+.toast button{pointer-events:auto;margin-left:4px;height:28px;padding:0 10px;border-radius:7px;background:rgba(255,255,255,.14);color:#fff;font-weight:600;font-size:12.5px;transition:background .15s}
+.toast button:hover{background:rgba(255,255,255,.24)}
+
+/* collapsible wrapper: animates height to zero */
+.clp{display:grid;grid-template-rows:1fr;transition:grid-template-rows .42s var(--ease-out),opacity .3s,margin .42s var(--ease-out)}
+.clp>div{overflow:hidden;min-height:0}
+.clp.shut{grid-template-rows:0fr;opacity:0}
+
+/* profile address lines */
+.prof .addr span{display:block}
+.prof h2 .ll{display:block}
+
+/* empty states */
+.empty .ic{display:block;margin:0 auto 10px;animation:chipIn .5s var(--spring)}
+.empty p{max-width:340px;margin:0 auto}
+.empty .btn{margin-top:14px}
+
+/* modal swaps in place when moving between steps */
+.modal.step{animation:stepIn .42s var(--ease-out)}
+@keyframes stepIn{from{opacity:0;transform:translateX(26px)}}
+.m-h .qpos{display:inline-flex;align-items:center;height:20px;padding:0 8px;margin-left:8px;border-radius:999px;background:var(--bg);color:var(--ink-2);font-size:11px;font-weight:700;vertical-align:1px}
+.sec h4 .cnt.zero{background:var(--bg)!important;color:var(--ink-3)!important}
+.sec.wait h4 .cnt{background:var(--warn-050);color:var(--warn)}
+.fchip.wait{color:var(--warn);border-color:rgba(154,91,0,.32);background:#fff}
+.m-h small{transition:color .3s}
+.m-h small.good{color:var(--ok)}
+
+/* connect review list */
+.clist{margin-top:12px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.citem{display:flex;align-items:center;gap:12px;padding:10px 14px;border-top:1px solid var(--line);cursor:pointer;transition:opacity .2s,background .2s;animation:msgIn .4s var(--ease-out) both;animation-delay:calc(var(--i)*70ms)}
+.citem:first-child{border-top:0}
+.citem:hover{background:#FCFCFD}
+.citem.skip{opacity:.5}
+.citem .tx{flex:1;min-width:0}
+.citem .tx b{display:block;font-size:13.5px;color:var(--ink)}
+.citem .tx small{display:block;font-size:12px;color:var(--ink-3)}
+
+/* drawer extras */
+.d-f.confirm{background:var(--warn-050);animation:xfade .3s var(--ease-out)}
+.d-f .q{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:var(--ink)}
+.d-f .q .ic{color:var(--warn)}
+.m-f.confirm{background:var(--warn-050);animation:xfade .3s var(--ease-out)}
+.m-f .q{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:var(--ink)}
+.m-f .q .ic{color:var(--warn)}
+.chip.sched .ic,.chip.sched .cnt{color:#1D5FA8}.chip.sched .cnt{background:#E8F0FB}
+.fld.err input{border-color:var(--bad);box-shadow:0 0 0 3px rgba(200,38,27,.12)}
+.fld .msg{display:block;margin-top:6px;font-size:12px;color:var(--bad);animation:xfade .3s var(--ease-out)}
+.nudge{animation:nudge .55s var(--ease-out)}
+@keyframes nudge{0%,100%{transform:none}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+.hrs-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--line);font-size:12.5px;color:var(--ink-3)}
+.hday.flash{animation:hFlash 1.1s var(--ease-out)}
+@keyframes hFlash{0%{background:#FFF1EA}100%{background:transparent}}
+.ai-src{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:11.5px;color:var(--ink-3)}
+.ai-src .ic{color:var(--brand)}
+
+/* AI panel: brief, dividers, tones, undo */
+.brief{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;box-shadow:var(--shadow-1);animation:msgIn .4s var(--ease-out)}
+.brief .bh{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);background:#FCFCFD;font-size:12px;font-weight:700;color:var(--ink-2)}
+.brow{display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:12.5px;line-height:18px;color:var(--ink);opacity:0;animation:rowIn .45s var(--ease-out) forwards;animation-delay:calc(180ms + var(--i)*100ms)}
+.brow+.brow{border-top:1px solid var(--line)}
+.brow .tx{flex:1;min-width:0}
+.brow .sdot{box-shadow:0 0 0 3px rgba(0,0,0,.04)}
+.brow.done .tx{color:var(--ink-3)}
+.aidiv{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);animation:fade .4s}
+.aidiv::before,.aidiv::after{content:"";flex:1;height:1px;background:var(--line)}
+.tones{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.topic{display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 11px;border-radius:999px;border:1px solid #F5C7AE;background:#FFF8F3;color:var(--brand-700);font-size:12px;font-weight:600;transition:background .15s,border-color .15s,color .15s,transform .2s var(--ease-out)}
+.topic:hover{background:var(--brand-050);transform:translateY(-1px)}
+.topic[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
+.topic[disabled]{opacity:.5;pointer-events:none}
+.irow .state{display:inline-flex}
+.irow .sent{display:inline-flex;align-items:center;gap:4px;color:var(--ok);font-weight:700;font-size:12px;animation:chipIn .45s var(--spring)}
+.irow.resolved .tx b{color:var(--ink-3)}
+.posted .lnk{margin-left:auto;font-size:12.5px}
+textarea.gen,.cmp-ta.gen{background:linear-gradient(100deg,#fff 30%,#FFF4EC 50%,#fff 70%);background-size:250% 100%;animation:shimmer 1.4s linear infinite}
+@keyframes shimmer{from{background-position:120% 0}to{background-position:-30% 0}}
+
+/* =================================================================
+   Social
+   ================================================================= */
+.page-h .sub{display:block;margin-top:2px;font-size:13px;color:var(--ink-3)}
+.cnt-b{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--brand);color:#fff;font-size:11px;font-weight:700;transition:transform .3s var(--spring),opacity .3s}
+.cnt-b.zero{background:var(--bg);color:var(--ink-3)}
+.accts{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+.acct{display:flex;align-items:center;gap:10px;height:50px;padding:0 14px 0 10px;border:1px solid var(--line);border-radius:12px;background:#fff;box-shadow:var(--shadow-1);transition:border-color .3s,background .3s,box-shadow .3s}
+.acct.in{animation:rowRise .5s var(--ease-out) both;animation-delay:calc(var(--i)*70ms)}
+.acct .tile{width:30px;height:30px;border-radius:50%}
+.acct b{display:block;font-size:13px;font-weight:600;white-space:nowrap}
+.acct small{display:block;font-size:11.5px;color:var(--ink-3);white-space:nowrap}
+.acct .lv{width:8px;height:8px;border-radius:50%;background:var(--ok);margin-left:4px;box-shadow:0 0 0 3px var(--ok-050)}
+.acct .lv.pop{animation:bump .6s var(--spring)}
+.acct.off{border-style:dashed;box-shadow:none;background:transparent}
+.acct.off .tile{filter:grayscale(1);opacity:.6}
+.alertbar{display:flex;align-items:center;gap:12px;margin-bottom:18px;padding:12px 14px 12px 16px;border:1px solid rgba(200,38,27,.22);border-radius:12px;background:var(--bad-050);font-size:13px;line-height:19px;color:var(--ink)}
+.alertbar>.ic{color:var(--bad)}
+.alertbar .grow{flex:1}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
+.kpi{padding:14px 16px;display:flex;flex-direction:column;animation:rowRise .55s var(--ease-out) both;animation-delay:calc(80ms + var(--i)*70ms)}
+.kpi .k{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--ink-3)}
+.kpi .v{margin-top:6px;font-family:var(--head);font-size:24px;line-height:28px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:var(--ink)}
+.kpi .d{margin-top:2px;font-size:12px;color:var(--ink-3)}
+.kpi .d .up{color:var(--ok);font-weight:700}
+.kpi .btn{margin-top:auto;align-self:flex-start}
+.spark{display:block;width:100%;height:28px;margin-top:8px;clip-path:inset(0 100% 0 0);animation:reveal 1.3s var(--ease-out) .3s forwards}
+@keyframes reveal{to{clip-path:inset(0 0 0 0)}}
+.ptop{display:flex;align-items:center;gap:12px;padding:14px 18px 12px}
+.ptop .grow{flex:1}
+.ph2{font-family:var(--head);font-size:16px;line-height:22px;font-weight:700;color:var(--ink)}
+.pfil{padding:0 18px 14px;min-height:46px;display:flex;align-items:center}
+.pfil .chips{margin-top:0;animation:xfade .35s var(--ease-out)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--ink-3);animation:xfade .35s var(--ease-out)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.vseg{position:relative;display:flex;padding:3px;border-radius:9px;background:var(--bg);border:1px solid var(--line)}
+.vseg button{position:relative;z-index:1;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:7px;font-size:12.5px;font-weight:600;color:var(--ink-3);transition:color .2s}
+.vseg button[aria-pressed="true"]{color:var(--ink)}
+.vseg .knob{position:absolute;top:3px;bottom:3px;left:0;border-radius:7px;background:#fff;box-shadow:var(--shadow-1);transition:transform .45s var(--spring),width .45s var(--spring)}
+.pgrp{padding:9px 18px;border-top:1px solid var(--line);background:var(--bg);font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);animation:fade .35s both}
+.prow{display:grid;grid-template-columns:52px minmax(0,1fr) 190px 132px;align-items:center;gap:14px;padding:12px 18px;border-top:1px solid var(--line);background:#fff;transition:background .2s}
+.prow:hover{background:#FCFCFD}
+.prow.in{animation:rowRise .5s var(--ease-out) both;animation-delay:calc(var(--i)*40ms)}
+.prow.flash{animation:flash 1.6s var(--ease-out)}
+.prow.flash-ok{animation:flashOk 1.6s var(--ease-out)}
+.prow.leave{animation:rowOut .35s var(--ease-out) forwards}
+@keyframes rowOut{to{opacity:0;transform:translateX(18px)}}
+.thumb{width:52px;height:52px;border-radius:10px;overflow:hidden;background:var(--bg);display:grid;place-items:center;color:var(--ink-3);flex:none}
+.thumb svg{display:block;width:100%;height:100%}
+.cap{font-size:13px;line-height:19px;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pmeta{display:flex;align-items:center;gap:8px;margin-top:5px;font-size:12px;color:var(--ink-3)}
+.nets{display:flex;gap:3px}
+.nets .tile{width:20px;height:20px;border-radius:5px;font-size:9px}
+.nets .tile.bad{box-shadow:0 0 0 2px #fff,0 0 0 3.5px var(--bad)}
+.st.published{color:var(--ok)}.st.scheduled{color:#1D5FA8}.st.draft{color:var(--off)}.st.failed{color:var(--bad)}
+.cal{padding:0 18px 18px;animation:xfade .4s var(--ease-out)}
+.cal-h{display:flex;align-items:center;gap:8px;padding-bottom:10px}
+.cal-h b{font-family:var(--head);font-size:15px;min-width:180px}
+.cal-h .icon-btn{width:30px;height:30px;border:1px solid var(--line-2)}
+.cal-g{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.cal-g.next{animation:calNext .45s var(--ease-out)}
+.cal-g.prev{animation:calPrev .45s var(--ease-out)}
+@keyframes calNext{from{opacity:0;transform:translateY(14px)}}
+@keyframes calPrev{from{opacity:0;transform:translateY(-14px)}}
+.cal-dn{padding:8px 10px;background:var(--bg);border-bottom:1px solid var(--line);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.cal-d{position:relative;min-height:92px;padding:6px 6px 8px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff;display:flex;flex-direction:column;gap:4px}
+.cal-d:nth-child(7n){border-right:0}
+.cal-d:nth-last-child(-n+7){border-bottom:0}
+.cal-d.past{background:#FAFBFC}
+.cal-d .n{font-size:12px;font-weight:600;color:var(--ink-2);padding:2px 5px;align-self:flex-start}
+.cal-d.past .n{color:var(--ink-3)}
+.cal-d.today .n{display:grid;place-items:center;width:24px;height:24px;padding:0;border-radius:999px;background:var(--brand);color:#fff}
+.cal-d .add{position:absolute;top:5px;right:5px;width:24px;height:24px;border-radius:6px;display:grid;place-items:center;color:var(--ink-3);opacity:0;transition:opacity .15s,background .15s,color .15s}
+.cal-d:hover .add,.cal-d .add:focus-visible{opacity:1}
+.cal-d .add:hover{background:var(--brand-050);color:var(--brand)}
+.cev{display:flex;align-items:center;gap:5px;width:100%;padding:4px 6px;border-radius:6px;border-left:3px solid;font-size:11.5px;font-weight:600;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:transform .2s var(--ease-out),box-shadow .2s;animation:chipIn .45s var(--spring) both;animation-delay:calc(150ms + var(--i)*35ms)}
+.cev:hover{transform:translateY(-1px);box-shadow:var(--shadow-1)}
+.cev span{overflow:hidden;text-overflow:ellipsis}
+.cev.published{background:var(--ok-050);border-color:var(--ok);color:#0F5E35}
+.cev.scheduled{background:#E8F0FB;border-color:#1D5FA8;color:#153F73}
+.cev.failed{background:var(--bad-050);border-color:var(--bad);color:#8E1B13}
+
+/* compose */
+.scrim.near{padding-top:22px}
+.modal.xl{width:960px;max-height:calc(100% - 44px);display:flex;flex-direction:column}
+.modal.xl .m-h{padding-bottom:12px;border-bottom:1px solid var(--line)}
+.cmp-grid{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 320px}
+.cmp-l{overflow:auto;padding:4px 20px 20px}
+.cmp-r{overflow:auto;padding:14px 18px 18px;border-left:1px solid var(--line);background:var(--bg)}
+.lbl-s{display:block;margin:16px 0 8px;font-size:12.5px;font-weight:700;color:var(--ink-2)}
+.netpills{display:flex;flex-wrap:wrap;gap:8px}
+.netpill{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 12px 0 5px;border:1px solid var(--line-2);border-radius:999px;background:#fff;font-size:13px;font-weight:600;color:var(--ink-2);transition:border-color .15s,color .15s,box-shadow .2s}
+.netpill .tile{width:26px;height:26px;border-radius:50%;font-size:10.5px}
+.netpill .ck{width:16px;height:16px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;transform:scale(0);transition:transform .35s var(--spring)}
+.netpill[aria-pressed="true"]{border-color:var(--ink);color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.netpill[aria-pressed="true"] .ck{transform:scale(1)}
+.netpill.warn{border-color:var(--bad);box-shadow:inset 0 0 0 1px var(--bad)}
+.netpill.warn .ck{background:var(--bad)}
+.netpill.done{border-style:dashed;color:var(--ink-3);pointer-events:none}
+.cmp-ta{display:block;width:100%;min-height:132px;border:1px solid var(--line-2);border-radius:10px;padding:10px 12px;font-size:13.5px;line-height:20px;resize:vertical;outline:none;transition:border-color .15s,box-shadow .15s}
+.cmp-ta:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(194,65,12,.12)}
+.cmp-ta.filled{animation:fillGlow 1.2s var(--ease-out)}
+.ta-meta{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:6px;min-height:18px;font-size:12px;color:var(--ink-3)}
+.ta-meta .ai-src{margin-top:0}
+.ta-meta .over{color:var(--bad);font-weight:700}
+.topics{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px}
+.topics .lead{display:inline-flex;align-items:center;gap:6px;margin-right:2px;font-size:12px;font-weight:700;color:var(--brand)}
+.media{display:flex;gap:10px}
+.mtile{position:relative;width:68px;height:68px;border-radius:10px;overflow:hidden;border:2px solid transparent;transition:border-color .2s,transform .25s var(--ease-out)}
+.mtile svg{display:block;width:100%;height:100%}
+.mtile:hover{transform:translateY(-2px)}
+.mtile[aria-pressed="true"]{border-color:var(--brand)}
+.mtile .ck{position:absolute;top:4px;right:4px;width:18px;height:18px;border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;transform:scale(0);transition:transform .35s var(--spring)}
+.mtile[aria-pressed="true"] .ck{transform:scale(1)}
+.warnrow{display:flex;align-items:center;gap:10px;margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--bad-050);color:#8E1B13;font-size:12.5px;font-weight:600;animation:xfade .35s var(--ease-out)}
+.warnrow .grow{flex:1}
+.warnrow .lnk{color:#8E1B13;text-decoration:underline}
+.when{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.sched{display:flex;align-items:center;flex-wrap:wrap;gap:8px;animation:xfade .35s var(--ease-out)}
+.sched .tsel{height:32px}
+.tsel.hl{animation:fillGlow 1.2s var(--ease-out)}
+.best{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:999px;background:var(--enh-050);color:var(--enh);font-size:12px;font-weight:700;transition:transform .2s var(--ease-out)}
+.best:hover{transform:translateY(-1px)}
+.cmp-sum{font-size:12.5px;color:var(--ink-2);transition:color .2s}
+.cmp-sum.bad{color:var(--bad);font-weight:600}
+.pv-tabs{position:relative;display:flex;gap:2px;margin-bottom:12px;border-bottom:1px solid var(--line-2)}
+.pv-tabs button{height:32px;padding:0 9px;font-size:12px;font-weight:600;color:var(--ink-3);transition:color .2s}
+.pv-tabs button[aria-selected="true"]{color:var(--ink)}
+.pv-tabs .ink{position:absolute;bottom:-1px;height:2px;border-radius:2px;background:var(--brand);transition:left .35s var(--ease-out),width .35s var(--ease-out)}
+.pv{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-1);font-size:12.5px;line-height:18px;animation:xfade .35s var(--ease-out)}
+.pv-h{display:flex;align-items:center;gap:8px;padding:10px 12px}
+.pv-h .av{width:28px;height:28px;border-radius:50%;background:linear-gradient(150deg,#FFE3D3,#FFC7A8);color:var(--brand);display:grid;place-items:center;flex:none}
+.pv-h b{display:block;font-size:12.5px}
+.pv-h small{display:block;font-size:11px;color:var(--ink-3)}
+.pv-t{padding:0 12px 10px;white-space:pre-wrap;word-break:break-word;color:var(--ink)}
+.pv-t.empty{color:var(--ink-3);font-style:italic}
+.pv.ig .pv-t{padding-top:8px}
+.pv-img{aspect-ratio:1.6;background:var(--bg)}
+.pv.ig .pv-img{aspect-ratio:1}
+.pv-img svg{display:block;width:100%;height:100%}
+.pv-img.in{animation:xfade .45s var(--ease-out)}
+.pv-noimg{aspect-ratio:1;display:grid;place-items:center;align-content:center;gap:8px;padding:16px;text-align:center;font-size:12px;font-weight:700;color:var(--bad);background:repeating-linear-gradient(135deg,#FBFBFC 0 8px,#F1F3F5 8px 16px)}
+.pv-f{display:flex;gap:16px;padding:8px 12px;border-top:1px solid var(--line);font-size:11.5px;font-weight:600;color:var(--ink-3)}
+.pv .cta{display:grid;place-items:center;height:30px;margin:0 12px 12px;border:1px solid var(--line-2);border-radius:6px;font-weight:700;color:#1A56C4}
+.pv-note{margin-top:10px;font-size:11.5px;color:var(--ink-3);text-align:center}
+.mstats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.mstats div{padding:10px 12px;border:1px solid var(--line);border-radius:10px}
+.mstats b{display:block;font-family:var(--head);font-size:18px;color:var(--ink)}
+.mstats span{font-size:11.5px;color:var(--ink-3)}
+
+/* comments */
+.cms{display:grid;gap:10px}
+.cm{padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;animation:msgIn .4s var(--ease-out) both;animation-delay:calc(var(--i)*70ms)}
+.cm .who{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--ink)}
+.cm .who .tile{width:24px;height:24px;border-radius:50%;font-size:10px}
+.cm .who small{margin-left:auto;font-size:12px;font-weight:400;color:var(--ink-3)}
+.qtag{display:inline-flex;align-items:center;height:18px;padding:0 7px;margin-left:6px;border-radius:999px;background:var(--enh-050);color:var(--enh);font-size:10.5px;font-weight:700;vertical-align:1px}
+.cm .on{margin-top:3px;font-size:12px;color:var(--ink-3)}
+.cm p{margin-top:8px;font-size:13.5px;line-height:20px;color:var(--ink)}
+.cm .row{display:flex;align-items:center;gap:8px;margin-top:10px}
+.cm .row .grow{flex:1}
+.cm textarea{display:block;width:100%;margin-top:10px;min-height:92px;border:1px solid var(--line-2);border-radius:8px;padding:9px 11px;font-size:13px;line-height:19px;resize:vertical;outline:none}
+.cm textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(194,65,12,.12)}
+.cm .mine{margin-top:10px;padding:9px 12px;border-left:3px solid var(--brand);border-radius:0 8px 8px 0;background:#FFF8F3;font-size:12.5px;line-height:19px;color:var(--ink-2)}
+.cm .mine b{display:block;font-size:11.5px;color:var(--brand-700)}
+.heart{width:30px;height:30px;border-radius:7px;display:grid;place-items:center;color:var(--ink-3);transition:color .2s,background .15s}
+.heart:hover{background:var(--bg)}
+.heart[aria-pressed="true"]{color:#D6336C}
+.heart[aria-pressed="true"] .ic{fill:currentColor;animation:bump .5s var(--spring)}
+
+/* narrow content: the AI panel is open, or the window is small */
+@container main (max-width: 900px){
+  .grid{grid-template-columns:minmax(0,1fr)}
+  .prof{display:grid;grid-template-columns:56px minmax(0,1fr) minmax(170px,210px);grid-template-areas:"ph h comp" "ph addr btn";column-gap:16px;row-gap:2px;align-items:center;text-align:left;padding:16px 18px}
+  .prof .ph{grid-area:ph;width:56px;height:56px;margin:0}
+  .prof h2{grid-area:h}
+  .prof h2 br{display:none}
+  .prof h2 .ll{display:inline}
+  .prof h2 .ll::before{content:" · "}
+  .prof .addr{grid-area:addr;margin-top:0}
+  .prof .addr span{display:inline}
+  .prof .addr span+span::before{content:" · "}
+  .prof .cats{display:none}
+  .prof .btn{grid-area:btn;margin-top:6px}
+  .prof .comp{grid-area:comp;margin-top:0}
+  .thead,.trow{grid-template-columns:minmax(0,1fr) 150px 132px}
+  .view-l{font-size:0;gap:0;padding:0 7px}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .prow{grid-template-columns:44px minmax(0,1fr) 150px 96px;gap:12px}
+  .thumb{width:44px;height:44px}
+  .cal-d{min-height:76px}
+}
+@container main (max-width: 640px){
+  .page{padding:22px 20px 80px}
+  .page-h{flex-wrap:wrap;row-gap:10px}
+  .page-h h1{font-size:22px;line-height:28px}
+  .page-h>.grow{flex-basis:100%;height:0}
+  .prof{grid-template-columns:52px minmax(0,1fr);grid-template-areas:"ph h" "ph addr" "comp comp" "btn btn";row-gap:6px}
+  .prof .comp{margin-top:8px}
+  .prof .btn{justify-self:start}
+  .thead,.trow{grid-template-columns:minmax(0,1fr) 124px 104px;padding:0 14px;gap:10px}
+  .trow .enh{display:none}
+  .sug-item{padding:12px 14px;gap:10px}
+  .prow{grid-template-columns:40px minmax(0,1fr) 112px 84px;gap:10px;padding:12px 14px}
+  .thumb{width:40px;height:40px}
+  .prow .st small{display:none}
+  .kpi .v{font-size:21px}
+  .cev span{display:none}
+  .cev{justify-content:center;padding:4px}
+}
+
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0ms!important;transition-duration:.01ms!important;transition-delay:0ms!important}
   .intro h1 .w>span{transform:none}
-  .intro .rise,.trow.in,.layer td,.sug-item{opacity:1;transform:none}
+  .intro .rise,.trow.in,.layer td,.sug-item,.brow{opacity:1;transform:none}
   .layer td .arrow{width:22px}
+  .spark{clip-path:none}
 }
 </style>
 </head>
 <body>
 <div class="sc">
   <header class="sc-bar">
-    <a class="sc-back" href="https://dbyxdesign.com/case-business-listing.html"><span data-icon="arrowLeft" data-size="16"></span>Case study</a>
-    <div class="sc-title">Listings Management<small>Interactive prototype</small></div>
+    <div class="sc-title">Listings and Social<small>Interactive prototype</small></div>
     <span class="sc-grow"></span>
     <div class="sc-seg" id="vendor-seg">Backend
       <div class="seg" role="group" aria-label="Listings backend">
@@ -526,13 +822,14 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;
           <div class="viewport">
             <div class="app" id="app">
               <nav class="side" aria-label="Primary">
+                <span class="nav-ind" id="nav-ind" aria-hidden="true"></span>
                 <div class="wordmark" aria-label="Thryv">thryv<i></i></div>
                 <button class="nav-i" data-act="soon"><span data-icon="home" data-size="19"></span>Dashboard</button>
                 <button class="nav-i" data-act="ai-open"><span data-icon="sparkle" data-size="19"></span>Thryv AI</button>
                 <button class="nav-i" data-act="soon"><span data-icon="reports" data-size="19"></span>Analytics</button>
                 <button class="nav-i" data-act="soon"><span data-icon="star" data-size="19"></span>Reviews</button>
-                <button class="nav-i on" aria-current="page"><span data-icon="pin" data-size="19"></span>Listings Management</button>
-                <button class="nav-i" data-act="soon"><span data-icon="social" data-size="19"></span>Social</button>
+                <button class="nav-i on" aria-current="page" data-act="nav" data-page="listings"><span data-icon="pin" data-size="19"></span>Listings Management</button>
+                <button class="nav-i" data-act="nav" data-page="social"><span data-icon="social" data-size="19"></span>Social<span class="nbadge" id="nb-social" aria-label="3 comments waiting">3</span></button>
                 <button class="nav-i" data-act="soon"><span data-icon="globe" data-size="19"></span>Website</button>
                 <span class="grow"></span>
                 <button class="nav-i" data-act="soon"><span data-icon="gear" data-size="19"></span>Settings</button>
@@ -570,6 +867,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;
                       </div>
                     </div>
                   </div>
+                  <div class="page" id="page-social" hidden></div>
                 </div>
                 <aside class="aip" id="aip" aria-label="Thryv AI">
                   <div class="aip-h"><span class="orb"><span data-icon="sparkle" data-size="16"></span></span><b>Thryv AI</b><button class="x" data-act="ai-close" aria-label="Close Thryv AI"><span data-icon="x" data-size="18"></span></button></div>
@@ -596,7 +894,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;
   <div class="intro-card">
     <div class="eyebrow rise" style="--i:0">Interactive prototype · Business listings</div>
     <h1 id="intro-h">Change the vendor. Keep the experience.</h1>
-    <p class="lede rise" style="--i:1">Listings Management for a roofer with three locations. Every screen reads from a layer between our UI and the vendor&rsquo;s API, so switching the backend in the bar above doesn&rsquo;t change what she sees. When a listing needs fixing, Thryv AI drafts the fix for her to approve.</p>
+    <p class="lede rise" style="--i:1">Listings and Social for a roofer with three locations. Every listing reads from a layer between our UI and the vendor&rsquo;s API, so switching the backend in the bar above doesn&rsquo;t change what she sees. Thryv AI knows which screen she&rsquo;s on and drafts the fixes, replies and posts for her to approve.</p>
     <div class="actions rise" style="--i:2">
       <button class="sc-pill primary" data-act="start">Open the prototype<span data-icon="arrowRight" data-size="16"></span></button>
     </div>
@@ -664,7 +962,16 @@ const I = {
   layers:'<path d="m12 4 8.5 4.5L12 13 3.5 8.5Z"/><path d="m3.5 12.5 8.5 4.5 8.5-4.5M3.5 16.5 12 21l8.5-4.5"/>',
   store:'<path d="M4 9.5 5.5 4.5h13L20 9.5"/><path d="M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0"/><path d="M5.5 11.5v8h13v-8"/><path d="M10 19.5v-4.5h4v4.5"/>',
   chat:'<path d="M20.5 11.6c0 3.9-3.8 7-8.5 7-1 0-2-.1-2.9-.4L4 20.4l1.4-3.6A6.6 6.6 0 0 1 3.5 11.6c0-3.9 3.8-7 8.5-7s8.5 3.1 8.5 7Z"/>',
-  list:'<path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="5" cy="6.5" r="1" fill="currentColor"/><circle cx="5" cy="12" r="1" fill="currentColor"/><circle cx="5" cy="17.5" r="1" fill="currentColor"/>'
+  list:'<path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="5" cy="6.5" r="1" fill="currentColor"/><circle cx="5" cy="12" r="1" fill="currentColor"/><circle cx="5" cy="17.5" r="1" fill="currentColor"/>',
+  heart:'<path d="M12 19.5s-7.5-4.4-7.5-9.6A4.1 4.1 0 0 1 12 7.6a4.1 4.1 0 0 1 7.5 2.3c0 5.2-7.5 9.6-7.5 9.6Z"/>',
+  calendar:'<rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/>',
+  chevLeft:'<path d="m14.5 6-6 6 6 6"/>',
+  chevRight:'<path d="m9.5 6 6 6-6 6"/>',
+  trash:'<path d="M5 7h14M10 4.5h4M7 7l.8 12.5h8.4L17 7"/>',
+  copy:'<rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5"/>',
+  eyeOff:'<path d="M4 4l16 16"/><path d="M9.9 6.1A9 9 0 0 1 12 5.8c6 0 9.5 6.2 9.5 6.2a16 16 0 0 1-2.6 3.3M6.6 7.7A15.6 15.6 0 0 0 2.5 12S6 18.2 12 18.2a8.8 8.8 0 0 0 3.6-.8"/>',
+  trend:'<path d="m4 16 5-5 3.5 3.5L20 7"/><path d="M15 7h5v5"/>',
+  users:'<circle cx="9" cy="9" r="3.2"/><path d="M3.5 19c.7-3 2.8-4.6 5.5-4.6s4.8 1.6 5.5 4.6"/><path d="M15.5 6.2a3 3 0 0 1 0 5.6M17.5 14.6c1.6.6 2.6 2 3 4.4"/>'
 };
 const FILLED = new Set(["sparkle"]);
 function ic(n, s = 20, cls = "", sw = 1.8){
@@ -739,7 +1046,62 @@ const HOURS = () => ({
   thu:{on:true,o:420,c:1020,b:null}, fri:{on:true,o:420,c:1020,b:null}, sat:{on:true,o:480,c:840,b:null}, sun:{on:false,o:480,c:840,b:null}
 });
 const DAYS = [["mon","Monday"],["tue","Tuesday"],["wed","Wednesday"],["thu","Thursday"],["fri","Friday"],["sat","Saturday"],["sun","Sunday"]];
-const AI_DESC = "Ridgeline Roofing has repaired and replaced roofs across Mesa, Tempe and Gilbert since 2011. We work on tile, shingle and flat roofs, storm damage and gutters, with free inspections and written estimates. Every crew sweeps the site with a magnet before leaving, and we take emergency leak calls seven days a week.";
+const AI_DESCS = [
+  "Ridgeline Roofing has repaired and replaced roofs across Mesa, Tempe and Gilbert since 2011. We work on tile, shingle and flat roofs, storm damage and gutters, with free inspections and written estimates. Every crew sweeps the site with a magnet before leaving, and we take emergency leak calls seven days a week.",
+  "Since 2011, Ridgeline Roofing has kept homes in Mesa, Tempe and Gilbert dry. We repair and replace tile, shingle and flat roofs, fix storm damage and gutters, and give every customer a free inspection with photos. Our crews finish each job with a magnet sweep, and we answer emergency leak calls seven days a week.",
+  "Tile, shingle and flat roof repair and replacement in Mesa, Tempe and Gilbert since 2011. Free inspections with photos, written estimates, storm damage and gutter work, and emergency leak calls seven days a week."
+];
+
+/* Social demo data. Days are offsets from today, so the calendar always looks current. */
+const NETS = {
+  facebook:{name:"Facebook", t:"f", bg:"#E7F0FE", fg:"#1559C9", limit:63206},
+  instagram:{name:"Instagram", t:"Ig", bg:"#FBE7F3", fg:"#A1206E", limit:2200, img:true},
+  google:{name:"Google", t:"G", bg:"#E8F0FE", fg:"#1A56C4", limit:1500},
+  nextdoor:{name:"Nextdoor", t:"N", bg:"#E2F6EA", fg:"#1D7A44", limit:8000}
+};
+const NET_ORDER = ["facebook","instagram","google","nextdoor"];
+const MEDIA = [
+  {id:"m1", alt:"New tile roof in Mesa", sky:["#9CC9F0","#E8F3FC"], roof:"#B5532A", wall:"#F1E4D3", sun:true},
+  {id:"m2", alt:"Crew finishing a shingle roof", sky:["#F9C58D","#FDEBD3"], roof:"#4A5463", wall:"#E7E1D8", sun:true},
+  {id:"m3", alt:"Before and after in Gilbert", sky:["#B9D7C9","#EEF6F1"], roof:"#7A3B1E", wall:"#EDE3D6", split:true},
+  {id:"m4", alt:"Storm damage inspection", sky:["#7D8BA1","#C9D1DC"], roof:"#3E4A59", wall:"#DDD6CC", rain:true}
+];
+const POSTS = [
+  {id:"p1", st:"scheduled", d:1, t:1140, nets:["facebook","instagram"], m:"m3", text:"Before and after in Gilbert. This shingle roof had three layers and a soft deck. Our crew stripped it to the rafters, replaced the decking and put down a new architectural shingle in two days."},
+  {id:"p2", st:"scheduled", d:3, t:540, nets:["google"], m:null, text:"We're open Saturdays from 8 AM to 2 PM for free roof inspections across Mesa, Tempe and Gilbert. Call (480) 555 0142 to book a time."},
+  {id:"p3", st:"failed", d:-2, t:1110, nets:["facebook","instagram"], fail:"instagram", m:null, reach:210, likes:12, comments:1, text:"Free roof inspections all month. Monsoon season is hard on tile and flat roofs, so we'll check yours and send you photos of anything we find. No cost, no pressure."},
+  {id:"p4", st:"published", d:-3, t:600, nets:["facebook","google"], m:"m4", reach:640, likes:31, comments:4, text:"Storm tip: after a big monsoon, look for granules in your gutters and dark streaks on the ceiling. Both are early signs of roof damage. We take emergency leak calls seven days a week."},
+  {id:"p5", st:"published", d:-6, t:600, nets:["facebook","instagram","google"], m:"m1", reach:1240, likes:86, comments:9, text:"Fresh tile roof in Mesa. New underlayment, new battens and the original tile cleaned and reset."},
+  {id:"p6", st:"published", d:-10, t:1080, nets:["facebook","instagram"], m:"m2", reach:910, likes:64, comments:6, text:"Meet the crew behind your roof. Every job ends with a magnet sweep of the yard and driveway, so you won't find nails after we leave."},
+  {id:"p7", st:"draft", d:null, t:null, nets:["facebook"], m:null, text:"Thinking about solar? Ask us about the roof first. We can tell you if it has 20 good years left before the panels go on."}
+];
+const COMMENTS = [
+  {id:"c1", net:"facebook", who:"Maria G.", ago:"2 hours ago", post:"p5", q:true, text:"Do you do free estimates in Chandler too? Our tile roof is about 20 years old.",
+   draft:"Hi Maria, yes, we do free estimates in Chandler. Twenty years is a good time for a check, since the underlayment under tile usually wears out before the tile does. Call us at (480) 555 0142 or message us here and we'll set up a time. Dana"},
+  {id:"c2", net:"instagram", who:"sunvalley.home", ago:"5 hours ago", post:"p6", text:"That roof looks so clean. How long did the job take?",
+   draft:"Thank you! That one took our crew two days. Most roofs that size take two to three days, and we sweep the yard with a magnet before we leave."},
+  {id:"c3", net:"facebook", who:"Kevin R.", ago:"Yesterday", post:"p4", text:"Had a leak after the last monsoon and you were out the same day. Thanks Dana!",
+   draft:"Thanks Kevin, we're glad we got there fast. Call us anytime the next storm gives you trouble."}
+];
+const TOPICS = [["inspect","Free inspections"],["before","Before and after"],["review","Share a review"],["tip","Storm tip"],["hours","Hours update"]];
+const TOPIC_MEDIA = {inspect:"m4", before:"m3", review:"m1", tip:"m4"};
+const CAPTIONS = {
+  inspect:["Monsoon season is hard on Arizona roofs. All month we're doing free roof inspections in Mesa, Tempe and Gilbert. We'll check your tile, flashing and underlayment and send you photos of anything we find. Book at (480) 555 0142.",
+           "Is your roof ready for the next storm? Book a free inspection this month and we'll send you photos of what we find, with no pressure to fix anything. Mesa, Tempe and Gilbert. (480) 555 0142."],
+  before:["Before and after in Gilbert. Three layers of old shingle came off, the soft decking was replaced, and a new architectural shingle went on in two days. Every job ends with a magnet sweep of the yard.",
+          "Same house, two days apart. We took this Gilbert roof down to the rafters, replaced the soft decking and finished with a new architectural shingle."],
+  review:["“They were out the same day and fixed the leak before the next storm.” Thank you, Kevin, for the kind words. We take emergency leak calls seven days a week.",
+          "Reviews like Kevin's are why we answer the phone on weekends. Thank you for trusting us with your roof."],
+  tip:["Storm tip: after a big monsoon, check your gutters for granules and look for dark spots on the ceiling. Both are early signs of roof damage. Call us if you see either.",
+       "Quick roof check after a storm: walk around the house and look for lifted shingles, cracked tile or granules near the downspouts. Send us a photo if something looks off."]
+};
+const HASHTAGS = "#roofing #mesaaz #arizonahomes";
+const REPLY = {
+  base:"Hi Alex, thank you for telling us, and I'm sorry about the nails. That's not how we leave a job. I'd like to cover the tire repair and send our crew lead back to sweep your driveway with a magnet. Please call me at {phone} so we can set a time.\n\nDana, Ridgeline Roofing",
+  shorter:"Alex, I'm sorry about the nails. We'll cover the tire repair and sweep your driveway with a magnet. Please call me at {phone}.\n\nDana",
+  warmer:"Hi Alex, I'm really sorry. You trusted us with your home, and we left a mess behind and a flat tire on top of it. That's on us. I'd like to pay for the tire and have our crew lead come back to sweep with a magnet. Call me at {phone} whenever it suits you.\n\nDana, Ridgeline Roofing",
+  formal:"Dear Alex, thank you for your feedback. We apologize for the nails left on your driveway. Ridgeline Roofing will cover the tire repair, and our crew lead will return to complete a full magnet sweep. Please contact me at {phone} to arrange a time.\n\nDana, Owner, Ridgeline Roofing"
+};
 const RAW = {
   A:{connected:"PUBLISHED", processing:"IN_PROGRESS", not:"NOT_LISTED", issue:"DATA_CONFLICT"},
   B:{connected:"live", processing:"pending_review", not:"unsubmitted", issue:"mismatch"}
@@ -755,27 +1117,35 @@ function freshState(){
     const codes = L.status.split(" ");
     locs[id] = {
       ...clone(L),
-      rows: SITES.map((s, i) => ({ id:s.id, st:ST[codes[i]] || "connected" })),
+      rows: SITES.map((s, i) => ({ id:s.id, st:ST[codes[i]] || "connected", why:"new" })),
       issues: clone(L.issues),
       hours: HOURS()
     };
   }
-  return { loc:"mesa", vendor:"A", filter:"all", q:"", locs, sugOpen:true, ai:{open:false, started:false}, posted:false, synced:"2 minutes ago" };
+  return { page:"listings", biz:"Ridgeline Roofing", web:"ridgelineroofing.example", loc:"mesa", vendor:"A", filter:"all", q:"", locs, sugOpen:true,
+    ai:{open:false, started:false, ctx:null}, posted:false, synced:"2 minutes ago", social:freshSocial() };
+}
+function freshSocial(){
+  const dow = (new Date().getDay() + 6) % 7;
+  return { posts:clone(POSTS), comments:clone(COMMENTS).map(c => ({...c, done:false, hidden:false, liked:false, reply:""})),
+    view:"list", filter:"all", calStart:-dow - 7, nextdoor:false, alertShut:false, lastDeleted:null };
 }
 const L = () => S.locs[S.loc];
 const rowsOf = (loc = L()) => loc.rows;
-const count = st => rowsOf().filter(r => r.st === st || (st === "not" && r.st === "disabled")).length;
+const count = st => rowsOf().filter(r => r.st === st).length;
+const pageTitle = () => S.page === "social" ? "Social" : "Listings Management";
 const live = () => count("connected");
 const total = () => rowsOf().filter(r => r.st !== "disabled").length;
 
 /* -----------------------------------------------------------------
    Toast, tab title
    ----------------------------------------------------------------- */
-function toast(msg, icon = "check"){
+function toast(msg, icon = "check", action){
   const t = document.createElement("div");
-  t.className = "toast"; t.innerHTML = (icon ? ic(icon, 18, "", 2.2) : "") + `<span>${msg}</span>`;
+  t.className = "toast"; t.innerHTML = (icon ? ic(icon, 18, "", 2.2) : "") + `<span>${msg}</span>` + (action ? `<button type="button" data-act="${action.act}" ${action.data || ""}>${action.label}</button>` : "");
   $("#toasts").appendChild(t);
-  setTimeout(() => { t.classList.add("out"); setTimeout(() => t.remove(), 260); }, 2600);
+  setTimeout(() => { t.classList.add("out"); setTimeout(() => t.remove(), 260); }, action ? 6500 : 2600);
+  return t;
 }
 function setTitle(t){ const el = $("#btab-t"); if (el.textContent === t) return; el.textContent = t; el.style.animation = "none"; void el.offsetWidth; el.style.animation = ""; }
 
@@ -784,12 +1154,12 @@ function setTitle(t){ const el = $("#btab-t"); if (el.textContent === t) return;
    ----------------------------------------------------------------- */
 function renderProfile(animate){
   const l = L();
-  $("#loc-name").textContent = "Ridgeline Roofing · " + l.label;
+  $("#loc-name").textContent = S.biz + " · " + l.label;
   $("#prof").innerHTML = `
     <div class="prof ${animate ? "x-fade" : ""}">
       <div class="ph">${ic("store", 30)}</div>
-      <h2>Ridgeline Roofing<br>${esc(l.label)}</h2>
-      <p class="addr">${esc(l.street)}<br>${esc(l.city)}, ${l.state} ${l.zip}<br>${esc(l.phone)}<br>ridgelineroofing.example</p>
+      <h2>${esc(S.biz)}<span class="ll">${esc(l.label)}</span></h2>
+      <p class="addr"><span>${esc(l.street)}</span><span>${esc(l.city)}, ${esc(l.state)} ${esc(l.zip)}</span><span>${esc(l.phone)}</span><span>${esc(S.web)}</span></p>
       <div class="cats">${l.cats.map(c => `<span>${esc(c)}</span>`).join("")}</div>
       <button class="btn btn-brand-o" data-act="profile" data-tab="info">${ic("edit", 15)}Edit business profile</button>
       <div class="comp">
@@ -812,7 +1182,7 @@ function suggestions(){
   if (iss.length) out.push({icon:"alert", tone:"bad", title:`Fix ${iss.length} ${plural(iss.length, "listing")} showing the wrong information`, why:"People see these today. A wrong phone number or hours cost you calls.", cta:"Review", act:"issue", id:iss[0].id});
   if (nc.length){
     const nm = nc.map(r => SITE[r.id].name), names = nc.length > 2 ? `${nm.slice(0, 2).join(", ")} and ${nc.length - 2} more` : nm.join(" and ");
-    out.push({icon:"link", tone:"warn", title:`Get listed on ${nc.length} more ${plural(nc.length, "site")}`, why:`${names} ${nc.length === 1 ? "doesn't" : "don't"} show your business yet.`, cta:`Connect ${nc.length}`, act:"connect-all"});
+    out.push({icon:"link", tone:"warn", title:`Get listed on ${nc.length} more ${plural(nc.length, "site")}`, why:`${names} ${nc.length === 1 ? "doesn't" : "don't"} show your business yet.`, cta:`Connect ${nc.length}`, act:"connect-review"});
   }
   if ((L().desc || "").length < 120) out.push({icon:"edit", tone:"off", title:"Add a full description", why:"Several sites won't publish a listing without one.", cta:"Add description", act:"profile", tab:"desc"});
   return out;
@@ -852,24 +1222,26 @@ const CHIP = [
   {k:"connected", label:"Connected", icon:"checkCircle", tone:"ok"},
   {k:"processing", label:"Processing", icon:"clock", tone:"warn"},
   {k:"not", label:"Not connected", icon:"minusCircle", tone:"off"},
-  {k:"issue", label:"Issue found", icon:"alert", tone:"bad"}
+  {k:"issue", label:"Issue found", icon:"alert", tone:"bad"},
+  {k:"disabled", label:"Disabled", icon:"pause", tone:"off"}
 ];
 let lastCounts = {};
 function renderChips(){
   const n = {all:rowsOf().length};
   CHIP.slice(1).forEach(c => n[c.k] = count(c.k));
-  $("#chips").innerHTML = CHIP.map(c => `<button class="chip ${c.tone}" data-act="filter" data-k="${c.k}" aria-pressed="${S.filter === c.k}">${ic(c.icon, 15)}${c.label}<span class="cnt ${lastCounts[c.k] !== undefined && lastCounts[c.k] !== n[c.k] ? "bump" : ""}">${n[c.k]}</span></button>`).join("");
+  $("#chips").innerHTML = CHIP.filter(c => c.k !== "disabled" || n.disabled || S.filter === "disabled").map(c => `<button class="chip ${c.tone}" data-act="filter" data-k="${c.k}" aria-pressed="${S.filter === c.k}">${ic(c.icon, 15)}${c.label}<span class="cnt ${lastCounts[c.k] !== undefined && lastCounts[c.k] !== n[c.k] ? "bump" : ""}">${n[c.k]}</span></button>`).join("");
   lastCounts = n;
 }
 const STATUS = {
   connected:{label:"Connected", icon:"checkCircle"},
-  processing:{label:"Processing", icon:"clock", sub:"Live in 2 to 5 days"},
+  processing:{label:"Processing", icon:"clock"},
   not:{label:"Not connected", icon:"minusCircle"},
   issue:{label:"Issue found", icon:"alert"},
   disabled:{label:"Disabled", icon:"pause", sub:"Hidden until you turn it on"}
 };
 function rowHTML(r, i, anim){
   const s = SITE[r.id], st = STATUS[r.st];
+  const sub = r.st === "processing" ? (r.why === "fix" ? "Updating, usually within a day" : "Live in 3 to 7 days") : st.sub;
   let act = "";
   if (r.st === "connected") act = `<button class="view-l" data-act="view" data-id="${r.id}">${ic("external", 15)}View listing</button>`;
   else if (r.st === "issue") act = `<button class="btn btn-brand-o btn-sm" data-act="issue" data-id="${r.id}">View details</button>`;
@@ -877,17 +1249,30 @@ function rowHTML(r, i, anim){
   else if (r.st === "disabled") act = `<button class="btn btn-outline btn-sm" data-act="enable" data-id="${r.id}">Turn on</button>`;
   return `<div class="trow ${anim ? "in" : ""}" role="row" id="row-${r.id}" style="--i:${i};view-transition-name:row-${r.id}">
     <div class="plat"><span class="tile" style="background:${s.bg};color:${s.fg}">${s.t}</span><b>${esc(s.name)}</b>${s.enh ? `<span class="enh" title="Enhanced listings carry more of your profile, like photos and services">${ic("sparkle", 11)}Enhanced</span>` : ""}</div>
-    <div><span class="st ${r.st}">${ic(st.icon, 16)}<span>${st.label}${st.sub ? `<small>${st.sub}</small>` : ""}</span></span></div>
+    <div><span class="st ${r.st}">${ic(st.icon, 16)}<span>${st.label}${sub ? `<small>${sub}</small>` : ""}</span></span></div>
     <div class="acts">${act}<button class="more" data-act="menu" data-id="${r.id}" aria-label="More actions for ${esc(s.name)}" aria-haspopup="menu" aria-expanded="false">${ic("more", 18)}</button></div>
   </div>`;
 }
 function visibleRows(){
   const q = S.q.trim().toLowerCase();
-  return rowsOf().filter(r => (S.filter === "all" || r.st === S.filter || (S.filter === "not" && r.st === "disabled")) && (!q || SITE[r.id].name.toLowerCase().includes(q)));
+  return rowsOf().filter(r => (S.filter === "all" || r.st === S.filter) && (!q || SITE[r.id].name.toLowerCase().includes(q)));
+}
+const EMPTY = {
+  all:["list","No sites to show."],
+  connected:["minusCircle","No sites are connected yet."],
+  processing:["clock","Nothing is processing right now."],
+  not:["checkCircle","You're on every site we support."],
+  issue:["checkCircle","No issues. Every connected site matches your profile."],
+  disabled:["pause","No disabled listings."]
+};
+function emptyHTML(){
+  if (S.q) return `<div class="empty">${ic("search", 24)}<p>No sites match &ldquo;${esc(S.q)}&rdquo;${S.filter !== "all" ? " with this filter" : ""}.</p><button class="btn btn-outline btn-sm" data-act="clear-q">Clear search</button></div>`;
+  const e = EMPTY[S.filter] || EMPTY.all;
+  return `<div class="empty">${ic(e[0], 24)}<p>${e[1]}</p>${S.filter !== "all" ? `<button class="btn btn-outline btn-sm" data-act="filter" data-k="all">Show all sites</button>` : ""}</div>`;
 }
 function renderRows(anim){
   const rows = visibleRows();
-  $("#rows").innerHTML = rows.length ? rows.map((r, i) => rowHTML(r, i, anim)).join("") : `<div class="empty">No sites match ${S.q ? `&ldquo;${esc(S.q)}&rdquo;` : "this filter"}.</div>`;
+  $("#rows").innerHTML = rows.length ? rows.map((r, i) => rowHTML(r, i, anim)).join("") : emptyHTML();
 }
 function updateRow(id, cls){
   const r = rowsOf().find(x => x.id === id);
@@ -902,7 +1287,7 @@ function updateRow(id, cls){
   } else if (!el && visible || el && !visible){ renderRows(false); }
   renderChips(); renderSug();
 }
-function setStatus(id, st, cls){ const r = rowsOf().find(x => x.id === id); if (!r) return; r.st = st; updateRow(id, cls); }
+function setStatus(id, st, cls, why){ const r = rowsOf().find(x => x.id === id); if (!r) return; r.st = st; if (why) r.why = why; updateRow(id, cls); }
 function syncWave(onlyConnected){
   $$("#rows .trow").forEach((el, i) => {
     if (onlyConnected && !$(".st.connected", el)) return;
@@ -917,10 +1302,11 @@ function renderAll(anim){ renderProfile(anim); renderSug(); renderChips(); rende
 /* -----------------------------------------------------------------
    Popovers: location picker and row menus
    ----------------------------------------------------------------- */
-let POP = null;
-function closePop(){
+let POP = null, POP_ANCHOR = null, LAST_FOCUS = null;
+function closePop(returnFocus){
   if (!POP) return;
   const p = POP; POP = null;
+  if (returnFocus && POP_ANCHOR && POP_ANCHOR.isConnected) POP_ANCHOR.focus({preventScroll:true});
   $$('[aria-expanded="true"]').forEach(b => { if (b.dataset.act === "menu" || b.dataset.act === "loc") b.setAttribute("aria-expanded", "false"); });
   p.classList.add("out"); setTimeout(() => p.remove(), 160);
 }
@@ -935,7 +1321,7 @@ function openPop(anchor, html, alignRight = true){
   const h = p.offsetHeight, H = app.height / SCALE;
   p.style.top = (top + h > H - 10 ? (r.top - app.top) / SCALE - h - 6 : top) + "px";
   anchor.setAttribute("aria-expanded", "true");
-  POP = p;
+  POP = p; POP_ANCHOR = anchor;
   const first = $("button", p); first && first.focus({preventScroll:true});
 }
 function openLocPicker(btn){
@@ -958,17 +1344,32 @@ function openRowMenu(btn){
 /* -----------------------------------------------------------------
    Modals
    ----------------------------------------------------------------- */
-function openModal(html, cls = ""){
+function rememberFocus(){ const a = document.activeElement; if (a && !$("#modal-root").contains(a) && a !== document.body) LAST_FOCUS = a; }
+function restoreFocus(){ const f = LAST_FOCUS; LAST_FOCUS = null; setTimeout(() => { if (f && f.isConnected && !$("#modal-root .scrim:not(.out), #modal-root .dscrim:not(.out)")) f.focus({preventScroll:true}); }, 230); }
+function openModal(html, cls = "", opts = {}){
   closePop();
+  rememberFocus();
   const root = $("#modal-root");
-  root.innerHTML = `<div class="scrim" data-act="scrim"><div class="modal ${cls}" role="dialog" aria-modal="true">${html}</div></div>`;
+  const cur = $(".scrim:not(.out) .modal", root);
+  let m;
+  if (cur && !opts.fresh){
+    /* moving between steps: keep the scrim and slide the new step in */
+    cur.className = `modal ${cls} step`; cur.innerHTML = html; m = cur;
+    $(".scrim", root).classList.toggle("near", !!opts.top);
+  } else {
+    root.innerHTML = `<div class="scrim ${opts.top ? "near" : ""}" data-act="scrim"><div class="modal ${cls}" role="dialog" aria-modal="true">${html}</div></div>`;
+    m = $(".modal", root);
+  }
   hydrateIcons(root);
-  const f = $(".modal button:not(.x), .modal input", root) || $(".modal button", root); f && f.focus({preventScroll:true});
-  return $(".modal", root);
+  const f = opts.focus ? $(opts.focus, m) : ($("button:not(.x):not([disabled]), input", m) || $("button", m)); f && f.focus({preventScroll:true});
+  return m;
 }
 function closeModal(){
   const sc = $("#modal-root .scrim"); if (!sc) return;
+  C = null;
   sc.classList.add("out"); setTimeout(() => { if (sc.isConnected) sc.remove(); }, 210);
+  setTitle(pageTitle());
+  restoreFocus();
 }
 const head = (id, sub) => { const s = SITE[id]; return `<div class="m-h"><span class="tile" style="background:${s.bg};color:${s.fg};width:36px;height:36px;font-size:13px">${s.t}</span><div><h3>${esc(s.name)}</h3><small>${sub}</small></div><button class="x" data-act="close" aria-label="Close">${ic("x", 18)}</button></div>`; };
 
@@ -982,15 +1383,19 @@ function fieldKey(label){
 }
 const goodFields = labels => { const bad = labels.map(fieldKey); return PROFILE_FIELDS.filter(p => !bad.includes(p)); };
 function issueFields(id){ return L().issues[id] || [["Phone","Old number",L().phone]]; }
-function scoreHTML(needs, ok){
-  const tot = needs + ok;
-  return `<div class="score"><span>Visibility score</span><b class="num" id="score-n">${ok} of ${tot}</b></div><div class="bar ${needs ? "" : "ok"}" id="score-bar"><i style="width:${Math.round(ok / tot * 100)}%"></i></div>`;
+function scoreHTML(ok, tot){
+  return `<div class="score"><span>Fields that match your profile</span><b class="num" id="score-n">${ok} of ${tot}</b></div><div class="bar ${ok === tot ? "ok" : ""}" id="score-bar"><i style="width:${Math.round(ok / tot * 100)}%"></i></div>`;
+}
+const issueQueue = () => rowsOf().filter(r => r.st === "issue").map(r => r.id);
+function issueSub(id){
+  const q = issueQueue(), pos = q.indexOf(id);
+  return `This listing doesn't match your profile${q.length > 1 && pos > -1 ? `<span class="qpos">${pos + 1} of ${q.length} with issues</span>` : ""}`;
 }
 function openIssue(id){
   const f = issueFields(id), bad = f.map(x => x[0]), good = goodFields(bad);
-  const m = openModal(`${head(id, "This listing doesn't match your profile")}
+  const m = openModal(`${head(id, issueSub(id))}
     <div class="m-b" id="iss-b">
-      ${scoreHTML(bad.length, good.length)}
+      ${scoreHTML(good.length, good.length + bad.length)}
       <div class="sec bad"><h4>Needs attention <span class="cnt">${bad.length}</span></h4><div class="fchips" id="need">${bad.map(b => `<span class="fchip bad">${ic("alert", 13)}${esc(b)}</span>`).join("")}</div></div>
       <div class="sec ok"><h4>Matches your profile <span class="cnt" id="ok-n">${good.length}</span></h4><div class="fchips" id="match">${good.map(g => `<span class="fchip ok">${ic("check", 13, "", 2.4)}${esc(g)}</span>`).join("")}</div></div>
       <div class="why">${ic("info", 16)}<span>Syncing sends your profile again, but ${esc(SITE[id].name)} keeps its own values until they're corrected. Thryv AI can draft those corrections for you to check.</span></div>
@@ -998,6 +1403,7 @@ function openIssue(id){
     <div class="m-f"><button class="btn btn-outline" data-act="sync-one" data-id="${id}">${ic("refresh", 15)}Sync now</button><span class="grow"></span><span class="concept">Concept</span><button class="btn btn-primary" data-act="ai-fix" data-id="${id}">${ic("sparkle", 15)}Fix with Thryv AI</button></div>`, "wide");
   m.dataset.id = id;
   setTitle(SITE[id].name + " · Listing details");
+  return m;
 }
 async function aiFix(id){
   const ep = EPOCH, f = issueFields(id), name = SITE[id].name;
@@ -1006,7 +1412,7 @@ async function aiFix(id){
   b.innerHTML = `<div class="ai-line">${ic("sparkle", 15)}<span id="ai-status">Comparing ${esc(name)} with your profile</span></div><div class="dots" style="margin-top:12px"><i></i><i></i><i></i></div>`;
   const foot = $(".modal .m-f"); foot.innerHTML = `<span class="grow"></span><button class="btn btn-outline" data-act="close">Cancel</button>`;
   await wait(1100); if (ep !== EPOCH || !$("#iss-b")) return;
-  b.innerHTML = `<div class="ai-line">${ic("sparkle", 15)}<span>Thryv AI drafted ${f.length} ${plural(f.length, "fix", "fixes")}. Check them before anything is sent.</span></div>
+  b.innerHTML = `<div class="ai-line">${ic("sparkle", 15)}<span>Thryv AI drafted ${f.length} ${plural(f.length, "fix", "fixes")}. Uncheck any you don't want sent.</span></div>
     <div class="diff" id="diff">${f.map((x, i) => `
       <label class="diff-row" style="animation:msgIn .4s var(--ease-out) both;animation-delay:${i * 110}ms" data-i="${i}">
         <input type="checkbox" class="cbox" checked aria-label="Send the ${esc(x[0])} fix">
@@ -1015,14 +1421,23 @@ async function aiFix(id){
         <span class="to">${ic("arrowRight", 16)}</span>
         <span class="new"><span class="src">Your profile</span>${esc(x[2])}</span>
         <span class="done">${ic("check", 14, "", 2.6)}</span>
-      </label>`).join("")}</div>`;
-  foot.innerHTML = `<button class="btn btn-ghost" data-act="issue" data-id="${id}">${ic("arrowLeft", 15)}Back</button><span class="grow"></span><button class="btn btn-outline" data-act="close">Not now</button><button class="btn btn-primary" id="send-fix" data-act="send-fix" data-id="${id}">${ic("check", 15, "", 2.4)}Send ${f.length} ${plural(f.length, "fix", "fixes")}</button>`;
+      </label>`).join("")}</div>
+    <div class="ai-src">${ic("info", 13)}Your business profile is the source. If ${esc(name)} is right and your profile is out of date, edit your profile instead.</div>`;
+  foot.innerHTML = `<button class="btn btn-ghost" data-act="issue" data-id="${id}">${ic("arrowLeft", 15)}Back</button><span class="grow"></span><button class="btn btn-outline" data-act="close">Not now</button><button class="btn btn-primary" id="send-fix" data-act="send-fix" data-id="${id}">${ic("check", 15, "", 2.4)}<span>Send ${f.length} ${plural(f.length, "fix", "fixes")}</span></button>`;
   $$("#diff .cbox").forEach(cb => cb.addEventListener("change", () => {
     const n = $$("#diff .cbox:checked").length;
     cb.closest(".diff-row").classList.toggle("skip", !cb.checked);
     const btn = $("#send-fix"); btn.disabled = !n; btn.lastChild.textContent = `Send ${n} ${plural(n, "fix", "fixes")}`;
   }));
 }
+function moveChip(fromSel, toSel, label, cls, icon, sw){
+  const chip = $(`${fromSel} .fchip[data-l="${CSS.escape(label)}"]`);
+  if (chip){ chip.classList.add("leave"); setTimeout(() => chip.remove(), 340); }
+  const to = $(toSel); if (!to) return;
+  $(".none", to) && $(".none", to).remove();
+  to.insertAdjacentHTML("beforeend", `<span class="fchip ${cls} arrive" data-l="${esc(label)}">${ic(icon, 13, "", sw)}${esc(fieldKey(label))}</span>`);
+}
+function setCnt(sel, n){ const el = $(sel); if (!el) return; el.textContent = n; el.classList.toggle("zero", !n); el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); }
 async function sendFix(id){
   const ep = EPOCH, name = SITE[id].name;
   const rows = $$("#diff .diff-row"), picked = rows.filter(r => $(".cbox", r).checked);
@@ -1031,36 +1446,82 @@ async function sendFix(id){
   for (const r of picked){ await wait(330); if (ep !== EPOCH) return; r.classList.add("sent"); }
   await wait(450); if (ep !== EPOCH || !$("#iss-b")) return;
   const all = picked.length === rows.length;
-  const remainingFields = rows.filter(r => !$(".cbox", r).checked).map(r => issueFields(id)[+r.dataset.i]);
+  const fields = issueFields(id);
+  const remainingFields = rows.filter(r => !$(".cbox", r).checked).map(r => fields[+r.dataset.i]);
   if (remainingFields.length) L().issues[id] = remainingFields; else delete L().issues[id];
+  const labels = rows.map(r => r.querySelector(".lab").textContent), sentLabels = picked.map(r => r.querySelector(".lab").textContent), good = goodFields(labels);
   const b = $("#iss-b");
   b.classList.remove("swap"); void b.offsetWidth; b.classList.add("swap");
-  const labels = rows.map(r => r.querySelector(".lab").textContent), sentLabels = picked.map(r => r.querySelector(".lab").textContent), good = goodFields(labels);
-  b.innerHTML = `${scoreHTML(rows.length, good.length)}
-    <div class="sec bad"><h4>Needs attention <span class="cnt" id="need-n">${rows.length}</span></h4><div class="fchips" id="need">${rows.map(r => `<span class="fchip bad" data-l="${esc(r.querySelector(".lab").textContent)}">${ic("alert", 13)}${esc(r.querySelector(".lab").textContent)}</span>`).join("")}</div></div>
-    <div class="sec ok"><h4>Matches your profile <span class="cnt" id="ok-n">${good.length}</span></h4><div class="fchips" id="match"></div></div>`;
+  b.innerHTML = `${scoreHTML(good.length, good.length + labels.length)}
+    <div class="sec bad"><h4>Needs attention <span class="cnt" id="need-n">${labels.length}</span></h4><div class="fchips" id="need">${labels.map(l => `<span class="fchip bad" data-l="${esc(l)}">${ic("alert", 13)}${esc(l)}</span>`).join("")}</div></div>
+    <div class="sec wait"><h4>Sent, waiting for ${esc(name)} <span class="cnt zero" id="wait-n">0</span></h4><div class="fchips" id="wait"><span class="none">Nothing sent yet</span></div></div>
+    <div class="sec ok"><h4>Matches your profile <span class="cnt" id="ok-n">${good.length}</span></h4><div class="fchips" id="match">${good.map(g => `<span class="fchip ok">${ic("check", 13, "", 2.4)}${esc(g)}</span>`).join("")}</div></div>`;
   $(".modal .m-f").innerHTML = `<span class="grow"></span><button class="btn btn-primary" data-act="close">Done</button>`;
-  const match = $("#match");
-  good.forEach(g => match.insertAdjacentHTML("beforeend", `<span class="fchip ok">${ic("check", 13, "", 2.4)}${esc(g)}</span>`));
-  let ok = good.length, need = rows.length;
+  let need = labels.length, waiting = 0;
   for (const lab of sentLabels){
     await wait(380); if (ep !== EPOCH || !$("#need")) return;
-    const chip = $(`#need .fchip[data-l="${CSS.escape(lab)}"]`);
-    if (chip){ chip.classList.add("leave"); setTimeout(() => chip.remove(), 340); }
-    match.insertAdjacentHTML("beforeend", `<span class="fchip ok arrive">${ic("check", 13, "", 2.4)}${esc(fieldKey(lab))}</span>`);
-    ok++; need--;
-    $("#need-n").textContent = need; $("#ok-n").textContent = ok;
-    $("#score-n").textContent = `${ok} of ${ok + need}`;
-    $("#score-bar i").style.width = Math.round(ok / (ok + need) * 100) + "%";
-    if (!need){ $("#score-bar").classList.add("ok"); setTimeout(() => { const n = $("#need"); if (n) n.innerHTML = `<span class="none">Nothing left to fix</span>`; }, 360); }
+    moveChip("#need", "#wait", lab, "wait", "clock", 1.8);
+    setCnt("#need-n", --need); setCnt("#wait-n", ++waiting);
   }
+  if (!need) setTimeout(() => { const n = $("#need"); if (n) n.innerHTML = `<span class="none">Nothing left to fix</span>`; }, 360);
+  const sub = $(".modal .m-h small"); if (sub) sub.innerHTML = all ? `Corrections sent. Waiting for ${esc(name)} to update` : `${picked.length} sent, ${need} left to fix`;
   await wait(300); if (ep !== EPOCH || !$("#iss-b")) return;
-  b.insertAdjacentHTML("beforeend", `<div class="sent-note">${ic("checkCircle", 17)}<span><b>Sent to ${esc(name)}.</b> Corrections usually show within a day. We'll keep checking and tell you if anything changes back.</span></div>`);
+  b.insertAdjacentHTML("beforeend", `<div class="sent-note" id="sent-note">${ic("clock", 17)}<span><b>Sent to ${esc(name)}.</b> Corrections usually show within a day. We'll keep checking and tell you if anything changes back.</span></div>`);
+  markResolved(id, all);
   if (all){
-    setStatus(id, "processing", "flash");
-    setTimeout(() => { if (ep === EPOCH && S.locs && rowsOf().find(r => r.id === id && r.st === "processing")) setStatus(id, "connected", "flash-ok"); }, 4200);
+    setStatus(id, "processing", "flash", "fix");
+    setTimeout(() => {
+      if (ep !== EPOCH || !S.locs || !rowsOf().find(r => r.id === id && r.st === "processing")) return;
+      setStatus(id, "connected", "flash-ok");
+      confirmFixed(id, sentLabels, good.length + labels.length);
+    }, 4200);
+  }
+  const next = issueQueue().find(x => x !== id);
+  if (next){
+    const n = issueFields(next).length;
+    $(".modal .m-f").innerHTML = `<span class="grow"></span><button class="btn btn-outline" data-act="close">Done</button><button class="btn btn-primary" data-act="ai-next" data-id="${next}">Next: ${esc(SITE[next].name)} · ${n} ${plural(n, "fix", "fixes")}${ic("arrowRight", 15)}</button>`;
   }
   toast(`${picked.length} ${plural(picked.length, "fix", "fixes")} sent to ${name}`);
+}
+/* the site picked up the corrections: move the chips across and fill the score */
+async function confirmFixed(id, labels, tot){
+  const m = $("#modal-root .scrim:not(.out) .modal");
+  if (!m || m.dataset.id !== id || !$("#wait")) return;
+  const ep = EPOCH, name = SITE[id].name;
+  let ok = tot - labels.length, waiting = labels.length;
+  for (const lab of labels){
+    await wait(260); if (ep !== EPOCH || !$("#wait")) return;
+    moveChip("#wait", "#match", lab, "ok", "check", 2.4);
+    setCnt("#wait-n", --waiting); setCnt("#ok-n", ++ok);
+    $("#score-n").textContent = `${ok} of ${tot}`;
+    $("#score-bar i").style.width = Math.round(ok / tot * 100) + "%";
+  }
+  $("#score-bar").classList.add("ok");
+  setTimeout(() => { const w = $("#wait"); if (w) w.innerHTML = `<span class="none">Nothing waiting</span>`; }, 360);
+  const sub = $(".modal .m-h small"); if (sub){ sub.textContent = `${name} now matches your profile`; sub.classList.add("good"); }
+  const note = $("#sent-note"); if (note){ note.innerHTML = `${ic("checkCircle", 17)}<span><b>${esc(name)} updated.</b> Every field now matches your profile.</span>`; note.classList.remove("swap"); void note.offsetWidth; note.style.animation = "xfade .4s var(--ease-out)"; }
+}
+/* keep the AI panel honest: cards about this listing show it was handled */
+function markResolved(id, all){
+  $$(`#aip-b .irow[data-id="${id}"]`).forEach(r => {
+    r.classList.add("resolved");
+    const st = $(".state", r); if (st) st.innerHTML = `<span class="sent">${ic("check", 13, "", 2.6)}${all ? "Sent" : "Partly sent"}</span>`;
+    $$("button", r).forEach(b => b.remove());
+  });
+  const left = issueQueue().filter(x => x !== id || !all).length;
+  $$('#aip-b .acard [data-act="ai-review"]').forEach(b => { if (!left){ b.disabled = true; b.lastChild.textContent = "All sent"; } else if (b.dataset.id === id) b.dataset.id = issueQueue().find(x => x !== id) || id; });
+  const next = issueQueue().find(x => x !== id || !all);
+  briefRow("ai-review", left ? `${left} ${plural(left, "listing shows", "listings show")} the wrong information` : "Fixes sent. Waiting on the sites to update", !left, next);
+}
+/* update a row in the AI brief after she acts, so the brief never goes stale */
+function briefRow(act, text, done, nextId){
+  $$(`#aip-b .brow [data-act="${act}"]`).forEach(b => {
+    const row = b.closest(".brow"), tx = $(".tx", row);
+    if (tx.textContent === text) return;
+    tx.textContent = text; tx.style.animation = "none"; void tx.offsetWidth; tx.style.animation = "xfade .35s var(--ease-out)";
+    if (done){ row.classList.add("done"); $(".sdot", row).style.background = "var(--ok)"; $(".sdot", row).classList.add("bump"); b.remove(); }
+    else if (nextId) b.dataset.id = nextId;
+  });
 }
 
 /* Connect */
@@ -1071,11 +1532,29 @@ function openConnect(id){
     ${s.enh ? `<div class="why">${ic("sparkle", 16)}<span>This is an enhanced listing, so it also carries your photos and services.</span></div>` : ""}</div>
     <div class="m-f"><span class="grow"></span><button class="btn btn-outline" data-act="close">Cancel</button><button class="btn btn-primary" data-act="do-connect" data-id="${id}">${ic("link", 15)}Connect</button></div>`);
 }
-async function connectAll(){
-  const ep = EPOCH, ids = rowsOf().filter(r => r.st === "not").map(r => r.id);
+function openConnectAll(){
+  const ids = rowsOf().filter(r => r.st === "not").map(r => r.id);
+  if (!ids.length){ toast("You're already on every site we support", "check"); return; }
+  const m = openModal(`<div class="m-h"><span class="bulb">${ic("link", 18)}</span><div><h3>Get listed on ${ids.length} more ${plural(ids.length, "site")}</h3><small>We'll send your ${esc(L().label)} profile. Uncheck any site you'd rather skip.</small></div><button class="x" data-act="close" aria-label="Close">${ic("x", 18)}</button></div>
+    <div class="m-b">
+      <div class="clist" id="clist">${ids.map((id, i) => { const s = SITE[id]; return `<label class="citem" style="--i:${i}"><input type="checkbox" class="cbox" checked data-id="${id}" aria-label="Connect ${esc(s.name)}"><span class="tile" style="background:${s.bg};color:${s.fg}">${s.t}</span><span class="tx"><b>${esc(s.name)}</b><small>${s.enh ? "Enhanced listing. Also carries your photos and services" : "Name, address, phone, hours, categories and description"}</small></span></label>`; }).join("")}</div>
+      <div class="why">${ic("clock", 16)}<span>New listings usually go live in 3 to 7 days. You can disable or disconnect any of them later.</span></div>
+    </div>
+    <div class="m-f"><span class="grow"></span><button class="btn btn-outline" data-act="close">Cancel</button><button class="btn btn-primary" id="do-ca" data-act="do-connect-all">${ic("link", 15)}<span>Connect ${ids.length} ${plural(ids.length, "site")}</span></button></div>`, "wide", {focus:"#do-ca"});
+  $$("#clist .cbox", m).forEach(cb => cb.addEventListener("change", () => {
+    cb.closest(".citem").classList.toggle("skip", !cb.checked);
+    const n = $$("#clist .cbox:checked", m).length, b = $("#do-ca", m);
+    b.disabled = !n; b.lastChild.textContent = `Connect ${n} ${plural(n, "site")}`;
+  }));
+}
+async function connectAll(ids){
+  const ep = EPOCH;
   if (S.filter !== "all" && S.filter !== "not" && S.filter !== "processing"){ S.filter = "all"; renderChips(); renderRows(false); }
-  for (const id of ids){ await wait(240); if (ep !== EPOCH) return; setStatus(id, "processing", "flash"); }
+  for (const id of ids){ await wait(240); if (ep !== EPOCH) return; setStatus(id, "processing", "flash", "new"); }
   toast(`Sent your profile to ${ids.length} ${plural(ids.length, "site")}`);
+  const nc = rowsOf().filter(r => r.st === "not").length;
+  if (!nc) $$('#aip-b .acard [data-act="connect-review"]').forEach(b => { b.disabled = true; b.textContent = "Sent"; });
+  briefRow("connect-review", nc ? `${nc} ${plural(nc, "site doesn't", "sites don't")} list you yet` : `Profile sent to ${ids.length} new ${plural(ids.length, "site")}`, !nc);
 }
 
 /* Disable or disconnect */
@@ -1110,34 +1589,49 @@ const TL0 = 360, TL1 = 1320;
 const pctOf = m => ((m - TL0) / (TL1 - TL0) * 100).toFixed(2) + "%";
 function openDrawer(tab = "info"){
   closePop(); closeModal();
-  D = { tab, hours:clone(L().hours), desc:L().desc, aiDraft:null };
+  rememberFocus();
+  D = { tab, hours:clone(L().hours), desc:L().desc, info:infoOf(L()), aiDraft:null, aiN:0 };
   const root = $("#modal-root");
   root.innerHTML = `<div class="dscrim" data-act="dscrim"><aside class="drawer" role="dialog" aria-modal="true" aria-label="Edit business profile">
-    <div class="d-h"><div><h3>Edit business profile</h3><small>Ridgeline Roofing · ${esc(L().label)}. Changes go to every connected site.</small></div><button class="x" data-act="dclose" aria-label="Close">${ic("x", 18)}</button></div>
+    <div class="d-h"><div><h3>Edit business profile</h3><small>${esc(S.biz)} · ${esc(L().label)}. Changes go to every connected site.</small></div><button class="x" data-act="dclose" aria-label="Close">${ic("x", 18)}</button></div>
     <div class="tabs" role="tablist"><button role="tab" data-act="dtab" data-tab="info">Business info</button><button role="tab" data-act="dtab" data-tab="hours">Hours</button><button role="tab" data-act="dtab" data-tab="desc">Description</button><span class="ink"></span></div>
     <div class="d-b" id="d-b"></div>
-    <div class="d-f"><span class="grow"></span><button class="btn btn-outline" data-act="dclose">Cancel</button><button class="btn btn-primary" data-act="dsave">Save and send</button></div>
+    <div class="d-f">${D_FOOT()}</div>
   </aside></div>`;
   dTab(tab);
   setTitle("Edit business profile");
 }
 function closeDrawer(){
   const sc = $("#modal-root .dscrim"); if (!sc) return;
-  sc.classList.add("out"); setTimeout(() => { if (sc.isConnected) sc.remove(); }, 260); D = null; setTitle("Listings Management");
+  sc.classList.add("out"); setTimeout(() => { if (sc.isConnected) sc.remove(); }, 260); D = null; setTitle(pageTitle());
+  restoreFocus();
 }
+function infoOf(l){ return {name:S.biz, phone:l.phone, web:S.web, street:l.street, city:l.city, state:l.state, zip:l.zip, cats:l.cats.join(", ")}; }
+const drawerDirty = () => !!D && (JSON.stringify(D.info) !== JSON.stringify(infoOf(L())) || (D.desc || "") !== (L().desc || "") || JSON.stringify(D.hours) !== JSON.stringify(L().hours));
+const D_FOOT = () => `<span class="grow"></span><button class="btn btn-outline" data-act="dclose">Cancel</button><button class="btn btn-primary" data-act="dsave">Save and send</button>`;
+function requestCloseDrawer(){
+  if (!drawerDirty()){ closeDrawer(); return; }
+  const f = $(".drawer .d-f"); if (!f) return;
+  if (f.classList.contains("confirm")){ f.classList.remove("nudge"); void f.offsetWidth; f.classList.add("nudge"); return; }
+  f.classList.add("confirm");
+  f.innerHTML = `<span class="q">${ic("alert", 17)}Discard your unsaved changes?</span><span class="grow"></span><button class="btn btn-outline" data-act="d-keep">Keep editing</button><button class="btn btn-danger" data-act="d-discard">Discard</button>`;
+  $('[data-act="d-keep"]', f).focus({preventScroll:true});
+}
+function keepEditing(){ const f = $(".drawer .d-f"); if (!f) return; f.classList.remove("confirm"); f.innerHTML = D_FOOT(); f.style.animation = "none"; void f.offsetWidth; f.style.animation = "xfade .3s var(--ease-out)"; }
 function dTab(tab){
   D.tab = tab;
   $$(".tabs [role=tab]").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === tab));
   const on = $(`.tabs [data-tab="${tab}"]`), ink = $(".tabs .ink");
   requestAnimationFrame(() => { ink.style.left = on.offsetLeft + "px"; ink.style.width = on.offsetWidth + "px"; });
   const l = L(), b = $("#d-b");
+  const fi = (f, label, extra = "") => `<label class="fld" data-fld="${f}"><span>${label}</span><input data-f="${f}" value="${esc(D.info[f])}" ${extra}></label>`;
   if (tab === "info") b.innerHTML = `<div class="pane">
-      <label class="fld"><span>Business name</span><input value="Ridgeline Roofing"></label>
-      <div class="two"><label class="fld"><span>Phone</span><input value="${esc(l.phone)}"></label><label class="fld"><span>Website</span><input value="ridgelineroofing.example"></label></div>
-      <label class="fld"><span>Street address</span><input value="${esc(l.street)}"></label>
-      <div class="two"><label class="fld"><span>City</span><input value="${esc(l.city)}"></label><div class="two"><label class="fld"><span>State</span><input value="${l.state}"></label><label class="fld"><span>ZIP code</span><input value="${l.zip}"></label></div></div>
-      <label class="fld"><span>Categories</span><input value="${esc(l.cats.join(", "))}"></label></div>`;
-  else if (tab === "hours") b.innerHTML = `<div class="pane"><div class="hrs" id="hrs">${DAYS.map(([k]) => dayHTML(k)).join("")}</div></div>`;
+      ${fi("name", "Business name", 'autocomplete="organization"')}
+      <div class="two">${fi("phone", "Phone", 'inputmode="tel" autocomplete="tel"')}${fi("web", "Website", 'inputmode="url"')}</div>
+      ${fi("street", "Street address", 'autocomplete="street-address"')}
+      <div class="two">${fi("city", "City")}<div class="two">${fi("state", "State")}${fi("zip", "ZIP code", 'inputmode="numeric"')}</div></div>
+      ${fi("cats", "Categories")}</div>`;
+  else if (tab === "hours") b.innerHTML = `<div class="pane"><div class="hrs-top"><span>The hours customers see on every connected site.</span><button class="lnk" data-act="h-copy" style="font-size:12.5px">Copy Monday to Tuesday through Friday</button></div><div class="hrs" id="hrs">${DAYS.map(([k]) => dayHTML(k)).join("")}</div></div>`;
   else {
     const n = (D.desc || "").length;
     b.innerHTML = `<div class="pane">
@@ -1168,14 +1662,16 @@ function redrawDay(k, animateGap){
   el.replaceWith(n);
 }
 async function aiDesc(){
-  const ep = EPOCH, slot = $("#ai-slot");
-  slot.innerHTML = `<div class="ai-box"><div class="hd">${ic("sparkle", 15)}Thryv AI <span class="concept">Concept</span></div><p id="ai-p"><span style="color:var(--ink-3)">Reading ridgelineroofing.example and your reviews</span><span class="caret"></span></p><div class="ft" id="ai-ft" hidden><button class="btn btn-primary btn-sm" data-act="ai-use">${ic("check", 14, "", 2.4)}Use this</button><button class="btn btn-outline btn-sm" data-act="ai-desc">${ic("refresh", 14)}Try again</button><button class="btn btn-ghost btn-sm" data-act="ai-discard">Discard</button></div></div>`;
-  await wait(1000); if (ep !== EPOCH || !$("#ai-p")) return;
+  if (!D) return;
+  const ep = EPOCH, slot = $("#ai-slot"); if (!slot) return;
+  const text = AI_DESCS[D.aiN % AI_DESCS.length], n = D.aiN++;
+  slot.innerHTML = `<div class="ai-box"><div class="hd">${ic("sparkle", 15)}Thryv AI <span class="concept">Concept</span><span style="margin-left:auto;font-weight:600;color:var(--ink-3)">${n ? `Version ${n % AI_DESCS.length + 1} of ${AI_DESCS.length}` : ""}</span></div><p id="ai-p"><span style="color:var(--ink-3)">Reading ${esc(S.web)} and your 48 Google reviews</span><span class="caret"></span></p><div class="ft" id="ai-ft" hidden><button class="btn btn-primary btn-sm" data-act="ai-use">${ic("check", 14, "", 2.4)}Use this</button><button class="btn btn-outline btn-sm" data-act="ai-desc">${ic("refresh", 14)}Try another</button><button class="btn btn-ghost btn-sm" data-act="ai-discard">Discard</button></div><div class="ai-src" id="ai-src" hidden>${ic("info", 13)}From your website, your categories and what reviewers mention most. Check the facts before you use it.</div></div>`;
+  await wait(900); if (ep !== EPOCH || !$("#ai-p")) return;
   const p = $("#ai-p"); p.innerHTML = `<span id="ai-t"></span><span class="caret"></span>`;
-  await typeInto($("#ai-t"), AI_DESC, 12, ep);
-  if (ep !== EPOCH || !$("#ai-p")) return;
+  await typeInto($("#ai-t"), text, 12, ep);
+  if (ep !== EPOCH || !$("#ai-p") || !D) return;
   $(".caret", p) && $(".caret", p).remove();
-  D.aiDraft = AI_DESC; $("#ai-ft").hidden = false;
+  D.aiDraft = text; $("#ai-ft").hidden = false; $("#ai-src").hidden = false;
 }
 async function typeInto(el, text, ms, ep){
   const words = text.split(" ");
@@ -1187,32 +1683,122 @@ async function typeInto(el, text, ms, ep){
   }
 }
 function saveDrawer(){
-  const l = L(); let changed = [];
-  if (D.desc !== l.desc){ const was = (l.desc || "").length < 120, now = (D.desc || "").length >= 120; l.desc = D.desc; if (was && now){ l.completion = Math.min(100, l.completion + 12); } changed.push("description"); }
-  if (JSON.stringify(D.hours) !== JSON.stringify(l.hours)){ l.hours = clone(D.hours); changed.push("hours"); }
+  const l = L(), I0 = infoOf(l), I1 = D.info;
+  /* required fields: send her back to the field instead of saving a blank */
+  const missing = ["name", "phone", "street", "city"].filter(f => !String(I1[f] || "").trim());
+  if (missing.length){
+    if (D.tab !== "info") dTab("info");
+    missing.forEach(f => { const el = $(`.fld[data-fld="${f}"]`); if (!el) return; el.classList.add("err"); if (!$(".msg", el)) el.insertAdjacentHTML("beforeend", `<span class="msg">Sites need this to show your listing.</span>`); el.classList.remove("nudge"); void el.offsetWidth; el.classList.add("nudge"); });
+    const first = $(`.fld[data-fld="${missing[0]}"] input`); first && first.focus({preventScroll:true});
+    return;
+  }
+  const changed = [];
+  if (I1.name !== I0.name){ S.biz = I1.name.trim(); changed.push("business name"); }
+  if (I1.phone !== I0.phone){ l.phone = I1.phone.trim(); changed.push("phone"); }
+  if (I1.web !== I0.web){ S.web = I1.web.trim(); changed.push("website"); }
+  if (I1.street !== I0.street || I1.city !== I0.city || I1.state !== I0.state || I1.zip !== I0.zip){ Object.assign(l, {street:I1.street.trim(), city:I1.city.trim(), state:I1.state.trim(), zip:I1.zip.trim()}); changed.push("address"); }
+  if (I1.cats !== I0.cats){ l.cats = I1.cats.split(",").map(x => x.trim()).filter(Boolean); changed.push("categories"); }
+  if ((D.desc || "") !== (l.desc || "")){ const was = (l.desc || "").length < 120, now = (D.desc || "").length >= 120; l.desc = D.desc; if (was && now){ l.completion = Math.min(100, l.completion + 12); } changed.push("description"); }
+  const hoursChanged = JSON.stringify(D.hours) !== JSON.stringify(l.hours);
+  if (hoursChanged){ l.hours = clone(D.hours); changed.push("hours"); }
   closeDrawer();
-  renderProfile(false); renderSug();
-  setTimeout(() => { syncWave(true); toast(changed.length ? `Saved. Sending your ${changed.join(" and ")} to ${live()} sites` : `Saved. Your profile is up to date on ${live()} sites`); }, 280);
+  renderProfile(true); renderSug();
+  if ((l.desc || "").length >= 120) briefRow("ai-write-desc", "Your description is complete", true);
+  const list = changed.length > 1 ? changed.slice(0, -1).join(", ") + " and " + changed[changed.length - 1] : changed[0];
+  setTimeout(() => {
+    syncWave(true);
+    toast(changed.length ? `Saved. Sending your ${list} to ${live()} sites` : `No changes. Your profile is up to date on ${live()} sites`);
+    if (hoursChanged) setTimeout(() => toast("Let followers know about the new hours?", "sparkle", {label:"Draft a post", act:"nudge-post"}), 900);
+  }, 280);
+}
+/* a short sentence about any day whose hours differ from the usual week */
+function hoursCaption(){
+  const base = HOURS(), h = L().hours, short = m => fmt(m).replace(":00", "");
+  const say = a => !a.on ? "closed" : `${short(a.o)} to ${short(a.c)}${a.b ? `, closed ${short(a.b[0])} to ${short(a.b[1])} for lunch` : ""}`;
+  /* runs of changed days that share the same hours read as one line: "Monday to Friday" */
+  const runs = [];
+  DAYS.forEach(([k, name], i) => {
+    if (JSON.stringify(h[k]) === JSON.stringify(base[k])) return;
+    const last = runs[runs.length - 1], text = say(h[k]);
+    if (last && last.text === text && last.end === i - 1){ last.end = i; last.to = name; }
+    else runs.push({text, start:i, end:i, from:name, to:name});
+  });
+  const lines = runs.map(r => `${r.from}${r.end > r.start ? (r.end - r.start > 1 ? " to " : " and ") + r.to : ""}: ${r.text}`);
+  const where = L().label.replace(" (HQ)", "");
+  return lines.length ? `New hours at our ${where} office. ${lines.join(". ")}. Call ${L().phone} to book a free inspection.` : `We're open Saturdays from 8 AM to 2 PM at all three locations. Stop by or call ${L().phone} to book a free inspection.`;
 }
 
 /* -----------------------------------------------------------------
-   Thryv AI panel (scripted, no model behind it)
+   Thryv AI panel (scripted, no model behind it). It reads the screen
+   she is on, so the brief, the prompts and the answers follow her.
    ----------------------------------------------------------------- */
-const PROMPTS = [
-  ["fix", "What should I fix first?"],
-  ["issues", "Which listings have issues?"],
-  ["reply", "Draft a reply to my worst recent review"]
-];
+function aiState(){
+  const rows = rowsOf(), so = S.social;
+  return {
+    iss: rows.filter(r => r.st === "issue"), nc: rows.filter(r => r.st === "not"),
+    shortDesc: (L().desc || "").length < 120,
+    waiting: waitingC(), failed: so.posts.find(p => p.st === "failed"),
+    sched: so.posts.filter(p => p.st === "scheduled").sort((a, b) => a.d - b.d || a.t - b.t)
+  };
+}
+function promptsFor(){
+  const a = aiState();
+  if (S.page === "social") return [
+    a.waiting.length && ["comments", "Help me reply to comments"],
+    a.failed && ["failed", "Why didn't my Instagram post go out?"],
+    ["post", "Draft a post for next week"],
+    ["when", "When should I post?"]
+  ].filter(Boolean).slice(0, 4);
+  return [
+    a.iss.length && ["fix", "What should I fix first?"],
+    a.nc.length && ["connect", "Get me on more sites"],
+    a.shortDesc && ["desc", "Write my business description"],
+    ["hours", "Add a lunch break on weekdays"],
+    ["reply", "Draft a reply to my worst recent review"]
+  ].filter(Boolean).slice(0, 4);
+}
+const P_ICON = {fix:"bulb", issues:"alert", connect:"link", desc:"edit", hours:"clock", reply:"star", comments:"chat", failed:"alert", post:"edit", when:"calendar"};
+const promptsHTML = () => `<div class="prompts">${promptsFor().map(([k, t], i) => `<button class="prompt" data-act="ai-q" data-k="${k}" data-t="${esc(t)}" style="animation:msgIn .4s var(--ease-out) both;animation-delay:${300 + i * 70}ms">${ic(P_ICON[k] || "sparkle", 16)}${t}</button>`).join("")}</div>`;
+function briefHTML(){
+  const a = aiState(), items = [];
+  let head;
+  if (S.page === "social"){
+    head = `${ic("social", 14)}Social right now`;
+    const q = a.waiting.filter(c => c.q).length;
+    if (a.waiting.length) items.push(["var(--brand)", `${a.waiting.length} ${plural(a.waiting.length, "comment")} waiting for a reply${q ? `. ${q === 1 ? "One is a question" : q + " are questions"}` : ""}`, "Reply", `data-act="ai-comments"`]);
+    if (a.failed) items.push(["var(--bad)", `Instagram skipped your ${mdy(a.failed.d)} post because it had no image`, "Fix", `data-act="post-fix" data-id="${a.failed.id}"`]);
+    const last = a.sched[a.sched.length - 1];
+    items.push(["#1D5FA8", a.sched.length ? `${a.sched.length} ${plural(a.sched.length, "post")} scheduled. Nothing after ${mdy(last.d)}` : "Nothing is scheduled yet", "Draft one", `data-act="ai-draft-post"`]);
+  } else {
+    head = `${ic("pin", 14)}${esc(S.biz)} · ${esc(L().label)} today`;
+    if (a.iss.length) items.push(["var(--bad)", `${a.iss.length} ${plural(a.iss.length, "listing shows", "listings show")} the wrong information`, "Review", `data-act="ai-review" data-id="${a.iss[0].id}"`]);
+    if (a.nc.length) items.push(["var(--warn)", `${a.nc.length} ${plural(a.nc.length, "site doesn't", "sites don't")} list you yet`, "Connect", `data-act="connect-review"`]);
+    if (a.shortDesc) items.push(["var(--off)", "Your description is too short for some sites", "Write it", `data-act="ai-write-desc"`]);
+    if (!items.length) items.push(["var(--ok)", `All ${live()} connected sites match your profile`, "", ""]);
+  }
+  return `<div class="brief"><div class="bh">${head}</div>${items.map((x, i) => `<div class="brow" style="--i:${i}"><span class="sdot" style="background:${x[0]}"></span><span class="tx">${x[1]}</span>${x[2] ? `<button class="btn btn-outline btn-sm" ${x[3]}>${x[2]}</button>` : ""}</div>`).join("")}</div>`;
+}
+const ctxKey = () => S.page === "social" ? "social" : "listings:" + S.loc;
 function aiOpen(on = !S.ai.open){
   S.ai.open = on;
   $("#aip").classList.toggle("on", on);
   $("#ask-btn").classList.toggle("on", on);
-  if (on && !S.ai.started){
-    S.ai.started = true;
-    const b = $("#aip-b");
-    b.innerHTML = `<div class="msg bot">Hi Dana. I can check your listings across every site and draft fixes or review replies. Nothing goes out until you approve it.</div><div class="prompts" id="prompts">${PROMPTS.map(([k, t]) => `<button class="prompt" data-act="ai-q" data-k="${k}">${ic(k === "reply" ? "chat" : k === "issues" ? "alert" : "bulb", 16)}${t}</button>`).join("")}</div>`;
-  }
-  if (on) setTimeout(() => $("#ask-q").focus({preventScroll:true}), 350);
+  $("#ask-btn").setAttribute("aria-expanded", on);
+  $("#body").classList.toggle("ai-on", on);
+  if (on){ aiContext(); setTimeout(() => $("#ask-q").focus({preventScroll:true}), 350); }
+}
+/* first open: a brief of what needs her. Later, when she changes screen or location, a divider and a fresh brief */
+function aiContext(){
+  if (!S.ai.open) return;
+  const key = ctxKey(); if (S.ai.ctx === key) return;
+  const b = $("#aip-b"), first = !S.ai.started;
+  S.ai.started = true; S.ai.ctx = key;
+  $$("#aip-b .prompts").forEach(p => p.remove());
+  if (first) b.insertAdjacentHTML("beforeend", `<div class="msg bot">Hi Dana. Here's what needs you right now. I draft, you approve, and nothing goes out without you.</div>`);
+  else b.insertAdjacentHTML("beforeend", `<div class="aidiv">${S.page === "social" ? "Now on Social" : "Now on " + esc(L().label)}</div>`);
+  b.insertAdjacentHTML("beforeend", briefHTML() + promptsHTML());
+  $("#ask-q").placeholder = S.page === "social" ? "Ask about your posts or comments" : "Ask about your listings or reviews";
+  b.scrollTop = b.scrollHeight;
 }
 function addMsg(html, cls = "bot"){ const b = $("#aip-b"); b.insertAdjacentHTML("beforeend", `<div class="msg ${cls}">${html}</div>`); b.scrollTop = b.scrollHeight; return b.lastElementChild; }
 function addCard(html){ const b = $("#aip-b"); b.insertAdjacentHTML("beforeend", html); hydrateIcons(b); b.scrollTop = b.scrollHeight; return b.lastElementChild; }
@@ -1223,46 +1809,562 @@ async function botSay(text, ep){
   $(".dots", b) && $(".dots", b).remove();
   const m = addMsg("", "bot"); await typeInto(m, text, 22, ep); return m;
 }
+/* types into a textarea word by word, keeping line breaks */
+async function typeTA(ta, text, ms, ep, onStep){
+  const parts = text.split(/(\s+)/);
+  ta.value = "";
+  for (const w of parts){
+    if (ep !== EPOCH || !ta.isConnected) return;
+    ta.value += w; onStep && onStep(ta.value); ta.scrollTop = ta.scrollHeight;
+    if (w.trim()) await wait(ms + (/[.!?]$/.test(w) ? ms * 5 : 0));
+  }
+}
 function classify(q){
   q = q.toLowerCase();
-  if (/repl|review|respond/.test(q)) return "reply";
-  if (/which|issue|wrong|problem|list/.test(q)) return "issues";
+  if (/comment/.test(q)) return "comments";
+  if (/review|repl|respond/.test(q)) return "reply";
+  if (/(fail|didn.?t|did not|why).*(post|instagram|go out)|(instagram|post).*(fail|didn.?t|missing|skip)/.test(q)) return "failed";
+  if (/when.*post|best time|what time/.test(q)) return "when";
+  if (/post|caption|social|facebook|instagram|announce/.test(q)) return "post";
+  if (/hour|open|close|lunch|break|saturday|sunday|weekend/.test(q)) return "hours";
+  if (/descri|about us|\bbio\b/.test(q)) return "desc";
+  if (/connect|more sites|get listed|director/.test(q)) return "connect";
+  if (/which|issue|wrong|problem|mismatch/.test(q)) return "issues";
   if (/fix|first|start|priorit|improv/.test(q)) return "fix";
+  if (/how am i|summary|overview|status|doing|today/.test(q)) return "brief";
   return "other";
 }
+const irowHTML = (r, withView) => `<div class="irow" data-id="${r.id}"><span class="tile" style="background:${SITE[r.id].bg};color:${SITE[r.id].fg};width:26px;height:26px;font-size:11px">${SITE[r.id].t}</span><span class="tx"><b>${SITE[r.id].name}</b><span>${issueFields(r.id).map(x => x[0]).join(", ")}</span></span><span class="state">${withView ? `<button class="btn btn-outline btn-sm" data-act="issue" data-id="${r.id}">View</button>` : ""}</span></div>`;
+const replyText = v => REPLY[v].replace("{phone}", L().phone);
+function firstWaiting(){ const w = waitingC(); return (w.find(c => c.q) || w[0] || {}).id; }
 async function ask(k, text){
   const ep = EPOCH;
-  $("#prompts") && $("#prompts").remove();
-  addMsg(esc(text || PROMPTS.find(p => p[0] === k)[1]), "me");
-  const iss = rowsOf().filter(r => r.st === "issue"), nc = rowsOf().filter(r => r.st === "not");
+  $$("#aip-b .prompts").forEach(p => p.remove());
+  addMsg(esc(text || k), "me");
+  const a = aiState();
   if (k === "fix"){
-    if (iss.length){
-      const first = iss[0], f = issueFields(first.id);
-      const m = await botSay(`Start with the ${iss.length === 1 ? "listing" : iss.length + " listings"} showing the wrong information. ${SITE[first.id].name} doesn't match your profile on ${f.map(x => /day/.test(x[0]) ? x[0] : x[0].toLowerCase()).join(", ").replace(/, ([^,]*)$/, " and $1")}. People see that today, so it costs you calls. Connecting new sites can wait until these are right.`, ep);
+    if (a.iss.length){
+      const first = a.iss[0], f = issueFields(first.id);
+      const m = await botSay(`Start with the ${a.iss.length === 1 ? "listing" : a.iss.length + " listings"} showing the wrong information. ${SITE[first.id].name} doesn't match your profile on ${f.map(x => /day/.test(x[0]) ? x[0] : x[0].toLowerCase()).join(", ").replace(/, ([^,]*)$/, " and $1")}. People see that today, so it costs you calls. I'll walk you through ${a.iss.length === 1 ? "it" : "each one"}.`, ep);
       if (!m || ep !== EPOCH) return;
-      addCard(`<div class="acard"><div class="ah">${ic("alert", 14)}${iss.length} ${plural(iss.length, "listing")} to fix</div><div class="ab">${iss.map(r => `<div class="irow"><span class="tile" style="background:${SITE[r.id].bg};color:${SITE[r.id].fg};width:26px;height:26px;font-size:11px">${SITE[r.id].t}</span><span class="tx"><b>${SITE[r.id].name}</b><span>${issueFields(r.id).map(x => x[0]).join(", ")}</span></span></div>`).join("")}</div><div class="af"><button class="btn btn-primary btn-sm" data-act="ai-review" data-id="${first.id}">${ic("sparkle", 14)}Review fixes</button><button class="btn btn-outline btn-sm" data-act="ai-dismiss">Not now</button></div></div>`);
-    } else if (nc.length){
-      const m = await botSay(`Nothing is wrong on the sites that list you. Next I'd get you onto the ${nc.length} ${plural(nc.length, "site")} that don't show you yet. It's the same profile, sent once.`, ep);
+      addCard(`<div class="acard"><div class="ah">${ic("alert", 14)}${a.iss.length} ${plural(a.iss.length, "listing")} to fix</div><div class="ab">${a.iss.map(r => irowHTML(r, false)).join("")}</div><div class="af"><button class="btn btn-primary btn-sm" data-act="ai-review" data-id="${first.id}">${ic("sparkle", 14)}Review fixes</button><button class="btn btn-outline btn-sm" data-act="ai-dismiss">Not now</button></div></div>`);
+    } else if (a.nc.length){
+      const m = await botSay(`Nothing is wrong on the sites that list you. Next I'd get you onto the ${a.nc.length} ${plural(a.nc.length, "site")} that don't show you yet. It's the same profile, sent once.`, ep);
       if (!m || ep !== EPOCH) return;
-      addCard(`<div class="acard"><div class="ah">${ic("link", 14)}${nc.length} ${plural(nc.length, "site")} to connect</div><div class="ab">${nc.map(r => SITE[r.id].name).join(", ")}</div><div class="af"><button class="btn btn-primary btn-sm" data-act="connect-all">Connect ${nc.length}</button><button class="btn btn-outline btn-sm" data-act="ai-dismiss">Not now</button></div></div>`);
-    } else await botSay("Everything looks right for this location. I'll tell you if a site changes your information.", ep);
+      addCard(`<div class="acard"><div class="ah">${ic("link", 14)}${a.nc.length} ${plural(a.nc.length, "site")} to connect</div><div class="ab">${a.nc.map(r => SITE[r.id].name).join(", ")}</div><div class="af"><button class="btn btn-primary btn-sm" data-act="connect-review">Review and connect</button><button class="btn btn-outline btn-sm" data-act="ai-dismiss">Not now</button></div></div>`);
+    } else await botSay(`Everything looks right for ${L().label}. I'll tell you if a site changes your information.`, ep);
   } else if (k === "issues"){
-    if (!iss.length){ await botSay(`None right now. All ${live()} connected sites match your ${L().label} profile.`, ep); return; }
-    const m = await botSay(`${iss.length} ${plural(iss.length, "listing has", "listings have")} information that doesn't match your profile for ${L().label}.`, ep);
+    if (!a.iss.length){ await botSay(`None right now. All ${live()} connected sites match your ${L().label} profile.`, ep); return; }
+    const m = await botSay(`${a.iss.length} ${plural(a.iss.length, "listing has", "listings have")} information that doesn't match your profile for ${L().label}.`, ep);
     if (!m || ep !== EPOCH) return;
-    addCard(`<div class="acard"><div class="ab">${iss.map(r => `<div class="irow"><span class="tile" style="background:${SITE[r.id].bg};color:${SITE[r.id].fg};width:26px;height:26px;font-size:11px">${SITE[r.id].t}</span><span class="tx"><b>${SITE[r.id].name}</b><span>${issueFields(r.id).map(x => x[0]).join(", ")}</span></span><button class="btn btn-outline btn-sm" data-act="issue" data-id="${r.id}">View</button></div>`).join("")}</div></div>`);
+    addCard(`<div class="acard"><div class="ab">${a.iss.map(r => irowHTML(r, true)).join("")}</div></div>`);
+  } else if (k === "connect"){
+    if (!a.nc.length){ await botSay("You're already on every site we support for this location.", ep); return; }
+    const m = await botSay(`${a.nc.length} ${plural(a.nc.length, "site doesn't", "sites don't")} show ${S.biz} ${L().label} yet. I'll send the same profile to each one, and you can skip any of them.`, ep);
+    if (!m || ep !== EPOCH) return;
+    addCard(`<div class="acard"><div class="ah">${ic("link", 14)}Not listed yet</div><div class="ab">${a.nc.map(r => SITE[r.id].name).join(", ")}</div><div class="af"><button class="btn btn-primary btn-sm" data-act="connect-review">Review and connect</button></div></div>`);
+  } else if (k === "desc"){
+    const m = await botSay("I'll write one from your website and what reviewers mention most. Pick a version you like and edit it before anything is sent.", ep);
+    if (!m || ep !== EPOCH) return;
+    openDrawer("desc"); setTimeout(aiDesc, 450);
+  } else if (k === "hours"){
+    const m = await botSay("I added a 12 to 1 PM break Monday through Friday. Check it, then save to send it to every connected site.", ep);
+    if (!m || ep !== EPOCH) return;
+    aiHours();
   } else if (k === "reply"){
     const m = await botSay("Here's your lowest recent review, from Google, and a reply you can post. Change anything you like before you approve it.", ep);
     if (!m || ep !== EPOCH) return;
-    addCard(`<div class="acard" id="reply-card"><div class="ah">${ic("chat", 14)}Draft reply</div><div class="ab">
+    addCard(`<div class="acard" id="reply-card"><div class="ah">${ic("chat", 14)}Draft reply<span class="concept" style="margin-left:auto">Concept</span></div><div class="ab">
       <div class="rv"><div class="who">Alex M. <span class="stars">★<span class="off">★★★★</span></span><span style="font-weight:400;color:var(--ink-3);margin-left:auto">Google · 3 days ago</span></div>They fixed the leak fast, but left nails all over my driveway. I found three in my tire the next week.</div>
-      <textarea aria-label="Reply to Alex M.">Hi Alex, thank you for telling us, and I'm sorry about the nails. That's not how we leave a job. I'd like to cover the tire repair and send our crew lead back to sweep your driveway with a magnet. Please call me at ${L().phone} so we can set a time.\n\nDana, Ridgeline Roofing</textarea></div>
+      <textarea aria-label="Reply to Alex M.">${esc(replyText("base"))}</textarea>
+      <div class="tones" role="group" aria-label="Rewrite the reply"><button class="topic" data-act="ai-tone" data-v="shorter" aria-pressed="false">Shorter</button><button class="topic" data-act="ai-tone" data-v="warmer" aria-pressed="false">Warmer</button><button class="topic" data-act="ai-tone" data-v="formal" aria-pressed="false">More formal</button></div>
+      <div class="ai-src">${ic("info", 13)}Uses the review and the phone number on your profile.</div></div>
       <div class="af"><button class="btn btn-primary btn-sm" data-act="ai-post">${ic("check", 14, "", 2.4)}Approve and post</button><button class="btn btn-outline btn-sm" data-act="ai-dismiss">Not now</button></div></div>`);
-  } else {
-    const m = await botSay("I can help with your listings, your reviews and your business profile. Try one of these.", ep);
+  } else if (k === "comments"){
+    const w = a.waiting;
+    if (!w.length){ await botSay("You're all caught up. There are no comments waiting.", ep); return; }
+    const first = w.find(c => c.q) || w[0];
+    const m = await botSay(`${w.length} ${plural(w.length, "comment is", "comments are")} waiting. ${first.q ? `${first.who} asked a question, so I'd answer that one first.` : ""} I drafted a reply for you to check.`, ep);
     if (!m || ep !== EPOCH) return;
-    addCard(`<div class="prompts" id="prompts">${PROMPTS.map(([k2, t]) => `<button class="prompt" data-act="ai-q" data-k="${k2}">${ic("sparkle", 15)}${t}</button>`).join("")}</div>`);
+    if (S.page !== "social") goPage("social");
+    setTimeout(() => openComments({draft:first.id}), 350);
+  } else if (k === "failed"){
+    if (!a.failed){ await botSay("All your recent posts went out. Nothing failed.", ep); return; }
+    const m = await botSay(`Instagram only takes posts with an image or video, so it skipped this one. Facebook posted it on ${wdy(a.failed.d)}. Add a photo and I'll send it to Instagram only, so nobody on Facebook sees it twice.`, ep);
+    if (!m || ep !== EPOCH) return;
+    addCard(`<div class="acard"><div class="ah">${ic("alert", 14)}Skipped on Instagram</div><div class="ab" style="font-size:12.5px;color:var(--ink-2)">${esc(a.failed.text.split(" ").slice(0, 12).join(" "))}&hellip;</div><div class="af"><button class="btn btn-primary btn-sm" data-act="post-fix" data-id="${a.failed.id}">Fix and repost</button></div></div>`);
+  } else if (k === "post"){
+    const d = nextDow(2);
+    const m = await botSay(`Here's a post for ${wdy(d)} at 7:00 PM, when your posts reach the most people. Your tile roof post got the most likes this month, so I'd show another finished job.`, ep);
+    if (!m || ep !== EPOCH) return;
+    if (S.page !== "social") goPage("social");
+    setTimeout(() => { openCompose({when:"schedule", d, t:1140}); setTimeout(() => aiCompose("before"), 450); }, 300);
+  } else if (k === "when"){
+    await botSay("Your posts reach the most people on Tuesday and Thursday evenings, between 6 and 8 PM. Saturday mornings come next. I'll suggest those times when you schedule a post.", ep);
+  } else if (k === "brief"){
+    const m = await botSay("Here's where things stand.", ep);
+    if (!m || ep !== EPOCH) return;
+    addCard(briefHTML());
+  } else {
+    const m = await botSay("I can help with your listings, your reviews, your business profile and your social posts. Try one of these.", ep);
+    if (!m || ep !== EPOCH) return;
+    addCard(promptsHTML());
   }
+}
+async function aiTone(btn){
+  const ep = EPOCH, card = $("#reply-card"), ta = card && $("textarea", card);
+  if (!ta || ta.readOnly) return;
+  const on = btn.getAttribute("aria-pressed") === "true", key = on ? "base" : btn.dataset.v;
+  $$(".tones .topic", card).forEach(b => { b.setAttribute("aria-pressed", b === btn && !on); b.disabled = true; });
+  ta.classList.add("gen"); ta.readOnly = true;
+  await wait(450); if (ep !== EPOCH || !ta.isConnected) return;
+  await typeTA(ta, replyText(key), 8, ep);
+  ta.classList.remove("gen"); ta.readOnly = false;
+  $$(".tones .topic", card).forEach(b => b.disabled = false);
+}
+async function aiHours(){
+  const ep = EPOCH;
+  openDrawer("hours");
+  await wait(550);
+  for (const k of ["mon", "tue", "wed", "thu", "fri"]){
+    if (ep !== EPOCH || !D) return;
+    const d = D.hours[k]; if (!d.on) continue;
+    if (d.o + 30 <= 720 && 780 <= d.c - 30) d.b = [720, 780];
+    redrawDay(k, true);
+    const el = $(`.hday[data-day="${k}"]`); el && el.classList.add("flash");
+    await wait(170);
+  }
+}
+
+/* -----------------------------------------------------------------
+   Pages: Listings and Social
+   ----------------------------------------------------------------- */
+function placeNav(){
+  const on = $(".side .nav-i.on"), ind = $("#nav-ind"); if (!on || !ind) return;
+  ind.style.height = on.offsetHeight + "px"; ind.style.transform = `translateY(${on.offsetTop}px)`;
+}
+function placeKnob2(seg){
+  if (!seg) return;
+  const on = $('button[aria-pressed="true"]', seg), k = $(".knob", seg); if (!on || !k) return;
+  k.style.width = on.offsetWidth + "px"; k.style.transform = `translateX(${on.offsetLeft}px)`;
+}
+function goPage(p){
+  if (S.page === p) return;
+  closePop();
+  $$(".side .nav-i[data-page]").forEach(b => { const on = b.dataset.page === p; b.classList.toggle("on", on); on ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"); });
+  placeNav();
+  /* switched right away, not inside a view transition, so anything that opens next sees the new page.
+     The page slides in with .enter and its rows, cards and counters run their own entrance motion. */
+  S.page = p;
+  $("#page").hidden = p !== "listings"; $("#page-social").hidden = p !== "social";
+  if (p === "social") renderSocial(true); else { S.compW = 0; S.healthW = 0; renderAll(true); }
+  const pg = p === "social" ? $("#page-social") : $("#page");
+  pg.classList.remove("enter"); void pg.offsetWidth; pg.classList.add("enter");
+  setTitle(pageTitle());
+  $("#main").scrollTop = 0;
+  aiContext();
+}
+
+/* -----------------------------------------------------------------
+   Social
+   ----------------------------------------------------------------- */
+const TODAY = (() => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); })();
+const dayDate = d => new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate() + d);
+const mdy = d => dayDate(d).toLocaleDateString("en-US", {month:"short", day:"numeric"});
+const wdy = d => dayDate(d).toLocaleDateString("en-US", {weekday:"short", month:"short", day:"numeric"});
+const fmtDay = d => d === 0 ? "Today" : d === 1 ? "Tomorrow" : d === -1 ? "Yesterday" : wdy(d);
+const nextDow = (dow, min = 1) => { for (let d = min; d < min + 7; d++) if (dayDate(d).getDay() === dow) return d; return min; };
+const nowMin = () => { const n = new Date(); return n.getHours() * 60 + n.getMinutes(); };
+const waitingC = () => S.social.comments.filter(c => !c.done && !c.hidden);
+const netList = nets => { const a = NET_ORDER.filter(n => nets.has ? nets.has(n) : nets.includes(n)).map(n => NETS[n].name); return a.length > 1 ? a.slice(0, -1).join(", ") + " and " + a[a.length - 1] : a[0] || ""; };
+let ART_N = 0;
+/* small house illustrations stand in for photos */
+function art(id){
+  const m = MEDIA.find(x => x.id === id); if (!m) return "";
+  const g = "sky" + (++ART_N);
+  return `<svg viewBox="0 0 160 160" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="${g}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${m.sky[0]}"/><stop offset="1" stop-color="${m.sky[1]}"/></linearGradient></defs><rect width="160" height="160" fill="url(#${g})"/>${m.sun ? `<circle cx="124" cy="36" r="13" fill="#FFE29A"/>` : ""}${m.rain ? `<path d="M30 20l-6 14M60 14l-6 14M92 22l-6 14M124 12l-6 14M144 30l-6 14" stroke="rgba(255,255,255,.6)" stroke-width="2.5" stroke-linecap="round"/>` : ""}<rect y="126" width="160" height="34" fill="#C9D3BE"/><rect x="38" y="86" width="84" height="44" fill="${m.wall}"/><path d="M26 90 80 50l54 40Z" fill="${m.roof}"/><path d="M40 80h80M52 71h56M64 62h32" stroke="rgba(255,255,255,.28)" stroke-width="2"/><rect x="72" y="104" width="16" height="26" fill="#8A5A3B"/><rect x="46" y="98" width="16" height="12" fill="#BFD8EE"/><rect x="98" y="98" width="16" height="12" fill="#BFD8EE"/>${m.split ? `<rect x="80" width="80" height="160" fill="rgba(255,255,255,.16)"/><path d="M80 0v160" stroke="#fff" stroke-width="2"/>` : ""}</svg>`;
+}
+const ACCTS = () => [
+  {net:"facebook", label:"Facebook", sub:"1,208 followers", on:true},
+  {net:"instagram", label:"Instagram", sub:"ridgeline.roofing.demo", on:true},
+  {net:"google", label:"Google Business Profile", sub:"Posts to all 3 locations", on:true},
+  {net:"nextdoor", label:"Nextdoor", sub:S.social.nextdoor ? "Posts to nearby neighbors" : "Not connected", on:S.social.nextdoor}
+];
+function acctHTML(a, i, anim){
+  const n = NETS[a.net];
+  return `<div class="acct ${a.on ? "" : "off"} ${anim ? "in" : ""}" style="--i:${i}" id="acct-${a.net}"><span class="tile" style="background:${n.bg};color:${n.fg}">${n.t}</span><span><b>${a.label}</b><small>${esc(a.sub)}</small></span>${a.on ? `<span class="lv" title="Connected"></span>` : `<button class="btn btn-outline btn-sm" data-act="nd-connect">${ic("link", 14)}Connect</button>`}</div>`;
+}
+const SPARK = {reach:[120,180,150,220,260,210,300,280,340,320,390,420], eng:[10,14,12,18,22,17,25,21,30,27,33,36], fol:[1167,1170,1174,1180,1183,1189,1192,1196,1199,1203,1205,1208]};
+function spark(data){
+  const mn = Math.min(...data), mx = Math.max(...data), W = 120, H = 28;
+  const d = data.map((v, i) => `${i ? "L" : "M"}${(i / (data.length - 1) * W).toFixed(1)} ${(H - 3 - (v - mn) / (mx - mn || 1) * (H - 6)).toFixed(1)}`).join("");
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><path d="${d}L${W} ${H}L0 ${H}Z" fill="rgba(194,65,12,.08)"/><path d="${d}" fill="none" stroke="var(--brand)" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linejoin="round"/></svg>`;
+}
+function kpisHTML(w){
+  return `<div class="card kpi" style="--i:0"><span class="k">${ic("eye", 14)}Reach, last 30 days</span><span class="v" data-to="4820">4,820</span><span class="d"><span class="up">+12%</span> on the month before</span>${spark(SPARK.reach)}</div>
+  <div class="card kpi" style="--i:1"><span class="k">${ic("heart", 14)}Engagement</span><span class="v" data-to="386">386</span><span class="d"><span class="up">+8%</span> likes, comments and shares</span>${spark(SPARK.eng)}</div>
+  <div class="card kpi" style="--i:2"><span class="k">${ic("users", 14)}Followers</span><span class="v" data-to="1208">1,208</span><span class="d"><span class="up">+41</span> this month</span>${spark(SPARK.fol)}</div>
+  <div class="card kpi" style="--i:3"><span class="k">${ic("chat", 14)}Comments waiting</span><span class="v" id="kpi-w">${w}</span><span class="d" id="kpi-wd">${w ? "The oldest is from yesterday" : "You're all caught up"}</span>${w ? `<button class="btn btn-brand-o btn-sm" data-act="comments" style="margin-top:10px">Reply now</button>` : ""}</div>`;
+}
+function countUp(root){
+  $$("[data-to]", root).forEach(el => {
+    const to = +el.dataset.to;
+    if (RM){ el.textContent = to.toLocaleString(); return; }
+    const t0 = performance.now(), dur = 950;
+    const step = now => { const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(to * e).toLocaleString(); if (k < 1) requestAnimationFrame(step); };
+    el.textContent = "0"; requestAnimationFrame(step);
+    setTimeout(() => { el.textContent = to.toLocaleString(); }, dur + 400);
+  });
+}
+const legendHTML = () => `<span><span class="sdot" style="background:var(--ok)"></span>Published</span><span><span class="sdot" style="background:#1D5FA8"></span>Scheduled</span><span><span class="sdot" style="background:var(--bad)"></span>Needs attention</span>`;
+function failedAlert(){
+  const failed = S.social.posts.find(p => p.st === "failed");
+  if (!failed) return "";
+  return `<div class="clp" id="alert-clp"><div><div class="alertbar" role="status">${ic("alert", 18)}<span><b>Instagram skipped your ${mdy(failed.d)} post.</b> It went out on Facebook, but Instagram needs an image.</span><span class="grow"></span><button class="btn btn-outline btn-sm" data-act="post-fix" data-id="${failed.id}">Fix and repost</button></div></div></div>`;
+}
+function renderSocial(anim){
+  const so = S.social, w = waitingC().length, cal = so.view === "cal";
+  $("#page-social").innerHTML = `
+    <div class="page-h"><div><h1>Social</h1><span class="sub">${esc(S.biz)} · one feed for all three locations</span></div><span class="grow"></span>
+      <button class="btn btn-outline" data-act="comments">${ic("chat", 16)}Comments<span class="cnt-b ${w ? "" : "zero"}" id="cm-n">${w}</span></button>
+      <button class="btn btn-primary" data-act="compose">${ic("plus", 16)}Create post</button></div>
+    <div class="accts">${ACCTS().map((a, i) => acctHTML(a, i, anim)).join("")}</div>
+    ${failedAlert()}
+    <div class="kpis">${kpisHTML(w)}</div>
+    <section class="card" aria-label="Posts">
+      <div class="ptop"><h2 class="ph2">Posts</h2><span class="grow"></span>
+        <div class="vseg" id="pview" role="group" aria-label="View"><span class="knob"></span><button data-act="pview" data-v="list" aria-pressed="${!cal}">${ic("list", 15)}List</button><button data-act="pview" data-v="cal" aria-pressed="${cal}">${ic("calendar", 15)}Calendar</button></div></div>
+      <div class="pfil"><div class="chips" id="pchips" role="group" aria-label="Filter posts" ${cal ? "hidden" : ""}></div><div class="legend" id="plegend" ${cal ? "" : "hidden"}>${legendHTML()}</div></div>
+      <div id="pbody"></div>
+    </section>`;
+  renderPChips(); renderPosts(anim);
+  requestAnimationFrame(() => placeKnob2($("#pview")));
+  if (anim) countUp($("#page-social"));
+}
+const PCHIP = [["all","All posts","list",""],["scheduled","Scheduled","clock","sched"],["published","Published","checkCircle","ok"],["draft","Drafts","edit","off"],["failed","Needs attention","alert","bad"]];
+let lastP = {};
+function renderPChips(){
+  const so = S.social, n = {all:so.posts.length}, box = $("#pchips"); if (!box) return;
+  PCHIP.slice(1).forEach(([k]) => n[k] = so.posts.filter(p => p.st === k).length);
+  box.innerHTML = PCHIP.filter(([k]) => k !== "failed" || n.failed || so.filter === "failed").map(([k, label, icon, tone]) => `<button class="chip ${tone}" data-act="pfilter" data-k="${k}" aria-pressed="${so.filter === k}">${ic(icon, 15)}${label}<span class="cnt ${lastP[k] !== undefined && lastP[k] !== n[k] ? "bump" : ""}">${n[k]}</span></button>`).join("");
+  lastP = n;
+}
+const GROUPS = [["failed","Needs attention"],["scheduled","Coming up"],["draft","Drafts"],["published","Published"]];
+function sortedPosts(st){
+  const ps = S.social.posts.filter(p => p.st === st);
+  return st === "scheduled" ? ps.sort((a, b) => a.d - b.d || a.t - b.t) : st === "draft" ? ps : ps.sort((a, b) => b.d - a.d || b.t - a.t);
+}
+function renderPosts(anim, dir){
+  const so = S.social, box = $("#pbody"); if (!box) return;
+  if (so.view === "cal"){ box.innerHTML = calHTML(dir); return; }
+  let i = 0, html = "";
+  for (const [st, label] of GROUPS){
+    if (so.filter !== "all" && so.filter !== st) continue;
+    const ps = sortedPosts(st); if (!ps.length) continue;
+    html += `<div class="pgrp" style="view-transition-name:grp-${st}">${label}</div>` + ps.map(p => postRow(p, i++, anim)).join("");
+  }
+  box.innerHTML = html || `<div class="empty">${ic(so.filter === "failed" ? "checkCircle" : "edit", 24)}<p>${so.filter === "failed" ? "Every post went out." : "No posts here yet."}</p>${so.filter === "all" ? `<button class="btn btn-outline btn-sm" data-act="compose">Create a post</button>` : `<button class="btn btn-outline btn-sm" data-act="pfilter" data-k="all">Show all posts</button>`}</div>`;
+}
+function postRow(p, i, anim){
+  const nets = `<span class="nets">${p.nets.map(n => `<span class="tile ${p.fail === n ? "bad" : ""}" style="background:${NETS[n].bg};color:${NETS[n].fg}" title="${NETS[n].name}${p.fail === n ? " didn't post this" : ""}">${NETS[n].t}</span>`).join("")}</span>`;
+  const when = p.d == null ? "No date yet" : `${fmtDay(p.d)} · ${fmt(p.t)}`;
+  const st = {
+    published:["Published", "checkCircle", `${(p.reach || 0).toLocaleString()} reached · ${p.likes || 0} likes`],
+    scheduled:["Scheduled", "clock", p.d === 0 ? "Goes out today" : p.d === 1 ? "Goes out tomorrow" : `Goes out in ${p.d} days`],
+    draft:["Draft", "edit", "Not scheduled"],
+    failed:["Needs attention", "alert", `${p.fail ? NETS[p.fail].name : "One site"} needs an image`]
+  }[p.st];
+  const act = p.st === "published" ? `<button class="view-l" data-act="post-view" data-id="${p.id}">${ic("eye", 15)}Results</button>`
+    : p.st === "failed" ? `<button class="btn btn-brand-o btn-sm" data-act="post-fix" data-id="${p.id}">Fix</button>`
+    : `<button class="btn btn-outline btn-sm" data-act="post-edit" data-id="${p.id}">${ic("edit", 14)}Edit</button>`;
+  return `<div class="prow ${anim ? "in" : ""}" id="post-${p.id}" style="--i:${i};view-transition-name:post-${p.id}">
+    <span class="thumb">${p.m ? art(p.m) : ic("chat", 20)}</span>
+    <div style="min-width:0"><div class="cap">${esc(p.text)}</div><div class="pmeta">${nets}<span>${when}</span></div></div>
+    <div><span class="st ${p.st}">${ic(st[1], 16)}<span>${st[0]}<small>${st[2]}</small></span></span></div>
+    <div class="acts">${act}<button class="more" data-act="pmenu" data-id="${p.id}" aria-label="More actions for this post" aria-haspopup="menu" aria-expanded="false">${ic("more", 18)}</button></div>
+  </div>`;
+}
+function calHTML(dir){
+  const so = S.social, s0 = so.calStart, days = [];
+  for (let k = 0; k < 35; k++) days.push(s0 + k);
+  const dn = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  return `<div class="cal"><div class="cal-h"><b>${mdy(s0)} to ${mdy(s0 + 34)}</b><button class="icon-btn" data-act="cal" data-v="-7" aria-label="Earlier week">${ic("chevLeft", 16)}</button><button class="icon-btn" data-act="cal" data-v="7" aria-label="Later week">${ic("chevRight", 16)}</button><button class="btn btn-ghost btn-sm" data-act="cal" data-v="0">This week</button></div>
+    <div class="cal-g ${dir || ""}">${dn.map(d => `<div class="cal-dn">${d}</div>`).join("")}${days.map((d, i) => {
+      const ps = so.posts.filter(p => p.d === d && p.st !== "draft").sort((a, b) => a.t - b.t), dt = dayDate(d);
+      return `<div class="cal-d ${d < 0 ? "past" : ""} ${d === 0 ? "today" : ""}"><span class="n">${dt.getDate() === 1 && d !== 0 ? dt.toLocaleDateString("en-US", {month:"short"}) + " 1" : dt.getDate()}</span>${d >= 0 ? `<button class="add" data-act="compose-day" data-d="${d}" aria-label="Create a post for ${wdy(d)}">${ic("plus", 15)}</button>` : ""}${ps.map((p, j) => `<button class="cev ${p.st}" style="--i:${Math.min(i, 20) + j}" data-act="${p.st === "published" ? "post-view" : p.st === "failed" ? "post-fix" : "post-edit"}" data-id="${p.id}" title="${esc(p.text)}">${ic(p.st === "failed" ? "alert" : p.st === "published" ? "check" : "clock", 12, "", 2.2)}<span>${fmt(p.t).replace(":00", "")} ${esc(p.text.split(" ").slice(0, 3).join(" "))}</span></button>`).join("")}</div>`;
+    }).join("")}</div></div>`;
+}
+function refreshAlert(){
+  const has = S.social.posts.some(p => p.st === "failed"), el = $("#alert-clp");
+  if (el && !has){ el.classList.add("shut"); setTimeout(() => el.isConnected && el.remove(), 450); }
+}
+function bumpText(el, txt){ if (!el || el.textContent === String(txt)) return; el.textContent = txt; el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); }
+function refreshSocialCounts(){
+  const w = waitingC().length;
+  const nb = $("#nb-social"); bumpText(nb, w); nb.classList.toggle("zero", !w); nb.setAttribute("aria-label", `${w} ${plural(w, "comment")} waiting`);
+  [["#cm-n"], ["#cmt-n"], ["#kpi-w"]].forEach(([sel]) => { const el = $(sel); if (!el) return; bumpText(el, w); el.classList.toggle("zero", !w); });
+  const sub = $("#cm-sub"); if (sub) sub.textContent = w ? `${w} waiting for a reply` : "All caught up";
+  const kd = $("#kpi-wd"); if (kd && !w){ kd.textContent = "You're all caught up"; const b = kd.parentElement && $(".btn", kd.parentElement); b && b.remove(); }
+}
+
+/* Compose */
+let C = null;
+const C_FOOT = () => `<span class="cmp-sum" id="c-sum"></span><span class="grow"></span>${C && C.mode === "fix" ? "" : `<button class="btn btn-outline" data-act="c-draft">Save draft</button>`}<button class="btn btn-primary" id="c-go" data-act="c-go"></button>`;
+const cSnap = () => JSON.stringify([[...C.nets].sort(), C.text, C.media, C.when, C.d, C.t]);
+function openCompose(o = {}){
+  const so = S.social, p = o.id ? so.posts.find(x => x.id === o.id) : null;
+  const fix = !!(o.fix && p && p.fail);
+  C = {
+    id: p && !o.dup ? p.id : null, mode: fix ? "fix" : p && !o.dup ? "edit" : "new", st: p ? p.st : null,
+    nets: new Set(o.nets || (fix ? [p.fail] : p ? p.nets : ["facebook", "instagram"])),
+    text: o.text != null ? o.text : p ? p.text : "",
+    media: o.media !== undefined ? o.media : p ? p.m : null,
+    when: o.when || (p && !o.dup && p.st === "scheduled" ? "schedule" : "now"),
+    d: o.d != null ? o.d : p && !o.dup && p.d != null && p.d > 0 ? p.d : nextDow(2),
+    t: o.t != null ? o.t : p && !o.dup && p.t != null && p.st === "scheduled" ? p.t : 1140,
+    pv: null, prev: null, busy: false, ai: {}, fail: fix ? p.fail : null
+  };
+  if (!so.nextdoor) C.nets.delete("nextdoor");
+  C.start = cSnap();
+  const title = C.mode === "fix" ? "Fix and repost" : C.mode === "edit" ? (p.st === "draft" ? "Edit draft" : "Edit scheduled post") : o.dup ? "Post it again" : "Create post";
+  const sub = C.mode === "fix" ? `Facebook posted this on ${wdy(p.d)}. Add an image and it goes to Instagram only.` : "Write it once and post to every account you pick.";
+  const avail = NET_ORDER.filter(n => n !== "nextdoor" || so.nextdoor);
+  openModal(`<div class="m-h"><span class="bulb">${ic(C.mode === "fix" ? "alert" : "edit", 18)}</span><div><h3>${title}</h3><small>${sub}</small></div><button class="x" data-act="c-close" aria-label="Close">${ic("x", 18)}</button></div>
+    <div class="cmp-grid">
+      <div class="cmp-l">
+        <span class="lbl-s">Post to</span>
+        <div class="netpills" id="c-nets">${avail.map(n => {
+          const N = NETS[n], label = n === "google" ? "Google Business Profile" : N.name;
+          if (C.mode === "fix" && n !== C.fail && p.nets.includes(n)) return `<span class="netpill done"><span class="tile" style="background:${N.bg};color:${N.fg}">${N.t}</span>${label} · already posted</span>`;
+          return `<button class="netpill" data-act="c-net" data-n="${n}" aria-pressed="${C.nets.has(n)}"><span class="tile" style="background:${N.bg};color:${N.fg}">${N.t}</span>${label}<span class="ck">${ic("check", 11, "", 3)}</span></button>`;
+        }).join("")}</div>
+        <label class="lbl-s" for="c-text">Caption</label>
+        <textarea class="cmp-ta" id="c-text" placeholder="What do you want to tell customers?">${esc(C.text)}</textarea>
+        <div class="ta-meta"><span id="c-src"></span><span id="c-cnt"></span></div>
+        <div class="topics" id="c-topics"><span class="lead">${ic("sparkle", 14)}Write it with Thryv AI</span>${TOPICS.map(([k, l]) => `<button class="topic" data-act="c-ai" data-k="${k}" aria-pressed="false">${l}</button>`).join("")}<span class="concept">Concept</span></div>
+        <span class="lbl-s">Image</span>
+        <div class="media" id="c-media" role="group" aria-label="Pick an image">${MEDIA.map(m => `<button class="mtile" data-act="c-media" data-id="${m.id}" aria-pressed="${C.media === m.id}" aria-label="${esc(m.alt)}" title="${esc(m.alt)}">${art(m.id)}<span class="ck">${ic("check", 12, "", 3)}</span></button>`).join("")}</div>
+        <div id="c-warn"></div>
+        <span class="lbl-s">When</span>
+        <div class="when"><div class="vseg" id="c-when" role="group" aria-label="When to post"><span class="knob"></span><button data-act="c-when" data-v="now" aria-pressed="${C.when === "now"}">Post now</button><button data-act="c-when" data-v="schedule" aria-pressed="${C.when === "schedule"}">Schedule</button></div><div id="c-sched"></div></div>
+      </div>
+      <div class="cmp-r"><span class="lbl-s" style="margin-top:0">Preview</span><div class="pv-tabs" id="pv-tabs" role="tablist"><span class="ink"></span></div><div id="pv"></div><p class="pv-note">Close to what each site shows, not exact.</p></div>
+    </div>
+    <div class="m-f">${C_FOOT()}</div>`, "xl", {fresh:true, top:true, focus:"#c-text"});
+  $("#c-text").addEventListener("input", e => { C.text = e.target.value; $$("#c-topics .topic").forEach(b => b.setAttribute("aria-pressed", "false")); cText(); });
+  cSched(); cPreview(); cText();
+  requestAnimationFrame(() => placeKnob2($("#c-when")));
+  setTitle(title);
+}
+function cLimit(){ let best = null; C.nets.forEach(n => { if (!best || NETS[n].limit < NETS[best].limit) best = n; }); return best; }
+function cBlock(){
+  if (!C.nets.size) return "Pick at least one account";
+  if (!C.text.trim()) return "Write a caption first";
+  if (C.nets.has("instagram") && !C.media) return "Instagram needs an image";
+  const n = cLimit(); if (n && C.text.length > NETS[n].limit) return `Too long for ${NETS[n].name}`;
+  if (C.when === "schedule" && C.d === 0 && C.t <= nowMin()) return "Pick a time later today";
+  return "";
+}
+function cText(){
+  const n = cLimit(), len = C.text.length;
+  $("#c-cnt").innerHTML = n && len ? `<span class="${len > NETS[n].limit ? "over" : ""}">${len.toLocaleString()} of ${NETS[n].limit.toLocaleString()}</span> for ${NETS[n].name}` : "";
+  const t = $("#pv-t"); if (t){ t.textContent = C.text.trim() ? C.text : "Your caption shows here"; t.classList.toggle("empty", !C.text.trim()); }
+  cState();
+}
+function cState(){
+  if (!C || !$("#c-sum")) return;
+  const block = cBlock(), w = $("#c-warn");
+  /* hold the image warning until she has written something, so a fresh post doesn't open with an error */
+  const needImg = C.nets.has("instagram") && !C.media && (!!C.text.trim() || C.mode === "fix");
+  if (needImg && !$(".warnrow", w)) w.innerHTML = `<div class="warnrow">${ic("alert", 16)}<span>Instagram only takes posts with an image or video.</span><span class="grow"></span><button class="lnk" data-act="c-pick">Add one</button>${C.mode === "fix" ? "" : `<button class="lnk" data-act="c-skip-ig">Post without Instagram</button>`}</div>`;
+  else if (!needImg) w.innerHTML = "";
+  $$("#c-nets .netpill[data-n]").forEach(b => {
+    const n = b.dataset.n, on = C.nets.has(n), warn = on && n === "instagram" && needImg;
+    b.setAttribute("aria-pressed", on); b.classList.toggle("warn", warn);
+    const ck = $(".ck", b), want = warn ? "alert" : "check";
+    if (ck.dataset.i !== want){ ck.dataset.i = want; ck.innerHTML = ic(want, 11, "", 3); }
+  });
+  const sum = $("#c-sum"), go = $("#c-go");
+  const soft = block === "Write a caption first";
+  sum.classList.toggle("bad", !!block && !soft);
+  sum.textContent = (!soft && block) || (C.when === "now" ? `Posts to ${netList(C.nets)} now` : `Posts to ${netList(C.nets)} on ${wdy(C.d)} at ${fmt(C.t)}`);
+  go.disabled = !!block;
+  go.innerHTML = C.when === "now" ? `${ic("send", 15)}${C.mode === "fix" ? `Post to ${netList(C.nets) || "Instagram"}` : "Post now"}` : `${ic("calendar", 15)}${C.mode === "edit" && C.st === "scheduled" ? "Save schedule" : "Schedule post"}`;
+}
+function cSched(){
+  const box = $("#c-sched"); if (!box) return;
+  if (C.when !== "schedule"){ box.innerHTML = ""; return; }
+  const opts = []; for (let d = 0; d <= 21; d++) opts.push(`<option value="${d}" ${d === C.d ? "selected" : ""}>${d < 2 ? fmtDay(d) + ", " + mdy(d) : wdy(d)}</option>`);
+  const best = nextDow(2);
+  box.innerHTML = `<div class="sched"><select class="tsel" id="c-day" aria-label="Day">${opts.join("")}</select><span class="to">at</span>${tsel(C.t, 'id="c-time" aria-label="Time"')}<button class="best" data-act="c-best" title="When your followers are most active">${ic("sparkle", 13)}Best time: ${dayDate(best).toLocaleDateString("en-US", {weekday:"short"})} 7:00 PM</button></div>`;
+  $("#c-day").addEventListener("change", e => { C.d = +e.target.value; cState(); cPreview(); });
+  $("#c-time").addEventListener("change", e => { C.t = +e.target.value; cState(); cPreview(); });
+}
+function pvHTML(n, src = C){
+  const txt = (src.text || "").trim(), m = src.media;
+  const t = `<div class="pv-t ${txt ? "" : "empty"}" id="pv-t">${txt ? esc(src.text) : "Your caption shows here"}</div>`;
+  const img = m ? `<div class="pv-img in">${art(m)}</div>` : "";
+  const when = src.when === "now" ? "Just now" : src.when === "done" ? `${fmtDay(src.d)} at ${fmt(src.t)}` : `${wdy(src.d)} at ${fmt(src.t)}`;
+  if (n === "instagram") return `<div class="pv ig"><div class="pv-h"><span class="av">${ic("store", 14)}</span><span><b>ridgeline.roofing.demo</b><small>${when}</small></span></div>${m ? img : `<div class="pv-noimg">${ic("image", 26)}<span>Instagram needs an image</span>${src === C ? `<button class="btn btn-outline btn-sm" data-act="c-pick">Add one</button>` : ""}</div>`}<div class="pv-f">${ic("heart", 16)}${ic("chat", 16)}${ic("send", 16)}</div>${t}</div>`;
+  if (n === "google") return `<div class="pv gg">${img}<div class="pv-h"><span class="av">${ic("store", 14)}</span><span><b>${esc(S.biz)}</b><small>Update · ${when}</small></span></div>${t}<span class="cta">Call now</span></div>`;
+  return `<div class="pv fb"><div class="pv-h"><span class="av">${ic("store", 14)}</span><span><b>${esc(S.biz)}</b><small>${when}${n === "nextdoor" ? " · Nearby neighbors" : ""}</small></span></div>${t}${img}<div class="pv-f"><span>Like</span><span>Comment</span><span>Share</span></div></div>`;
+}
+function cPreview(){
+  const tabs = $("#pv-tabs"); if (!tabs) return;
+  const nets = NET_ORDER.filter(n => C.nets.has(n));
+  if (!nets.includes(C.pv)) C.pv = nets[0] || null;
+  $$("button", tabs).forEach(b => b.remove());
+  const ink = $(".ink", tabs);
+  ink.insertAdjacentHTML("beforebegin", nets.map(n => `<button role="tab" data-act="c-pv" data-n="${n}" aria-selected="${n === C.pv}">${NETS[n].name}</button>`).join(""));
+  requestAnimationFrame(() => { const on = $('[aria-selected="true"]', tabs); if (on){ ink.style.left = on.offsetLeft + "px"; ink.style.width = on.offsetWidth + "px"; } else ink.style.width = "0px"; });
+  $("#pv").innerHTML = C.pv ? pvHTML(C.pv) : `<div class="empty" style="padding:30px 10px">${ic("eye", 22)}<p>Pick an account to see a preview.</p></div>`;
+}
+async function aiCompose(k){
+  if (!C || C.busy) return;
+  const ep = EPOCH, ta = $("#c-text"); if (!ta) return;
+  C.busy = true;
+  if (C.prev == null) C.prev = C.text;
+  const n = C.ai[k] = (C.ai[k] == null ? 0 : C.ai[k] + 1);
+  let text = k === "hours" ? hoursCaption() : CAPTIONS[k][n % CAPTIONS[k].length];
+  if (C.nets.has("instagram")) text += "\n\n" + HASHTAGS;
+  $$("#c-topics .topic").forEach(b => { b.setAttribute("aria-pressed", b.dataset.k === k); b.disabled = true; });
+  $("#c-src").innerHTML = `<span class="ai-src">${ic("sparkle", 13)}Writing from your profile and recent jobs</span>`;
+  ta.classList.add("gen"); ta.readOnly = true;
+  await wait(650); if (ep !== EPOCH || !C || !ta.isConnected) return;
+  await typeTA(ta, text, 9, ep, v => { C.text = v; cText(); });
+  if (ep !== EPOCH || !C || !ta.isConnected) return;
+  ta.classList.remove("gen"); ta.readOnly = false; ta.classList.remove("filled"); void ta.offsetWidth; ta.classList.add("filled");
+  let picked = "";
+  if (!C.media && TOPIC_MEDIA[k]){
+    C.media = TOPIC_MEDIA[k];
+    $$("#c-media .mtile").forEach(b => b.setAttribute("aria-pressed", b.dataset.id === C.media));
+    picked = ` Added an image: ${MEDIA.find(x => x.id === C.media).alt}.`;
+    cPreview(); cState();
+  }
+  C.busy = false;
+  $$("#c-topics .topic").forEach(b => b.disabled = false);
+  $("#c-src").innerHTML = `<span class="ai-src">${ic("sparkle", 13)}Drafted by Thryv AI.${picked} <button class="lnk" data-act="c-undo">Undo</button></span>`;
+}
+function requestCloseModal(){
+  if (!C || C.start === cSnap()){ closeModal(); return; }
+  const f = $(".modal .m-f"); if (!f) return;
+  if (f.classList.contains("confirm")){ f.classList.remove("nudge"); void f.offsetWidth; f.classList.add("nudge"); return; }
+  f.classList.add("confirm");
+  f.innerHTML = `<span class="q">${ic("alert", 17)}Discard this post?</span><span class="grow"></span><button class="btn btn-outline" data-act="c-keep">Keep editing</button>${C.mode === "fix" ? "" : `<button class="btn btn-outline" data-act="c-draft">Save as draft</button>`}<button class="btn btn-danger" data-act="c-discard">Discard</button>`;
+  $('[data-act="c-keep"]', f).focus({preventScroll:true});
+}
+function cKeep(){ const f = $(".modal .m-f"); if (!f) return; f.classList.remove("confirm"); f.innerHTML = C_FOOT(); f.style.animation = "none"; void f.offsetWidth; f.style.animation = "xfade .3s var(--ease-out)"; cState(); }
+function cSubmit(asDraft){
+  if (!C) return;
+  const so = S.social, nets = NET_ORDER.filter(n => C.nets.has(n));
+  if (asDraft && !C.text.trim()){ const ta = $("#c-text"); ta.classList.remove("nudge"); void ta.offsetWidth; ta.classList.add("nudge"); ta.focus(); return; }
+  if (!asDraft && cBlock()) return;
+  const now = C.when === "now" && !asDraft;
+  let p, msg;
+  if (C.mode === "fix"){
+    p = so.posts.find(x => x.id === C.id);
+    Object.assign(p, {nets:NET_ORDER.filter(n => p.nets.includes(n) || C.nets.has(n)), m:C.media, text:C.text, st:"published", fail:null});
+    msg = `Posted to ${netList(nets)}`;
+  } else {
+    const data = {nets, m:C.media, text:C.text, st:asDraft ? "draft" : now ? "published" : "scheduled", d:asDraft ? null : now ? 0 : C.d, t:asDraft ? null : now ? nowMin() : C.t};
+    if (C.mode === "edit"){ p = so.posts.find(x => x.id === C.id); Object.assign(p, data); }
+    else { p = {id:"p" + Date.now().toString(36), reach:0, likes:0, comments:0, ...data}; so.posts.unshift(p); }
+    msg = asDraft ? "Draft saved" : now ? `Posted to ${netList(nets)}` : `Scheduled for ${wdy(p.d)} at ${fmt(p.t)}`;
+  }
+  const id = p.id, st = p.st, switched = S.page !== "social";
+  closeModal();
+  if (switched) goPage("social");
+  setTimeout(() => {
+    if (so.filter !== "all" && so.filter !== st) so.filter = "all";
+    if (!switched){ renderPChips(); renderPosts(false); }
+    refreshAlert();
+    const row = $("#post-" + id); if (row){ row.classList.add(st === "published" ? "flash-ok" : "flash"); row.scrollIntoView({block:"nearest", behavior:RM ? "auto" : "smooth"}); }
+    toast(msg, asDraft ? "edit" : now ? "check" : "calendar");
+  }, switched ? 450 : 230);
+}
+function openPostView(id){
+  const p = S.social.posts.find(x => x.id === id); if (!p) return;
+  const shares = Math.round((p.likes || 0) / 9), hasC = waitingC().some(c => c.post === p.id);
+  const m = openModal(`<div class="m-h"><span class="thumb" style="width:38px;height:38px;border-radius:9px">${p.m ? art(p.m) : ic("chat", 18)}</span><div><h3>Post results</h3><small>${fmtDay(p.d)} at ${fmt(p.t)} · ${netList(p.nets)}</small></div><button class="x" data-act="close" aria-label="Close">${ic("x", 18)}</button></div>
+    <div class="m-b"><div style="display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:18px;align-items:start"><div>
+      <div class="mstats">${[["Reached", p.reach || 0], ["Likes", p.likes || 0], ["Comments", p.comments || 0], ["Shares", shares]].map((x, i) => `<div style="animation:rowRise .5s var(--ease-out) both;animation-delay:${i * 70}ms"><b data-to="${x[1]}">${x[1].toLocaleString()}</b><span>${x[0]}</span></div>`).join("")}</div>
+      <p style="margin-top:14px;font-size:13px;line-height:20px;color:var(--ink)">${esc(p.text)}</p>
+      ${hasC ? `<div class="why">${ic("chat", 16)}<span>People commented on this post and are waiting for a reply.</span><button class="lnk" data-act="comments" style="margin-left:auto;white-space:nowrap">Reply</button></div>` : ""}
+    </div><div>${pvHTML(p.nets[0], {text:p.text, media:p.m, when:"done", d:p.d, t:p.t})}</div></div></div>
+    <div class="m-f"><button class="btn btn-ghost" data-act="pdel" data-id="${p.id}">${ic("trash", 15)}Delete</button><span class="grow"></span><button class="btn btn-outline" data-act="pdup" data-id="${p.id}">${ic("copy", 15)}Post it again</button><button class="btn btn-primary" data-act="close">Done</button></div>`, "wide", {fresh:true});
+  countUp(m);
+  setTitle("Post results");
+}
+function openPostMenu(btn){
+  const p = S.social.posts.find(x => x.id === btn.dataset.id); if (!p) return;
+  let html = "";
+  if (p.st === "scheduled") html += `<button data-act="pnow" data-id="${p.id}">${ic("send", 16)}Post now</button>`;
+  html += p.st === "published" ? `<button data-act="post-view" data-id="${p.id}">${ic("eye", 16)}See results</button>` : `<button data-act="${p.st === "failed" ? "post-fix" : "post-edit"}" data-id="${p.id}">${ic("edit", 16)}${p.st === "failed" ? "Fix and repost" : "Edit"}</button>`;
+  html += `<button data-act="pdup" data-id="${p.id}">${ic("copy", 16)}Duplicate</button><hr><button class="danger" data-act="pdel" data-id="${p.id}">${ic("trash", 16)}Delete</button>`;
+  openPop(btn, html);
+}
+function deletePost(id){
+  closePop(); closeModal();
+  const so = S.social, idx = so.posts.findIndex(x => x.id === id); if (idx < 0) return;
+  const [p] = so.posts.splice(idx, 1); so.lastDeleted = {p, idx};
+  const row = $("#post-" + id);
+  const finish = () => { renderPChips(); renderPosts(false); refreshAlert(); };
+  if (row && S.social.view === "list"){ row.classList.add("leave"); setTimeout(finish, 330); } else finish();
+  toast(p.st === "published" ? "Post deleted from your accounts" : "Post deleted", "trash", {label:"Undo", act:"pundo"});
+}
+
+/* Comments */
+let CM = null;
+function openComments(o = {}){
+  closePop();
+  if ($("#modal-root .scrim")) $("#modal-root").innerHTML = "";
+  rememberFocus();
+  CM = {tab:"wait"};
+  $("#modal-root").innerHTML = `<div class="dscrim" data-act="dscrim"><aside class="drawer" role="dialog" aria-modal="true" aria-label="Comments">
+    <div class="d-h"><div><h3>Comments</h3><small id="cm-sub"></small></div><button class="x" data-act="dclose" aria-label="Close">${ic("x", 18)}</button></div>
+    <div class="tabs" role="tablist" id="cm-tabs"><button role="tab" data-act="cm-tab" data-tab="wait">Waiting <span class="cnt-b" id="cmt-n">0</span></button><button role="tab" data-act="cm-tab" data-tab="done">Replied and hidden</button><span class="ink"></span></div>
+    <div class="d-b" id="cm-b"></div></aside></div>`;
+  cmTab("wait"); refreshSocialCounts();
+  setTitle("Comments");
+  if (o.draft) setTimeout(() => cmDraft(o.draft), 560);
+  else setTimeout(() => { const b = $('#cm-b [data-act="cm-ai"]'); b && b.focus({preventScroll:true}); }, 300);
+}
+function cmTab(tab){
+  CM.tab = tab;
+  $$("#cm-tabs [role=tab]").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === tab));
+  const on = $(`#cm-tabs [data-tab="${tab}"]`), ink = $("#cm-tabs .ink");
+  requestAnimationFrame(() => { ink.style.left = on.offsetLeft + "px"; ink.style.width = on.offsetWidth + "px"; });
+  const list = S.social.comments.filter(c => tab === "wait" ? !c.done && !c.hidden : c.done || c.hidden);
+  $("#cm-b").innerHTML = `<div class="pane">${list.length ? `<div class="cms" id="cms">${list.map((c, i) => cmHTML(c, i)).join("")}</div>` : cmEmpty(tab)}</div>`;
+}
+const cmEmpty = tab => `<div class="empty">${ic(tab === "wait" ? "checkCircle" : "chat", 24)}<p>${tab === "wait" ? "You're all caught up. New comments show up here." : "Replies you send and comments you hide show up here."}</p></div>`;
+function cmHTML(c, i){
+  const N = NETS[c.net], post = S.social.posts.find(p => p.id === c.post);
+  const head = `<div class="who"><span class="tile" style="background:${N.bg};color:${N.fg}">${N.t}</span><span>${esc(c.who)}${c.q ? `<span class="qtag">Question</span>` : ""}</span><small>${N.name} · ${c.ago}</small></div>${post ? `<div class="on">On &ldquo;${esc(post.text.split(" ").slice(0, 7).join(" "))}&hellip;&rdquo;</div>` : ""}<p>${esc(c.text)}</p>`;
+  if (c.done || c.hidden) return `<div class="clp" id="cmw-${c.id}"><div><article class="cm" style="--i:${i}">${head}${c.hidden ? `<div class="row"><span class="st disabled">${ic("eyeOff", 15)}<span>Hidden from your page</span></span><span class="grow"></span><button class="btn btn-ghost btn-sm" data-act="cm-unhide" data-id="${c.id}">Show again</button></div>` : `<div class="mine"><b>Your reply</b>${esc(c.reply)}</div>`}</article></div></div>`;
+  return `<div class="clp" id="cmw-${c.id}"><div><article class="cm" style="--i:${i}">${head}
+    <div class="row"><button class="heart" data-act="cm-like" data-id="${c.id}" aria-pressed="${c.liked}" aria-label="Like this comment">${ic("heart", 16)}</button><button class="btn btn-outline btn-sm" data-act="cm-reply" data-id="${c.id}">Reply</button><button class="btn btn-brand-o btn-sm" data-act="cm-ai" data-id="${c.id}">${ic("sparkle", 14)}Draft a reply</button><span class="grow"></span><button class="btn btn-ghost btn-sm" data-act="cm-hide" data-id="${c.id}">${ic("eyeOff", 15)}Hide</button></div>
+    <div class="clp shut" id="cmr-${c.id}"><div><textarea aria-label="Reply to ${esc(c.who)}" placeholder="Write a reply"></textarea><div class="ai-src" hidden>${ic("sparkle", 13)}Drafted by Thryv AI from the comment and your profile. Edit anything before you send.</div><div class="row"><span class="grow"></span><button class="btn btn-ghost btn-sm" data-act="cm-cancel" data-id="${c.id}">Cancel</button><button class="btn btn-primary btn-sm" data-act="cm-send" data-id="${c.id}">${ic("send", 14)}Send reply</button></div></div></div>
+  </article></div></div>`;
+}
+function cmOpenReply(id){ const r = $("#cmr-" + id); if (!r) return null; r.classList.remove("shut"); return $("textarea", r); }
+async function cmDraft(id){
+  const ep = EPOCH, c = S.social.comments.find(x => x.id === id), ta = cmOpenReply(id);
+  if (!c || !ta) return;
+  const card = ta.closest(".cm"); card.scrollIntoView({block:"nearest", behavior:RM ? "auto" : "smooth"});
+  const btn = $(`[data-act="cm-ai"][data-id="${id}"]`); if (btn) btn.disabled = true;
+  ta.classList.add("gen"); ta.readOnly = true;
+  await wait(500); if (ep !== EPOCH || !ta.isConnected) return;
+  await typeTA(ta, c.draft, 9, ep);
+  if (ep !== EPOCH || !ta.isConnected) return;
+  ta.classList.remove("gen"); ta.readOnly = false; ta.focus({preventScroll:true});
+  const src = $(".ai-src", ta.parentElement); if (src) src.hidden = false;
+  if (btn) btn.disabled = false;
+}
+function cmRemove(id, after){
+  const w = $("#cmw-" + id); if (!w){ after && after(); return; }
+  w.classList.add("shut");
+  setTimeout(() => { w.remove(); if (CM && !$("#cms .clp")) { const pane = $("#cm-b .pane"); if (pane) pane.innerHTML = cmEmpty(CM.tab); } after && after(); }, 430);
 }
 
 /* -----------------------------------------------------------------
@@ -1302,28 +2404,31 @@ function setVendor(v){
    ----------------------------------------------------------------- */
 document.addEventListener("click", e => {
   const t = e.target.closest("[data-act]");
-  if (POP && !e.target.closest(".pop") && !(t && (t.dataset.act === "menu" || t.dataset.act === "loc"))) closePop();
-  if (!t) return;
+  if (POP && !e.target.closest(".pop") && !(t && ["menu", "loc", "pmenu"].includes(t.dataset.act))) closePop();
+  if (!t || t.disabled) return;
   const a = t.dataset.act, id = t.dataset.id;
   switch (a){
     case "start": hideIntro(); break;
     case "restart": restart(); break;
     case "soon": toast("Not part of this prototype", "info"); break;
+    case "nav": goPage(t.dataset.page); break;
     case "loc": if (POP && t.getAttribute("aria-expanded") === "true") closePop(); else openLocPicker(t); break;
     case "loc-pick":
-      closePop();
-      if (id !== S.loc){ vt(() => { S.loc = id; S.filter = "all"; S.q = ""; $("#q").value = ""; lastCounts = {}; renderAll(false); }); setTimeout(() => { $("#page").classList.remove("enter"); void $("#page").offsetWidth; $("#page").classList.add("enter"); }, 0); }
+      closePop(true);
+      if (id !== S.loc){ vt(() => { S.loc = id; S.filter = "all"; S.q = ""; $("#q").value = ""; lastCounts = {}; renderAll(false); aiContext(); }); setTimeout(() => { $("#page").classList.remove("enter"); void $("#page").offsetWidth; $("#page").classList.add("enter"); }, 0); }
       break;
     case "menu": if (POP && t.getAttribute("aria-expanded") === "true") closePop(); else openRowMenu(t); break;
     case "filter": if (S.filter !== t.dataset.k){ vt(() => { S.filter = t.dataset.k; renderChips(); renderRows(false); }); } break;
+    case "clear-q": S.q = ""; $("#q").value = ""; renderRows(false); $("#q").focus(); break;
     case "sug": S.sugOpen = !S.sugOpen; $("#sug").classList.toggle("open", S.sugOpen); t.setAttribute("aria-expanded", S.sugOpen); break;
     case "view": toast(`Opens the live listing on ${SITE[id].name}`, "external"); break;
     case "issue": closePop(); openIssue(id); break;
     case "ai-fix": aiFix(id); break;
     case "send-fix": sendFix(id); break;
     case "connect": closePop(); openConnect(id); break;
-    case "do-connect": closeModal(); setTimeout(() => { setStatus(id, "processing", "flash"); toast(`Profile sent to ${SITE[id].name}`); }, 160); break;
-    case "connect-all": closeModal(); connectAll(); break;
+    case "do-connect": closeModal(); setTimeout(() => { setStatus(id, "processing", "flash", "new"); toast(`Profile sent to ${SITE[id].name}`); }, 160); break;
+    case "connect-review": closePop(); openConnectAll(); break;
+    case "do-connect-all": { const ids = $$("#clist .cbox:checked").map(c => c.dataset.id); closeModal(); if (ids.length) setTimeout(() => connectAll(ids), 180); break; }
     case "enable": closePop(); setStatus(id, "connected", "flash-ok"); toast(`${SITE[id].name} is showing your listing again`); break;
     case "sync-one": {
       closePop();
@@ -1342,31 +2447,147 @@ document.addEventListener("click", e => {
       }, 160);
       break;
     }
-    case "close": closeModal(); setTitle("Listings Management"); break;
-    case "scrim": if (e.target === t){ closeModal(); setTitle("Listings Management"); } break;
+    case "close": closeModal(); break;
+    case "scrim": if (e.target === t) requestCloseModal(); break;
     case "profile": closePop(); openDrawer(t.dataset.tab || "info"); break;
     case "dtab": dTab(t.dataset.tab); break;
-    case "dclose": closeDrawer(); break;
-    case "dscrim": if (e.target === t) closeDrawer(); break;
+    case "dclose": requestCloseDrawer(); break;
+    case "dscrim": if (e.target === t) requestCloseDrawer(); break;
+    case "d-keep": keepEditing(); break;
+    case "d-discard": closeDrawer(); break;
     case "dsave": saveDrawer(); break;
     case "h-tog": { const d = D.hours[t.dataset.day]; d.on = !d.on; redrawDay(t.dataset.day, false); break; }
     case "h-break": { const d = D.hours[t.dataset.day]; if (d.o + 30 <= 720 && 780 <= d.c - 30) d.b = [720, 780]; else { const mid = Math.round((d.o + d.c) / 2 / 30) * 30; d.b = [Math.max(d.o + 30, mid - 30), Math.min(d.c - 30, mid + 30)]; } redrawDay(t.dataset.day, true); break; }
     case "h-rm": { D.hours[t.dataset.day].b = null; redrawDay(t.dataset.day, false); break; }
+    case "h-copy": {
+      const mon = D.hours.mon;
+      ["tue", "wed", "thu", "fri"].forEach((k, i) => setTimeout(() => { if (!D) return; D.hours[k] = clone(mon); redrawDay(k, true); const el = $(`.hday[data-day="${k}"]`); el && el.classList.add("flash"); }, i * 110));
+      break;
+    }
     case "ai-desc": aiDesc(); break;
     case "ai-use": { const ta = $("#desc"); D.desc = D.aiDraft; ta.value = D.aiDraft; ta.classList.remove("filled"); void ta.offsetWidth; ta.classList.add("filled"); $("#desc-n").textContent = `${D.desc.length} of 750`; $("#ai-slot").innerHTML = aiDescIdle(); break; }
     case "ai-discard": $("#ai-slot").innerHTML = aiDescIdle(); break;
     case "ai-toggle": aiOpen(); break;
     case "ai-open": aiOpen(true); break;
-    case "ai-close": aiOpen(false); break;
-    case "ai-q": ask(t.dataset.k); break;
-    case "ai-review": openIssue(id); setTimeout(() => aiFix(id), 250); break;
+    case "ai-close": aiOpen(false); $("#ask-btn").focus({preventScroll:true}); break;
+    case "ai-q": ask(t.dataset.k, t.dataset.t); break;
+    case "ai-review": closePop(); if (S.page !== "listings") goPage("listings"); setTimeout(() => { openIssue(id); setTimeout(() => aiFix(id), 250); }, S.page !== "listings" ? 400 : 0); break;
+    case "ai-next": openIssue(id); setTimeout(() => aiFix(id), 300); break;
+    case "ai-write-desc": openDrawer("desc"); setTimeout(aiDesc, 450); break;
+    case "ai-comments": if (S.page !== "social") goPage("social"); setTimeout(() => openComments({draft:firstWaiting()}), 300); break;
+    case "ai-draft-post": openCompose({when:"schedule", d:nextDow(2), t:1140}); setTimeout(() => aiCompose("before"), 450); break;
     case "ai-dismiss": { const c = t.closest(".acard"); c.style.transition = "opacity .25s"; c.style.opacity = ".5"; $$(".af button", c).forEach(b => b.disabled = true); break; }
-    case "ai-post": { const c = $("#reply-card"); $(".af", c).outerHTML = `<div class="posted">${ic("checkCircle", 16)}Posted to Google · just now</div>`; $("textarea", c).readOnly = true; toast("Reply posted to Google"); break; }
+    case "ai-tone": aiTone(t); break;
+    case "ai-post": {
+      const c = $("#reply-card"); if (!c) break;
+      $(".af", c).outerHTML = `<div class="posted">${ic("checkCircle", 16)}Posted to Google · just now<button class="lnk" data-act="ai-unpost">Undo</button></div>`;
+      $("textarea", c).readOnly = true; $$(".tones .topic", c).forEach(b => b.disabled = true);
+      toast("Reply posted to Google");
+      setTimeout(() => { const u = $('#reply-card [data-act="ai-unpost"]'); u && u.remove(); }, 8000);
+      break;
+    }
+    case "ai-unpost": {
+      const c = $("#reply-card"); if (!c) break;
+      $(".posted", c).outerHTML = `<div class="af" style="animation:xfade .3s var(--ease-out)"><button class="btn btn-primary btn-sm" data-act="ai-post">${ic("check", 14, "", 2.4)}Approve and post</button><button class="btn btn-outline btn-sm" data-act="ai-dismiss">Not now</button></div>`;
+      $("textarea", c).readOnly = false; $$(".tones .topic", c).forEach(b => b.disabled = false);
+      toast("Reply removed from Google", "info");
+      break;
+    }
+    case "nudge-post": goPage("social"); setTimeout(() => { openCompose({nets:["facebook", "google"], when:"now"}); setTimeout(() => aiCompose("hours"), 450); }, 420); break;
     case "layer-x": hideLayer(); break;
+
+    /* Social */
+    case "compose": closePop(); if ($("#modal-root .dscrim")) closeDrawer(); setTimeout(() => openCompose(), $("#modal-root .dscrim") ? 260 : 0); break;
+    case "compose-day": openCompose({when:"schedule", d:+t.dataset.d, t:1140}); break;
+    case "post-edit": closePop(); openCompose({id}); break;
+    case "post-fix": closePop(); { const go = () => openCompose({id, fix:true}); if (S.page !== "social"){ goPage("social"); setTimeout(go, 420); } else go(); } break;
+    case "post-view": closePop(); openPostView(id); break;
+    case "pmenu": if (POP && t.getAttribute("aria-expanded") === "true") closePop(); else openPostMenu(t); break;
+    case "pdup": closePop(); openCompose({id, dup:true}); break;
+    case "pdel": deletePost(id); break;
+    case "pundo": {
+      const ld = S.social.lastDeleted; if (!ld) break;
+      S.social.posts.splice(Math.min(ld.idx, S.social.posts.length), 0, ld.p); S.social.lastDeleted = null;
+      if (S.page === "social"){ renderPChips(); renderPosts(false); const r = $("#post-" + ld.p.id); r && r.classList.add("flash"); }
+      t.closest(".toast") && t.closest(".toast").remove();
+      break;
+    }
+    case "pnow": {
+      closePop();
+      const p = S.social.posts.find(x => x.id === id); if (!p) break;
+      Object.assign(p, {st:"published", d:0, t:nowMin(), reach:0, likes:0, comments:0});
+      vt(() => { renderPChips(); renderPosts(false); });
+      setTimeout(() => { const r = $("#post-" + id); r && r.classList.add("flash-ok"); }, 60);
+      toast(`Posted to ${netList(p.nets)}`);
+      break;
+    }
+    case "pfilter": if (S.social.filter !== t.dataset.k){ vt(() => { S.social.filter = t.dataset.k; renderPChips(); renderPosts(false); }); } break;
+    case "pview": {
+      const v = t.dataset.v; if (S.social.view === v) break;
+      S.social.view = v;
+      $$("#pview button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === v));
+      placeKnob2($("#pview"));
+      const ch = $("#pchips"), lg = $("#plegend");
+      ch.hidden = v === "cal"; lg.hidden = v !== "cal";
+      (v === "cal" ? lg : ch).style.animation = "none"; void ch.offsetWidth; (v === "cal" ? lg : ch).style.animation = "xfade .35s var(--ease-out)";
+      renderPosts(true);
+      break;
+    }
+    case "cal": { const v = +t.dataset.v, dow = (new Date().getDay() + 6) % 7, s0 = S.social.calStart; S.social.calStart = v ? s0 + v : -dow - 7; renderPosts(false, S.social.calStart >= s0 ? "next" : "prev"); break; }
+    case "nd-connect": {
+      t.disabled = true; t.innerHTML = `${ic("refresh", 14, "spin")}Connecting`;
+      setTimeout(() => {
+        S.social.nextdoor = true;
+        const el = $("#acct-nextdoor"); if (el){ const tmp = document.createElement("div"); tmp.innerHTML = acctHTML(ACCTS()[3], 3, false); const n = tmp.firstElementChild; el.replaceWith(n); n.style.animation = "xfade .4s var(--ease-out)"; $(".lv", n).classList.add("pop"); }
+        toast("Nextdoor connected. You can post there now");
+      }, 1300);
+      break;
+    }
+    case "c-close": requestCloseModal(); break;
+    case "c-keep": cKeep(); break;
+    case "c-discard": closeModal(); break;
+    case "c-net": { const n = t.dataset.n; C.nets.has(n) ? C.nets.delete(n) : C.nets.add(n); cPreview(); cText(); break; }
+    case "c-media": { C.media = C.media === id ? null : id; $$("#c-media .mtile").forEach(b => b.setAttribute("aria-pressed", b.dataset.id === C.media)); cPreview(); cState(); break; }
+    case "c-pick": { const m = $("#c-media"); m.classList.remove("nudge"); void m.offsetWidth; m.classList.add("nudge"); m.scrollIntoView({block:"nearest", behavior:RM ? "auto" : "smooth"}); $(".mtile", m).focus({preventScroll:true}); break; }
+    case "c-skip-ig": C.nets.delete("instagram"); cPreview(); cText(); break;
+    case "c-when": { C.when = t.dataset.v; $$("#c-when button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === C.when)); placeKnob2($("#c-when")); cSched(); cPreview(); cState(); break; }
+    case "c-best": { C.d = nextDow(2); C.t = 1140; cSched(); ["#c-day", "#c-time"].forEach(s => $(s).classList.add("hl")); cPreview(); cState(); break; }
+    case "c-pv": C.pv = t.dataset.n; cPreview(); break;
+    case "c-ai": aiCompose(t.dataset.k); break;
+    case "c-undo": { const ta = $("#c-text"); if (!ta || C.prev == null) break; ta.value = C.prev; C.text = C.prev; C.prev = null; $$("#c-topics .topic").forEach(b => b.setAttribute("aria-pressed", "false")); $("#c-src").innerHTML = ""; cText(); ta.focus(); break; }
+    case "c-draft": cSubmit(true); break;
+    case "c-go": cSubmit(false); break;
+    case "comments": closePop(); if ($("#modal-root .scrim")) closeModal(); setTimeout(() => openComments(), $("#modal-root .scrim") ? 220 : 0); break;
+    case "cm-tab": cmTab(t.dataset.tab); break;
+    case "cm-like": { const c = S.social.comments.find(x => x.id === id); c.liked = !c.liked; t.setAttribute("aria-pressed", c.liked); break; }
+    case "cm-reply": { const ta = cmOpenReply(id); ta && setTimeout(() => ta.focus({preventScroll:true}), 200); break; }
+    case "cm-ai": cmDraft(id); break;
+    case "cm-cancel": { const r = $("#cmr-" + id); r && r.classList.add("shut"); break; }
+    case "cm-send": {
+      const c = S.social.comments.find(x => x.id === id), ta = $(`#cmr-${id} textarea`);
+      if (!ta || !ta.value.trim()){ if (ta){ ta.classList.remove("nudge"); void ta.offsetWidth; ta.classList.add("nudge"); ta.focus(); } break; }
+      c.done = true; c.reply = ta.value.trim();
+      cmRemove(id); refreshSocialCounts();
+      toast(`Reply sent on ${NETS[c.net].name}`);
+      break;
+    }
+    case "cm-hide": {
+      const c = S.social.comments.find(x => x.id === id); c.hidden = true;
+      cmRemove(id); refreshSocialCounts();
+      toast("Comment hidden from your page", "eyeOff", {label:"Undo", act:"cm-unhide", data:`data-id="${id}"`});
+      break;
+    }
+    case "cm-unhide": {
+      const c = S.social.comments.find(x => x.id === id); if (!c) break; c.hidden = false;
+      if (CM && $("#cm-b")) cmTab(CM.tab);
+      refreshSocialCounts();
+      t.closest(".toast") && t.closest(".toast").remove();
+      break;
+    }
   }
 });
 document.addEventListener("change", e => {
-  const s = e.target.closest(".tsel"); if (!s || !D) return;
+  const s = e.target.closest(".tsel"); if (!s || !D || !s.dataset.day) return;
   const d = D.hours[s.dataset.day], v = +s.value, h = s.dataset.h;
   if (h === "o") d.o = Math.min(v, d.c - 30); else if (h === "c") d.c = Math.max(v, d.o + 30);
   else if (h === "b0") d.b[0] = Math.min(v, d.b[1] - 30); else if (h === "b1") d.b[1] = Math.max(v, d.b[0] + 30);
@@ -1377,6 +2598,10 @@ document.addEventListener("change", e => {
   if (gap && d.b){ gap.style.left = pctOf(d.b[0]); gap.style.width = `calc(${pctOf(d.b[1])} - ${pctOf(d.b[0])})`; }
   setTimeout(() => redrawDay(s.dataset.day, false), 460);
 });
+document.addEventListener("input", e => {
+  const f = e.target.dataset && e.target.dataset.f;
+  if (f && D){ D.info[f] = e.target.value; const fld = e.target.closest(".fld"); if (fld && fld.classList.contains("err") && e.target.value.trim()){ fld.classList.remove("err"); $(".msg", fld) && $(".msg", fld).remove(); } }
+});
 $("#q").addEventListener("input", e => { S.q = e.target.value; renderRows(false); });
 $("#ask-q").addEventListener("input", e => { $("#ask-send").disabled = !e.target.value.trim(); });
 $("#ask-form").addEventListener("submit", e => {
@@ -1384,11 +2609,34 @@ $("#ask-form").addEventListener("submit", e => {
   $("#ask-q").value = ""; $("#ask-send").disabled = true; ask(classify(q), q);
 });
 $$(".seg [data-vendor]").forEach(b => b.addEventListener("click", () => setVendor(b.dataset.vendor)));
+const FOCUSABLE = 'button:not([disabled]),input:not([disabled]),textarea:not([disabled]),select:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])';
 document.addEventListener("keydown", e => {
+  /* menus: arrow keys move through the items */
+  if (POP && ["ArrowDown", "ArrowUp", "Home", "End"].includes(e.key)){
+    const items = $$("button", POP), i = items.indexOf(document.activeElement);
+    const n = e.key === "Home" ? 0 : e.key === "End" ? items.length - 1 : e.key === "ArrowDown" ? (i + 1) % items.length : (i - 1 + items.length) % items.length;
+    items[n] && items[n].focus(); e.preventDefault(); return;
+  }
+  /* dialogs and drawers keep focus inside while open */
+  if (e.key === "Tab"){
+    const r = $("#modal-root .scrim:not(.out) .modal") || $("#modal-root .dscrim:not(.out) .drawer");
+    if (!r) return;
+    const f = $$(FOCUSABLE, r).filter(el => el.offsetParent !== null);
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (!r.contains(document.activeElement)){ first.focus(); e.preventDefault(); }
+    else if (e.shiftKey && document.activeElement === first){ last.focus(); e.preventDefault(); }
+    else if (!e.shiftKey && document.activeElement === last){ first.focus(); e.preventDefault(); }
+    return;
+  }
   if (e.key !== "Escape") return;
-  if (POP) closePop(); else if ($("#modal-root .scrim")) { closeModal(); setTitle("Listings Management"); } else if ($("#modal-root .dscrim")) closeDrawer(); else if ($(".layer")) hideLayer(); else if (S.ai.open) aiOpen(false);
+  if (POP) closePop(true);
+  else if ($("#modal-root .scrim:not(.out)")) requestCloseModal();
+  else if ($("#modal-root .dscrim:not(.out)")) requestCloseDrawer();
+  else if ($(".layer")) hideLayer();
+  else if (S.ai.open){ aiOpen(false); $("#ask-btn").focus({preventScroll:true}); }
 });
-$("#main").addEventListener("scroll", closePop, {passive:true});
+$("#main").addEventListener("scroll", () => closePop(), {passive:true});
 
 /* -----------------------------------------------------------------
    Stage sizing, intro, boot
@@ -1406,6 +2654,7 @@ function fit(){
   box.style.top = Math.max(0, (H - lh * s) / 2) + "px";
   SCALE = s;
   closePop();
+  placeNav();
 }
 addEventListener("resize", fit);
 if ("ResizeObserver" in window) new ResizeObserver(() => fit()).observe($("#sc-main"));
@@ -1417,15 +2666,19 @@ function buildIntro(){
 function hideIntro(){
   $("#intro").classList.add("hide");
   const box = $("#stage-box"); box.classList.remove("rise-in"); void box.offsetWidth; box.classList.add("rise-in");
-  setTimeout(() => { S.compW = 0; S.healthW = 0; renderRows(true); renderProfile(false); renderSug(); }, 350);
+  setTimeout(() => { S.compW = 0; S.healthW = 0; renderRows(true); renderProfile(false); renderSug(); placeNav(); }, 350);
 }
 function restart(){
   EPOCH++;
-  closePop(); $("#modal-root").innerHTML = ""; $("#layer-root").innerHTML = ""; D = null;
-  S = freshState(); lastCounts = {};
-  $("#q").value = ""; $("#aip-b").innerHTML = ""; aiOpen(false);
+  closePop(); $("#modal-root").innerHTML = ""; $("#layer-root").innerHTML = ""; D = null; C = null; CM = null; LAST_FOCUS = null;
+  $$("#toasts .toast").forEach(t => t.remove());
+  S = freshState(); lastCounts = {}; lastP = {};
+  $("#q").value = ""; $("#aip-b").innerHTML = ""; $("#ask-q").value = ""; $("#ask-send").disabled = true; aiOpen(false);
+  $$(".side .nav-i[data-page]").forEach(b => { const on = b.dataset.page === "listings"; b.classList.toggle("on", on); on ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"); });
+  $("#page").hidden = false; $("#page-social").hidden = true; $("#page-social").innerHTML = "";
   $$(".seg [data-vendor]").forEach(b => b.setAttribute("aria-pressed", b.dataset.vendor === "A")); placeKnob();
-  renderAll(true); setTitle("Listings Management"); $("#main").scrollTop = 0;
+  refreshSocialCounts(); placeNav();
+  renderAll(true); setTitle(pageTitle()); $("#main").scrollTop = 0;
 }
 
 hydrateIcons();
@@ -1434,9 +2687,11 @@ S = freshState();
 renderAll(false);
 fit();
 placeKnob();
-if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeKnob);
+placeNav();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { placeKnob(); placeNav(); });
 
-/* Deep links for demos: #issue, #fix, #ai, #reply, #hours, #desc, #off, #vendor, #gilbert */
+/* Deep links for demos: #issue, #fix, #ai, #reply, #hours, #desc, #off, #vendor, #gilbert,
+   #social, #compose, #comments, #calendar */
 const hash = location.hash.replace("#", "");
 if (hash){
   $("#intro").classList.add("hide");
@@ -1444,12 +2699,16 @@ if (hash){
     if (hash === "issue") openIssue("apple");
     else if (hash === "fix"){ openIssue("apple"); setTimeout(() => aiFix("apple"), 200); }
     else if (hash === "ai") aiOpen(true);
-    else if (hash === "reply"){ aiOpen(true); setTimeout(() => ask("reply"), 400); }
+    else if (hash === "reply"){ aiOpen(true); setTimeout(() => ask("reply", "Draft a reply to my worst recent review"), 400); }
     else if (hash === "hours") openDrawer("hours");
     else if (hash === "desc") openDrawer("desc");
     else if (hash === "off") openOff("yelp", "disable");
     else if (hash === "vendor") setVendor("B");
     else if (hash === "gilbert"){ S.loc = "gilbert"; renderAll(false); }
+    else if (hash === "social") goPage("social");
+    else if (hash === "calendar"){ S.social.view = "cal"; goPage("social"); }
+    else if (hash === "compose"){ goPage("social"); setTimeout(() => openCompose(), 420); }
+    else if (hash === "comments"){ goPage("social"); setTimeout(() => openComments({draft:firstWaiting()}), 420); }
   }, 150);
 } else {
   setTimeout(() => { const b = $("#intro .sc-pill.primary"); b && b.focus({ preventScroll:true }); }, 600);
